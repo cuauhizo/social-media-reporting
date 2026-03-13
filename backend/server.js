@@ -1,12 +1,16 @@
 const express = require('express')
 const cors = require('cors')
+const { getSocialMetrics } = require('./hootsuiteService')
 const app = express()
 
 app.use(cors())
 
 // Endpoint maestro RESTful
-app.get('/api/reports/:periodId', (req, res) => {
+app.get('/api/reports/:periodId', async (req, res) => {
   // req.params.periodId podría ser "2026-02"
+
+  // 1. Intentamos traer datos reales de Hootsuite
+  const hootsuiteData = await getSocialMetrics()
 
   // Aquí en el futuro decidirás:
   // ¿Leo de MySQL? ¿Consulto Hootsuite? ¿Leo un Excel parseado?
@@ -182,9 +186,54 @@ app.get('/api/reports/:periodId', (req, res) => {
   }
 
   // Simulamos un retraso de red para ver el estado de "Carga" en Vue
-  setTimeout(() => {
-    res.json(fullReport)
-  }, 800)
+  // setTimeout(() => {
+  //   res.json(fullReport)
+  // }, 800)
+
+  // 3. Si Hootsuite nos respondió, reemplazamos los datos falsos con los reales
+  if (hootsuiteData) {
+    console.log('¡Datos reales obtenidos de Hootsuite!')
+    // Ejemplo: fullReport.facebook.kpis.followers = hootsuiteData.algun_campo_de_hootsuite;
+  } else {
+    console.log('Usando datos de respaldo (Esperando API Key de Hootsuite)...')
+  }
+  res.json(fullReport)
+  // console.log(fullReport)
+})
+
+// 1. Ruta para mandarte a iniciar sesión en Hootsuite
+app.get('/api/auth/login', (req, res) => {
+  const redirectUri = 'http://localhost:3000/api/auth/callback'
+  // Te enviamos a la ventana de login de Hootsuite
+  const authUrl = `https://platform.hootsuite.com/oauth2/auth?response_type=code&client_id=${process.env.HOOTSUITE_CLIENT_ID}&scope=offline&redirect_uri=${redirectUri}`
+  res.redirect(authUrl)
+})
+
+// 2. Ruta donde Hootsuite te regresa después de aceptar
+app.get('/api/auth/callback', async (req, res) => {
+  const code = req.query.code
+  const redirectUri = 'http://localhost:3000/api/auth/callback'
+  const credentials = Buffer.from(`${process.env.HOOTSUITE_CLIENT_ID}:${process.env.HOOTSUITE_CLIENT_SECRET}`).toString('base64')
+
+  try {
+    const response = await axios.post('https://platform.hootsuite.com/oauth2/token', `grant_type=authorization_code&code=${code}&redirect_uri=${redirectUri}`, {
+      headers: {
+        Authorization: `Basic ${credentials}`,
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    })
+
+    // ¡ESTE ES EL TOKEN DE USUARIO QUE NECESITAMOS!
+    const userToken = response.data.access_token
+    console.log('=========================================')
+    console.log('¡ÉXITO! TU TOKEN DE USUARIO ES:')
+    console.log(userToken)
+    console.log('=========================================')
+
+    res.send('¡Autorización exitosa! Revisa tu terminal en VS Code para copiar tu Token. Ya puedes cerrar esta ventana.')
+  } catch (error) {
+    res.send('Error en la autorización: ' + (error.response?.data?.errors[0]?.message || error.message))
+  }
 })
 
 app.listen(3000, () => console.log('Backend centralizado en puerto 3000'))
