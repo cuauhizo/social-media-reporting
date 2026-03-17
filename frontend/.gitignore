@@ -17,6 +17,8 @@ coverage
 # copys
 *_copy.*
 *_old.*
+*-copy.*
+*-old.*
 
 
 # Editor directories and files

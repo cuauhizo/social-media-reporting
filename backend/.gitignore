@@ -14,6 +14,8 @@ yarn-error.log*
 # copys
 *_copy.*
 *_old.*
+*-copy.*
+*-old.*
 
 # Logs
 logs
