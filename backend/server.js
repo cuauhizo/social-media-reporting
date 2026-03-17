@@ -1,20 +1,19 @@
 const express = require('express')
+const axios = require('axios')
 const cors = require('cors')
 const { getSocialMetrics } = require('./hootsuiteService')
-const app = express()
 
+const app = express()
 app.use(cors())
 
-// Endpoint maestro RESTful
+// ==========================================
+// RUTA MAESTRA: El frontend pide los datos aquí
+// ==========================================
 app.get('/api/reports/:periodId', async (req, res) => {
-  // req.params.periodId podría ser "2026-02"
-
-  // 1. Intentamos traer datos reales de Hootsuite
+  // 1. Intentamos traer datos reales de Hootsuite (Los nombres de Pluxee)
   const hootsuiteData = await getSocialMetrics()
 
-  // Aquí en el futuro decidirás:
-  // ¿Leo de MySQL? ¿Consulto Hootsuite? ¿Leo un Excel parseado?
-
+  // 2. Preparamos el reporte completo con la estructura que Vue espera
   const fullReport = {
     metadata: {
       client: 'Pluxee',
@@ -32,6 +31,10 @@ app.get('/api/reports/:periodId', async (req, res) => {
       ],
     },
     facebook: {
+      // AQUÍ INYECTAMOS EL NOMBRE REAL DE HOOTSUITE (si existe), si no, usamos el de prueba
+      username: hootsuiteData ? hootsuiteData.facebook.username : 'Pluxee FB',
+      avatar: hootsuiteData ? hootsuiteData.facebook.avatar : '',
+
       kpis: {
         month: 'February 2026',
         followers: 3855,
@@ -43,133 +46,66 @@ app.get('/api/reports/:periodId', async (req, res) => {
           negative: '23.13%',
         },
       },
-      topPosts: [
-        {
-          id: 1,
-          type: 'IMAGE',
-          reach: 860,
-          interactions: 37,
-          saved: 1,
-          img: 'https://placehold.co/300x400/ac2d72/ffffff?text=Pizza+Post',
-        },
-        {
-          id: 2,
-          type: 'CAROUSEL',
-          reach: 482,
-          interactions: 22,
-          saved: 0,
-          img: 'https://placehold.co/300x400/9835fc/ffffff?text=Promo+Post',
-        },
-        {
-          id: 3,
-          type: 'IMAGE',
-          reach: 473,
-          interactions: 16,
-          saved: 1,
-          img: 'https://placehold.co/300x400/002d23/ffffff?text=Team+Post',
-        },
-      ],
+      topPosts:
+        hootsuiteData && hootsuiteData.facebook.realPosts && hootsuiteData.facebook.realPosts.length > 0
+          ? hootsuiteData.facebook.realPosts.map(post => {
+              // 1. Buscamos si tiene imagen real, si no, ponemos placeholder
+              const imageUrl = post.mediaUrls && post.mediaUrls.length > 0 ? post.mediaUrls[0].thumbnailUrl : 'https://placehold.co/300x400/cccccc/ffffff?text=Sin+Imagen'
+
+              // 2. Adivinamos el tipo de post leyendo su URL
+              let postType = 'IMAGE'
+              if (post.postUrl && post.postUrl.includes('reel')) postType = 'REEL'
+              else if (post.mediaUrls && post.mediaUrls[0] && post.mediaUrls[0].url.includes('.mp4')) postType = 'VIDEO'
+
+              return {
+                id: post.id,
+                type: postType,
+                // Ponemos números de prueba porque la API estándar no da métricas
+                reach: Math.floor(Math.random() * 1000) + 200,
+                interactions: Math.floor(Math.random() * 100) + 10,
+                saved: 0,
+                img: imageUrl,
+              }
+            })
+          : // Si falla Hootsuite, caemos en los datos de respaldo
+            [
+              { id: 1, type: 'IMAGE', reach: 860, interactions: 37, saved: 1, img: 'https://placehold.co/300x400/ac2d72/ffffff?text=Pizza+Post' },
+              { id: 2, type: 'CAROUSEL', reach: 482, interactions: 22, saved: 0, img: 'https://placehold.co/300x400/9835fc/ffffff?text=Promo+Post' },
+              { id: 3, type: 'IMAGE', reach: 473, interactions: 16, saved: 1, img: 'https://placehold.co/300x400/002d23/ffffff?text=Team+Post' },
+            ],
     },
     instagram: {
+      // AQUÍ INYECTAMOS EL NOMBRE REAL DE HOOTSUITE (si existe), si no, usamos el de prueba
+      username: hootsuiteData ? hootsuiteData.instagram.username : 'Pluxee IG',
+      avatar: hootsuiteData ? hootsuiteData.instagram.avatar : '',
+
       kpis: {
         followers: 2677,
         new_followers: '+58',
         engagement_rate: '19.01%',
-        stories_metrics: {
-          total: 18,
-          forward: '1,000',
-          back: 71,
-          exit: 310,
-        },
+        stories_metrics: { total: 18, forward: '1,000', back: 71, exit: 310 },
       },
       topPosts: [
-        {
-          id: 'ig_p1',
-          type: 'CAROUSEL',
-          views: 771,
-          interactions: 348,
-          saved: 1,
-          img: 'https://placehold.co/300x400/e1306c/ffffff?text=IG+Post+1',
-        },
-        {
-          id: 'ig_p2',
-          type: 'CAROUSEL',
-          views: 733,
-          interactions: 32,
-          saved: 1,
-          img: 'https://placehold.co/300x400/e1306c/ffffff?text=IG+Post+2',
-        },
+        { id: 'ig_p1', type: 'CAROUSEL', views: 771, interactions: 348, saved: 1, img: 'https://placehold.co/300x400/e1306c/ffffff?text=IG+Post+1' },
+        { id: 'ig_p2', type: 'CAROUSEL', views: 733, interactions: 32, saved: 1, img: 'https://placehold.co/300x400/e1306c/ffffff?text=IG+Post+2' },
       ],
       topStories: [
-        {
-          id: 'ig_s1',
-          type: 'STORY',
-          views: 418,
-          interactions: 5,
-          shares: 0,
-          img: 'https://placehold.co/300x533/f56040/ffffff?text=IG+Story+1',
-        },
-        {
-          id: 'ig_s2',
-          type: 'STORY',
-          views: 368,
-          interactions: 2,
-          shares: 0,
-          img: 'https://placehold.co/300x533/f56040/ffffff?text=IG+Story+2',
-        },
+        { id: 'ig_s1', type: 'STORY', views: 418, interactions: 5, shares: 0, img: 'https://placehold.co/300x533/f56040/ffffff?text=IG+Story+1' },
+        { id: 'ig_s2', type: 'STORY', views: 368, interactions: 2, shares: 0, img: 'https://placehold.co/300x533/f56040/ffffff?text=IG+Story+2' },
       ],
     },
     benchmarking: [
-      {
-        id: 1,
-        name: 'Si Vale',
-        description: 'Una empresa líder en soluciones en tarjetas...',
-        followers: '217.3 mil',
-        following: '1209',
-        posts: 10,
-      },
-      {
-        id: 2,
-        name: 'Edenred México',
-        description: 'Somos líderes a nivel mundial en soluciones de pago...',
-        followers: '212.8 mil',
-        following: '1529',
-        posts: 3,
-      },
-      {
-        id: 3,
-        name: 'Toka',
-        description: 'En Toka creemos en el constante cambio...',
-        followers: '74.2 mil',
-        following: '76',
-        posts: 10,
-      },
-      {
-        id: 4,
-        name: 'Efectivale',
-        description: 'Fundada en 1989 en la CDMX, ofrece soluciones...',
-        followers: '13.6 mil',
-        following: '157',
-        posts: 12,
-      },
-      {
-        id: 5,
-        name: 'Pluxee.MX',
-        description: 'Servicio financiero',
-        followers: '3.9 mil',
-        following: '135',
-        posts: 25,
-        isClient: true,
-      },
+      { id: 1, name: 'Si Vale', description: 'Una empresa líder en soluciones en tarjetas...', followers: '217.3 mil', following: '1209', posts: 10 },
+      { id: 2, name: 'Edenred México', description: 'Somos líderes a nivel mundial en soluciones de pago...', followers: '212.8 mil', following: '1529', posts: 3 },
+      { id: 3, name: 'Toka', description: 'En Toka creemos en el constante cambio...', followers: '74.2 mil', following: '76', posts: 10 },
+      { id: 4, name: 'Efectivale', description: 'Fundada en 1989 en la CDMX, ofrece soluciones...', followers: '13.6 mil', following: '157', posts: 12 },
+      { id: 5, name: 'Pluxee.MX', description: 'Servicio financiero', followers: '3.9 mil', following: '135', posts: 25, isClient: true },
     ],
     customerService: {
       messages: {
         total: 84,
         escalated: 31,
-        breakdown: {
-          facebook: { count: 63, percentage: 75.0 },
-          instagram: { count: 21, percentage: 25.0 },
-        },
+        breakdown: { facebook: { count: 63, percentage: 75.0 }, instagram: { count: 21, percentage: 25.0 } },
       },
       complaints: [
         { id: 1, topic: 'RFC Duplicado' },
@@ -185,31 +121,26 @@ app.get('/api/reports/:periodId', async (req, res) => {
     },
   }
 
-  // Simulamos un retraso de red para ver el estado de "Carga" en Vue
-  // setTimeout(() => {
-  //   res.json(fullReport)
-  // }, 800)
-
-  // 3. Si Hootsuite nos respondió, reemplazamos los datos falsos con los reales
   if (hootsuiteData) {
-    console.log('¡Datos reales obtenidos de Hootsuite!')
-    // Ejemplo: fullReport.facebook.kpis.followers = hootsuiteData.algun_campo_de_hootsuite;
+    console.log('¡Datos reales obtenidos de Hootsuite y listos para enviar al frontend!')
   } else {
-    console.log('Usando datos de respaldo (Esperando API Key de Hootsuite)...')
+    console.log('Usando datos de respaldo al 100%...')
   }
+
+  // 3. Enviamos el reporte completo al frontend
   res.json(fullReport)
-  // console.log(fullReport)
 })
 
-// 1. Ruta para mandarte a iniciar sesión en Hootsuite
+// ==========================================
+// RUTAS DE AUTENTICACIÓN OAUTH 2.0
+// ==========================================
+
 app.get('/api/auth/login', (req, res) => {
   const redirectUri = 'http://localhost:3000/api/auth/callback'
-  // Te enviamos a la ventana de login de Hootsuite
   const authUrl = `https://platform.hootsuite.com/oauth2/auth?response_type=code&client_id=${process.env.HOOTSUITE_CLIENT_ID}&scope=offline&redirect_uri=${redirectUri}`
   res.redirect(authUrl)
 })
 
-// 2. Ruta donde Hootsuite te regresa después de aceptar
 app.get('/api/auth/callback', async (req, res) => {
   const code = req.query.code
   const redirectUri = 'http://localhost:3000/api/auth/callback'
@@ -223,10 +154,9 @@ app.get('/api/auth/callback', async (req, res) => {
       },
     })
 
-    // ¡ESTE ES EL TOKEN DE USUARIO QUE NECESITAMOS!
     const userToken = response.data.access_token
     console.log('=========================================')
-    console.log('¡ÉXITO! TU TOKEN DE USUARIO ES:')
+    console.log('¡ÉXITO! TU NUEVO TOKEN DE USUARIO ES:')
     console.log(userToken)
     console.log('=========================================')
 
@@ -236,4 +166,5 @@ app.get('/api/auth/callback', async (req, res) => {
   }
 })
 
-app.listen(3000, () => console.log('Backend centralizado en puerto 3000'))
+// Iniciamos el servidor
+app.listen(3000, () => console.log('Backend centralizado corriendo en el puerto 3000'))

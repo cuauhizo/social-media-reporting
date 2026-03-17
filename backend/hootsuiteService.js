@@ -3,54 +3,74 @@ require('dotenv').config()
 
 const HOOTSUITE_API_URL = 'https://platform.hootsuite.com/v1'
 
-// 1. Función para obtener el Token de acceso
-async function getAccessToken() {
-  try {
-    // Hootsuite usa OAuth 2.0. Codificamos las credenciales en Base64
-    const credentials = Buffer.from(`${process.env.HOOTSUITE_CLIENT_ID}:${process.env.HOOTSUITE_CLIENT_SECRET}`).toString('base64')
-
-    const response = await axios.post(
-      'https://platform.hootsuite.com/oauth2/token',
-      'grant_type=client_credentials', // El tipo de permiso para servidores
-      {
-        headers: {
-          Authorization: `Basic ${credentials}`,
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-      },
-    )
-    return response.data.access_token
-  } catch (error) {
-    console.error('Error obteniendo el token de Hootsuite:', error.message)
-    return null
-  }
-}
-
-// 2. Función para obtener métricas reales de tus perfiles
 async function getSocialMetrics() {
-  const token = await getAccessToken()
+  const token = process.env.HOOTSUITE_USER_TOKEN
+  const fbId = process.env.PLUXEE_FB_ID
+  const igId = process.env.PLUXEE_IG_ID
 
-  if (!token) {
-    // Si no hay token (porque aún no tienes las llaves), devolvemos null
+  // Si falta algún dato del .env, detenemos la función
+  if (!token || !fbId || !igId) {
+    console.log('Faltan credenciales o IDs en el archivo .env')
     return null
   }
 
   try {
-    // Ejemplo: Pidiendo la lista de perfiles sociales conectados
-    const response = await axios.get(`${HOOTSUITE_API_URL}/socialProfiles`, {
+    console.log('=========================================')
+    console.log('🎯 OBTENIENDO PERFILES Y POSTS DE PLUXEE...')
+
+    // 1. Pedimos los datos exactos del Facebook de Pluxee
+    const fbResponse = await axios.get(`${HOOTSUITE_API_URL}/socialProfiles/${fbId}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
 
-    // Aquí procesarías los datos de Hootsuite para que encajen en tu reporte
-    return response.data
-  } catch (error) {
-    console.error('Error consultando la API de Hootsuite:', error.message)
+    console.log(`fbResponse: ${JSON.stringify(fbResponse.data)}`)
+    console.log('=========================================')
 
-    // Agregamos esta validación para ver el JSON real del error que manda Hootsuite
-    if (error.response) {
-      console.error('Detalle de Hootsuite:', error.response.data)
+    // 2. Pedimos los datos exactos del Instagram de Pluxee
+    const igResponse = await axios.get(`${HOOTSUITE_API_URL}/socialProfiles/${igId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+
+    // 2. Calculamos las fechas para pedir los posts de los últimos 30 días
+    // const endTime = new Date().toISOString() // Hoy
+    // const startTime = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString() // Hace 30 días
+
+    const startTime = new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1).toISOString()
+    const endTime = new Date(new Date().getFullYear(), new Date().getMonth(), 0).toISOString()
+
+    // 3. Le pedimos a Hootsuite los posts de Facebook publicados (state=SENT)
+    console.log('Buscando posts de Facebook de los últimos 30 días...')
+    const fbPostsResponse = await axios.get(`${HOOTSUITE_API_URL}/messages?socialProfileIds=${fbId}&startTime=${startTime}&endTime=${endTime}&state=SENT`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+
+    const fbPosts = fbPostsResponse.data.data
+    console.log(`✅ ¡Encontré ${fbPosts.length} posts publicados en Facebook!`)
+    console.log('=========================================')
+
+    // AGREGA ESTA LÍNEA PARA INSPECCIONAR EL PRIMER POST:
+    console.log('👀 Estructura del primer post:', JSON.stringify(fbPosts[0], null, 2))
+    console.log('=========================================')
+
+    const igData = igResponse.data.data
+
+    // 3. Empaquetamos los datos reales para mandarlos a tu Frontend (Vue)
+    // NOTA: Aquí es donde "traducimos" el idioma de Hootsuite al idioma de tu Dashboard
+    return {
+      facebook: {
+        // Aquí pondremos las métricas reales
+        username: fbResponse.data.data.socialNetworkUsername,
+        avatar: fbResponse.data.data.avatarUrl,
+        realPosts: fbPosts,
+      },
+      instagram: {
+        username: igData.socialNetworkUsername,
+        avatar: igData.avatarUrl,
+        realPosts: [],
+      },
     }
-
+  } catch (error) {
+    console.error('Error consultando los perfiles de Pluxee:', error.response?.data || error.message)
     return null
   }
 }

@@ -3,6 +3,8 @@
     <div class="max-w-7xl mx-auto min-h-screen">
       <!-- <pre>{{ data }}</pre> -->
       <h1 class="text-2xl font-bold text-blue-900 mb-6">Social Media Report - {{ data.kpis.month }}</h1>
+      <h2>{{ data.username }} Metrics</h2>
+      <img :src="data.avatar" :alt="data.username" />
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-yellow-400">
