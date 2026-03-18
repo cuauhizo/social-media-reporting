@@ -1,6 +1,6 @@
 <template>
   <div class="bg-white p-6 rounded-xl shadow-md w-full max-w-md">
-    <h3 class="text-[#002d72] font-bold mb-4">Sentiment Analysis</h3>
+    <h3 class="text-pluxeeBlue font-bold mb-4">Sentiment Analysis</h3>
     <Doughnut :data="chartData" :options="chartOptions" />
   </div>
 </template>

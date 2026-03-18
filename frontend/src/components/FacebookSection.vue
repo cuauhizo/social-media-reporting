@@ -26,7 +26,7 @@
   </div>
   <div class="p-10 bg-gray-50">
     <div class="max-w-7xl mx-auto min-h-screen">
-      <h2 class="text-2xl font-black text-[#002d72] mb-2 uppercase">Post Metrics</h2>
+      <h2 class="text-2xl font-black text-pluxeeBlue mb-2 uppercase">Post Metrics</h2>
       <p class="text-sm text-gray-600 mb-8 font-bold">Ordenados de mayor a menor alcance en Facebook</p>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">

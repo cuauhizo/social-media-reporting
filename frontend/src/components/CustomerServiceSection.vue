@@ -1,16 +1,16 @@
 <template>
   <div class="py-12 px-8 bg-gray-50">
     <div class="max-w-7xl mx-auto min-h-screen">
-      <h2 class="text-3xl font-black text-[#002d72] mb-8 uppercase">Customer Service & Complains</h2>
+      <h2 class="text-3xl font-black text-pluxeeBlue mb-8 uppercase">Customer Service & Complains</h2>
       <!-- <pre>{{ data }}</pre> -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div class="bg-white p-6 rounded-xl shadow-md border-t-4 border-[#002d72]">
+        <div class="bg-white p-6 rounded-xl shadow-md border-t-4 border-pluxeeBlue">
           <h3 class="text-xl font-bold text-gray-800 mb-4">Origen de Mensajes</h3>
           <div class="flex items-center justify-center mb-6 h-64">
             <Pie :data="chartData" :options="chartOptions" />
           </div>
 
-          <div class="bg-blue-50 p-4 rounded-lg text-[#002d72] font-medium space-y-2">
+          <div class="bg-blue-50 p-4 rounded-lg text-pluxeeBlue font-medium space-y-2">
             <p>
               📩 Se recibieron
               <strong>{{ data.messages.total }} mensajes</strong>
@@ -30,7 +30,7 @@
 
           <ul class="space-y-3">
             <li v-for="complaint in data.complaints" :key="complaint.id" class="flex items-center bg-gray-50 p-3 rounded-lg border border-gray-100">
-              <div class="w-8 h-8 rounded-full bg-[#002d72] text-white flex justify-center items-center font-bold mr-4">
+              <div class="w-8 h-8 rounded-full bg-pluxeeBlue text-white flex justify-center items-center font-bold mr-4">
                 {{ complaint.id }}
               </div>
               <span class="text-gray-700 font-medium text-lg">{{ complaint.topic }}</span>

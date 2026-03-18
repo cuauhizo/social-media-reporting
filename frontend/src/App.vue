@@ -29,7 +29,7 @@
 
 <template>
   <div class="font-sans text-gray-800 bg-gray-50 min-h-screen">
-    <div v-if="loading" class="flex h-screen items-center justify-center bg-[#002d72] text-white">
+    <div v-if="loading" class="flex h-screen items-center justify-center bg-pluxeeGreen text-white">
       <div class="text-2xl font-black animate-pulse uppercase tracking-widest">Generando Reporte Pluxee...</div>
     </div>
 
