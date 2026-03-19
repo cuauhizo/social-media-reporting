@@ -99,3 +99,5 @@ ehthumbs.db
 *.swp
 *.swo
 *~
+
+data/*

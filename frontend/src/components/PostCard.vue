@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col w-full max-w-60 shadow-lg">
+  <div class="flex flex-col w-full max-w-60 shadow-lg mx-auto">
     <div class="bg-pluxeeBlue p-4 flex justify-center items-center h-64">
       <img :src="post.img" class="object-contain h-full w-full border border-gray-400" />
     </div>
@@ -20,6 +20,9 @@
         <p>
           <strong>Shared o saved:</strong>
           {{ post.saved }}
+        </p>
+        <p class="text-end">
+          <a :href="post.postPermalink" target="_blank"><strong>Ver en línea</strong></a>
         </p>
       </div>
     </div>

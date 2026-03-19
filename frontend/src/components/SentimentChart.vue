@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white p-6 rounded-xl shadow-md w-full max-w-md">
+  <div class="bg-white p-6 rounded-xl shadow-md w-full max-w-md mx-auto">
     <h3 class="text-pluxeeBlue font-bold mb-4">Sentiment Analysis</h3>
     <Doughnut :data="chartData" :options="chartOptions" />
   </div>
@@ -15,7 +15,7 @@
     labels: ['Neutral', 'Positive', 'Negative'],
     datasets: [
       {
-        backgroundColor: ['#cbd5e1', '#22c55e', '#ef4444'],
+        backgroundColor: ['#ff9300', '#9bbb59', '#ff2600'],
         data: [61.92, 15.95, 23.13], // Datos del reporte PDF [cite: 43, 45, 46]
       },
     ],

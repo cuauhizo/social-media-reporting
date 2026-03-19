@@ -10,21 +10,21 @@ async function getSocialMetrics() {
 
   // Si falta algún dato del .env, detenemos la función
   if (!token || !fbId || !igId) {
-    console.log('Faltan credenciales o IDs en el archivo .env')
+    // console.log('Faltan credenciales o IDs en el archivo .env')
     return null
   }
 
   try {
-    console.log('=========================================')
-    console.log('🎯 OBTENIENDO PERFILES Y POSTS DE PLUXEE...')
+    // console.log('=========================================')
+    // console.log('🎯 OBTENIENDO PERFILES Y POSTS DE PLUXEE...')
 
     // 1. Pedimos los datos exactos del Facebook de Pluxee
     const fbResponse = await axios.get(`${HOOTSUITE_API_URL}/socialProfiles/${fbId}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
 
-    console.log(`fbResponse: ${JSON.stringify(fbResponse.data)}`)
-    console.log('=========================================')
+    // console.log(`fbResponse: ${JSON.stringify(fbResponse.data)}`)
+    // console.log('=========================================')
 
     // 2. Pedimos los datos exactos del Instagram de Pluxee
     const igResponse = await axios.get(`${HOOTSUITE_API_URL}/socialProfiles/${igId}`, {
@@ -39,18 +39,18 @@ async function getSocialMetrics() {
     const endTime = new Date(new Date().getFullYear(), new Date().getMonth(), 0).toISOString()
 
     // 3. Le pedimos a Hootsuite los posts de Facebook publicados (state=SENT)
-    console.log('Buscando posts de Facebook de los últimos 30 días...')
+    // console.log('Buscando posts de Facebook de los últimos 30 días...')
     const fbPostsResponse = await axios.get(`${HOOTSUITE_API_URL}/messages?socialProfileIds=${fbId}&startTime=${startTime}&endTime=${endTime}&state=SENT`, {
       headers: { Authorization: `Bearer ${token}` },
     })
 
     const fbPosts = fbPostsResponse.data.data
-    console.log(`✅ ¡Encontré ${fbPosts.length} posts publicados en Facebook!`)
-    console.log('=========================================')
+    // console.log(`✅ ¡Encontré ${fbPosts.length} posts publicados en Facebook!`)
+    // console.log('=========================================')
 
     // AGREGA ESTA LÍNEA PARA INSPECCIONAR EL PRIMER POST:
-    console.log('👀 Estructura del primer post:', JSON.stringify(fbPosts[0], null, 2))
-    console.log('=========================================')
+    // console.log('👀 Estructura del primer post:', JSON.stringify(fbPosts[0], null, 2))
+    // console.log('=========================================')
 
     const igData = igResponse.data.data
 
