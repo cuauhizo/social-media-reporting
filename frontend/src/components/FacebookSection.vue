@@ -1,7 +1,10 @@
 <template>
+  <div class="w-full h-32 bg-[#1877F2] flex items-center justify-center shadow-inner">
+    <h2 class="text-4xl font-black text-white tracking-widest uppercase">Facebook Metrics {{ data.username }}</h2>
+  </div>
   <div class="p-8 bg-gray-100">
     <div class="max-w-7xl mx-auto min-h-screen">
-      <!-- <pre>{{ data.kpis }}</pre> -->
+      <!-- <pre>{{ data }}</pre> -->
       <h1 class="text-2xl font-bold text-blue-900 mb-6">Social Media Report - {{ data.kpis.month }}</h1>
 
       <div class="grid grid-cols-12 gap-4">
@@ -52,9 +55,32 @@
               <h2 class="text-3xl font-bold text-blue-900">{{ formatNumber(data.kpis.page_followers_views) }}</h2>
             </div>
           </div>
+          <div class="grid grid-cols-1 gap-8 mt-4">
+            <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-pluxeeGreen">
+              <table class="w-full text-left">
+                <thead>
+                  <tr class="text-gray-400 text-sm border-b border-gray-100">
+                    <th class="pb-1.5 font-medium w-8 text-center">#</th>
+                    <th class="pb-1.5 font-medium">City</th>
+                    <th class="pb-1.5 font-medium text-right">Followers</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- <tr v-for="(city, index) in data.topCities.slice(0, 5)" :key="index" class="border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors"> -->
+                  <tr v-for="(city, index) in data.topCities" :key="index" class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                    <td class="py-2 text-gray-400 font-medium text-center text-sm">{{ index + 1 }}</td>
+                    <td class="py-2 pr-2">
+                      <div class="text-sm text-gray-700">{{ city.name }}</div>
+                    </td>
+                    <td class="py-2 text-right text-pluxeeBlue">{{ formatNumber(city.followers) }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
         <div class="col-span-12 xl:col-span-3">
-          <SentimentChart />
+          <SentimentChart :sentimentData="data.kpis.sentiment" />
         </div>
       </div>
     </div>

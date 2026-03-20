@@ -1,15 +1,9 @@
 <template>
   <div class="bg-white">
     <div class="w-full h-32 bg-linear-to-r from-[#833ab4] via-[#fd1d1d] to-[#fcb045] flex items-center justify-center shadow-inner">
-      <h2 class="text-4xl font-black text-white tracking-widest uppercase shadow-sm">Instagram Metrics</h2>
+      <h2 class="text-4xl font-black text-white tracking-widest uppercase">Instagram Metrics {{ data.username }}</h2>
     </div>
-    <div>
-      <!-- <pre>{{ data }}</pre> -->
-    </div>
-    <div>
-      <h2>{{ data.username }} Metrics</h2>
-      <img :src="data.avatar" :alt="data.username" />
-    </div>
+    <!-- <pre>{{ data }}</pre> -->
     <div class="py-12 px-8 max-w-7xl mx-auto">
       <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
         <div class="bg-gray-50 p-6 rounded-xl border-l-4 border-[#e1306c] shadow-sm">

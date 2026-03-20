@@ -90,17 +90,17 @@ app.get('/api/reports/:periodId', async (req, res) => {
           post_engagement_rate: kpisFbReales ? `${kpisFbReales.post_engagement_rate}%` : '5.62%',
           post_impressions: kpisFbReales ? kpisFbReales.post_impressions : 2100,
           response_time: kpisFbReales ? kpisFbReales.time_visualization : 0,
-          // page_organic_reach: kpisManuales.fb_page_organic_reach || 1200,
           page_organic_reach: kpisFbReales ? kpisFbReales.page_organic_reach : 1200,
           page_no_followers_views: kpisFbReales ? kpisFbReales.page_no_followers_views : 300,
           page_followers_views: kpisFbReales ? kpisFbReales.page_followers_views : 900,
           reach: kpisManuales.fb_reach || 1801,
           sentiment: {
-            neutral: `${kpisManuales.sentiment_neutral || 61.92}%`,
-            positive: `${kpisManuales.sentiment_positive || 15.95}%`,
-            negative: `${kpisManuales.sentiment_negative || 23.13}%`,
+            neutral: kpisManuales.sentiment_neutral || 61.92,
+            positive: kpisManuales.sentiment_positive || 15.95,
+            negative: kpisManuales.sentiment_negative || 23.13,
           },
         },
+        topCities: kpisFbReales && kpisFbReales.topCities ? kpisFbReales.topCities : [],
         // AQUI INYECTAMOS LOS POSTS FUSIONADOS
         topPosts:
           topPostsFinales.length > 0
@@ -120,6 +120,7 @@ app.get('/api/reports/:periodId', async (req, res) => {
           engagement_rate: `${kpisManuales.ig_engagement || 19.01}%`,
           stories_metrics: { total: 18, forward: '1,000', back: 71, exit: 310 },
         },
+        topCities: kpisFbReales && kpisFbReales.topCities ? kpisFbReales.topCities : [],
         topPosts: [
           { id: 'ig_p1', type: 'CAROUSEL', views: 771, interactions: 348, saved: 1, img: 'https://placehold.co/300x400/e1306c/ffffff?text=IG+Post+1' },
           { id: 'ig_p2', type: 'CAROUSEL', views: 733, interactions: 32, saved: 1, img: 'https://placehold.co/300x400/e1306c/ffffff?text=IG+Post+2' },

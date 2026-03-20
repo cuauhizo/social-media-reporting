@@ -99,20 +99,61 @@ function leerKpisFacebookHootsuite() {
 
         // Solo guardamos si la fila tiene datos (ignoramos los días vacíos)
         if (keyFollowers && row[keyFollowers]) {
+          // 1. Extraemos las columnas de las ciudades
+          const cityKeys = keys.filter(k => k.includes('Seguidores de la página > Ciudad'))
+
+          const topCities = cityKeys
+            .map(k => {
+              let cityName = 'Desconocida'
+
+              // 1. Identificamos si es la columna "Other"
+              if (k.includes('Other')) {
+                cityName = 'Other'
+              } else {
+                // Extraemos la parte después de "Ciudad - " y antes del primer "("
+                // Ej: "Monterrey, Nuevo León, Mexico "
+                const rawName = k.split('Ciudad - ')[1]?.split(' (')[0] || ''
+                const parts = rawName.split(',')
+
+                // 2. Tomamos solo la Ciudad y el Estado (las primeras 2 partes separadas por coma)
+                if (parts.length >= 2) {
+                  cityName = `${parts[0].trim()}, ${parts[1].trim()}`
+                } else {
+                  // Respaldo por si viene sin comas
+                  cityName = rawName.trim()
+                }
+              }
+
+              return {
+                name: cityName,
+                followers: parseFloat(row[k]) || 0,
+              }
+            })
+            .filter(c => c.followers > 0)
+
+            // 3. ORDENAMIENTO INTELIGENTE
+            .sort((a, b) => {
+              // Si "a" es Other, lo mandamos al fondo (retorna 1)
+              if (a.name === 'Other') return 1
+              // Si "b" es Other, lo mandamos al fondo (retorna -1)
+              if (b.name === 'Other') return -1
+              // Para el resto, ordenamos de mayor a menor número de seguidores
+              return b.followers - a.followers
+            })
+
           kpisMensuales = {
             followers: parseFloat(row[keyFollowers]),
             reach: parseFloat(row[keyReach]),
             post_impressions: parseFloat(row[keyImpressions]),
-            // Si el engagement viene como 7.51, lo dejamos así
             post_engagement_rate: parseFloat(row[keyEngagement]),
             clics: parseFloat(row[keyClics]),
             shares: parseFloat(row[keyShares]),
             comments: parseFloat(row[keyComments]),
-            // time_visualization: parseFloat(row[keyTimeVisualization]),
             time_visualization: row[keyTimeVisualization],
             page_organic_reach: parseFloat(row[keyPageOrganicReach]),
             page_no_followers_views: parseFloat(row[keyNoFollowersViews]),
             page_followers_views: parseFloat(row[keyFollowersViews]),
+            topCities: topCities,
           }
         }
       })
