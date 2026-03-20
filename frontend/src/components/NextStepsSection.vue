@@ -33,10 +33,10 @@
     </div>
   </div>
 
-  <div class="flex justify-center bg-pluxeeBlue text-white py-12 text-center min-h-screen">
+  <div class="flex justify-center bg-tolkoRed text-white py-12 text-center min-h-screen">
     <div class="content-center items-center text-center">
       <h2 class="text-5xl font-black mb-4 uppercase">Thank You!</h2>
-      <p class="font-mono text-pluxeeYellow">TOLKO</p>
+      <p class="font-mono">TOLKO</p>
     </div>
   </div>
 </template>
