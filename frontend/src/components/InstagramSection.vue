@@ -8,32 +8,64 @@
       <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
         <div class="bg-gray-50 p-6 rounded-xl border-l-4 border-[#e1306c] shadow-sm">
           <p class="text-gray-500 text-sm font-bold">Followers</p>
-          <h2 class="text-3xl font-black text-pluxeeBlue">{{ data.kpis.followers }}</h2>
-          <p class="text-sm text-green-600 font-medium">{{ data.kpis.new_followers }} new vs Jan</p>
+          <h2 class="text-3xl font-black text-pluxeeBlue">{{ formatNumber(data.kpis.followers) }}</h2>
         </div>
         <div class="bg-gray-50 p-6 rounded-xl border-l-4 border-[#e1306c] shadow-sm">
           <p class="text-gray-500 text-sm font-bold">Page Engagement</p>
-          <h2 class="text-3xl font-black text-pluxeeBlue">{{ data.kpis.engagement_rate }}</h2>
+          <h2 class="text-3xl font-black text-pluxeeBlue">{{ data.kpis.page_engagement_rate }}</h2>
         </div>
         <div class="bg-gray-50 p-6 rounded-xl border-l-4 border-[#f56040] shadow-sm md:col-span-2 flex justify-between items-center">
           <div>
             <p class="text-gray-500 text-sm font-bold">Total Stories</p>
-            <h2 class="text-3xl font-black text-pluxeeBlue">{{ data.kpis.stories_metrics.total }}</h2>
+            <h2 class="text-3xl font-black text-pluxeeBlue">{{ formatNumber(data.kpis.stories_metrics.total) }}</h2>
+            <!-- <h2 class="text-3xl font-black text-pluxeeBlue">{{ formatNumber(data.kpis.posts_total) }}</h2> -->
           </div>
           <div class="text-sm text-gray-700 space-y-1 text-right">
             <p>
-              <strong>Forward:</strong>
-              {{ data.kpis.stories_metrics.forward }}
+              <strong>Story taps forward:</strong>
+              {{ formatNumber(data.kpis.stories_metrics.forward) }}
             </p>
             <p>
-              <strong>Taps back:</strong>
-              {{ data.kpis.stories_metrics.back }}
+              <strong>Story taps back:</strong>
+              {{ formatNumber(data.kpis.stories_metrics.back) }}
             </p>
             <p>
-              <strong>Exit:</strong>
-              {{ data.kpis.stories_metrics.exit }}
+              <strong>Story exit:</strong>
+              {{ formatNumber(data.kpis.stories_metrics.exit) }}
             </p>
           </div>
+        </div>
+        <div class="bg-gray-50 p-6 rounded-xl border-l-4 border-[#e1306c] shadow-sm">
+          <p class="text-gray-500 text-sm font-bold">Post Saves</p>
+          <h2 class="text-3xl font-black text-pluxeeBlue">{{ formatNumber(data.kpis.post_saves) }}</h2>
+        </div>
+        <div class="bg-gray-50 p-6 rounded-xl border-l-4 border-[#e1306c] shadow-sm">
+          <p class="text-gray-500 text-sm font-bold">Post Likes</p>
+          <h2 class="text-3xl font-black text-pluxeeBlue">{{ formatNumber(data.kpis.post_likes) }}</h2>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 gap-8 mt-4">
+        <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-pluxeeGreen">
+          <table class="w-full text-left">
+            <thead>
+              <tr class="text-gray-400 text-sm border-b border-gray-100">
+                <th class="pb-1.5 font-medium w-8 text-center">#</th>
+                <th class="pb-1.5 font-medium">City</th>
+                <th class="pb-1.5 font-medium text-right">Followers</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- <tr v-for="(city, index) in data.topCities.slice(0, 5)" :key="index" class="border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors"> -->
+              <tr v-for="(city, index) in data.topCities" :key="index" class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                <td class="py-2 text-gray-400 font-medium text-center text-sm">{{ index + 1 }}</td>
+                <td class="py-2 pr-2">
+                  <div class="text-sm text-gray-700">{{ city.name }}</div>
+                </td>
+                <td class="py-2 text-right text-pluxeeBlue">{{ formatNumber(city.followers) }}</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
 
@@ -89,6 +121,7 @@
 </template>
 
 <script setup>
+  import { formatNumber } from '@/utils/formatters'
   defineProps({
     data: Object,
   })

@@ -1,12 +1,12 @@
 const { getSocialMetrics } = require('../hootsuiteService')
-const { leerMetricasCSV, leerKpisGenerales, leerKpisFacebookHootsuite } = require('../csvService')
+const { leerMetricasCSV, leerKpisGenerales, leerKpisFacebookHootsuite, leerKpisInstagramHootsuite } = require('../csvService')
 
 const getReportData = async (req, res) => {
   try {
     console.log('Iniciando fusión de datos...')
 
     // OPTIMIZACIÓN: Promise.all ejecuta todas las lecturas al mismo tiempo (mucho más rápido)
-    const [metricasExcel, hootsuiteData, kpisManuales, kpisFbReales] = await Promise.all([leerMetricasCSV(), getSocialMetrics(), leerKpisGenerales(), leerKpisFacebookHootsuite()])
+    const [metricasExcel, hootsuiteData, kpisManuales, kpisFbReales, kpisIgReales] = await Promise.all([leerMetricasCSV(), getSocialMetrics(), leerKpisGenerales(), leerKpisFacebookHootsuite(), leerKpisInstagramHootsuite()])
 
     const postsFusionados = metricasExcel.map(postExcel => {
       let imagenMapeada = 'https://placehold.co/300x400/cccccc/ffffff?text=Post+Sin+Imagen'
@@ -87,13 +87,20 @@ const getReportData = async (req, res) => {
       },
       instagram: {
         username: hootsuiteData ? hootsuiteData.instagram.username : 'Pluxee IG',
-        avatar: hootsuiteData ? hootsuiteData.instagram.avatar : '',
         kpis: {
-          followers: kpisManuales.ig_followers || 2677,
-          new_followers: kpisManuales.ig_new_followers || '+58',
-          engagement_rate: `${kpisManuales.ig_engagement || 19.01}%`,
-          stories_metrics: { total: 18, forward: '1,000', back: 71, exit: 310 },
+          // followers: kpisManuales.ig_followers || 2677,
+          followers: kpisIgReales ? kpisIgReales.followers : 2677,
+          page_engagement_rate: `${kpisIgReales ? kpisIgReales.page_engagement_rate : 19.01}%`,
+          post_saves: kpisIgReales ? kpisIgReales.post_saves : 1,
+          post_likes: kpisIgReales ? kpisIgReales.post_likes : 1,
+          stories_metrics: {
+            total: kpisIgReales ? kpisIgReales.posts_total : 18,
+            forward: kpisIgReales ? kpisIgReales.story_taps_forward : 0,
+            back: kpisIgReales ? kpisIgReales.story_taps_back : 0,
+            exit: kpisIgReales ? kpisIgReales.story_exits : 310,
+          },
         },
+        topCities: kpisIgReales && kpisIgReales.topCities ? kpisIgReales.topCities : [],
         topPosts: [
           { id: 'ig_p1', type: 'CAROUSEL', views: 771, interactions: 348, saved: 1, img: 'https://placehold.co/300x400/e1306c/ffffff?text=IG+Post+1' },
           { id: 'ig_p2', type: 'CAROUSEL', views: 733, interactions: 32, saved: 1, img: 'https://placehold.co/300x400/e1306c/ffffff?text=IG+Post+2' },
