@@ -28,46 +28,46 @@ function leerKpisGenerales() {
 }
 
 // Lee hootsuite_publicaciones_fb.csv para obtener métricas exactas de cada post
-function leerMetricasCSV() {
-  return new Promise((resolve, reject) => {
-    const postsExportados = []
-    // Apuntamos al archivo que acabas de guardar
-    // const rutaArchivo = path.join(__dirname, 'data', 'hootsuite_export.csv')
-    const rutaArchivo = path.join(__dirname, 'data', 'hootsuite_publicaciones_fb.csv')
+// function leerMetricasCSV() {
+//   return new Promise((resolve, reject) => {
+//     const postsExportados = []
+//     // Apuntamos al archivo que acabas de guardar
+//     // const rutaArchivo = path.join(__dirname, 'data', 'hootsuite_export.csv')
+//     const rutaArchivo = path.join(__dirname, 'data', 'hootsuite_publicaciones_fb.csv')
 
-    if (!fs.existsSync(rutaArchivo)) {
-      console.log('⚠️ No se encontró el archivo hootsuite_publicaciones_fb.csv en backend/data/')
-      return resolve([])
-    }
+//     if (!fs.existsSync(rutaArchivo)) {
+//       console.log('⚠️ No se encontró el archivo hootsuite_publicaciones_fb.csv en backend/data/')
+//       return resolve([])
+//     }
 
-    console.log('📊 Leyendo métricas exactas desde el CSV de Hootsuite...')
+//     console.log('📊 Leyendo métricas exactas desde el CSV de Hootsuite...')
 
-    fs.createReadStream(rutaArchivo)
-      .pipe(csv())
-      .on('data', row => {
-        // Filtramos para guardar solo lo que nos importa
-        // Nota: Verificamos los nombres de columnas en mayúscula o minúscula
-        const mensaje = row['POST MESSAGE'] || row['Post Message'] || ''
-        if (mensaje) {
-          postsExportados.push({
-            mensaje: mensaje,
-            fecha: row['DATE (GMT)'] || row['Date (GMT)'] || '',
-            alcance: parseInt(row['REACH'] || row['Reach'] || 0),
-            interacciones: parseInt(row['ENGAGEMENT'] || row['Engagement'] || 0),
-            visitas: parseInt(row['POST VIEWS'] || row['Post views'] || 0),
-            tipoPost: row['POST TYPE'] || row['Post Type'] || '',
-            shares: parseInt(row['SHARES'] || row['Shares'] || 0),
-            postPermalink: row['POST PERMALINK'] || row['Post Permalink'] || '',
-          })
-        }
-      })
-      .on('end', () => {
-        console.log(`✅ CSV leído: ¡Se encontraron ${postsExportados.length} posts con sus métricas!`)
-        resolve(postsExportados)
-      })
-      .on('error', error => reject(error))
-  })
-}
+//     fs.createReadStream(rutaArchivo)
+//       .pipe(csv())
+//       .on('data', row => {
+//         // Filtramos para guardar solo lo que nos importa
+//         // Nota: Verificamos los nombres de columnas en mayúscula o minúscula
+//         const mensaje = row['POST MESSAGE'] || row['Post Message'] || ''
+//         if (mensaje) {
+//           postsExportados.push({
+//             mensaje: mensaje,
+//             fecha: row['DATE (GMT)'] || row['Date (GMT)'] || '',
+//             alcance: parseInt(row['REACH'] || row['Reach'] || 0),
+//             interacciones: parseInt(row['ENGAGEMENT'] || row['Engagement'] || 0),
+//             visitas: parseInt(row['POST VIEWS'] || row['Post views'] || 0),
+//             tipoPost: row['POST TYPE'] || row['Post Type'] || '',
+//             shares: parseInt(row['SHARES'] || row['Shares'] || 0),
+//             postPermalink: row['POST PERMALINK'] || row['Post Permalink'] || '',
+//           })
+//         }
+//       })
+//       .on('end', () => {
+//         console.log(`✅ CSV leído: ¡Se encontraron ${postsExportados.length} posts con sus métricas!`)
+//         resolve(postsExportados)
+//       })
+//       .on('error', error => reject(error))
+//   })
+// }
 
 // Leehootsuite_metricas_fb.csv para obtener KPIs generales de Facebook (seguidores, clics, shares, etc.) y también las ciudades top
 function leerKpisFacebookHootsuite() {
@@ -169,46 +169,46 @@ function leerKpisFacebookHootsuite() {
 }
 
 // Lee hootsuite_publicaciones_ig.csv para obtener métricas exactas de cada post
-function leerMetricasIgCSV() {
-  return new Promise((resolve, reject) => {
-    const postsExportados = []
-    // Apuntamos al archivo que acabas de guardar
-    // const rutaArchivo = path.join(__dirname, 'data', 'hootsuite_export.csv')
-    const rutaArchivo = path.join(__dirname, 'data', 'hootsuite_publicaciones_ig.csv')
+// function leerMetricasIgCSV() {
+//   return new Promise((resolve, reject) => {
+//     const postsExportados = []
+//     // Apuntamos al archivo que acabas de guardar
+//     // const rutaArchivo = path.join(__dirname, 'data', 'hootsuite_export.csv')
+//     const rutaArchivo = path.join(__dirname, 'data', 'hootsuite_publicaciones_ig.csv')
 
-    if (!fs.existsSync(rutaArchivo)) {
-      console.log('⚠️ No se encontró el archivo hootsuite_publicaciones_ig.csv en backend/data/')
-      return resolve([])
-    }
+//     if (!fs.existsSync(rutaArchivo)) {
+//       console.log('⚠️ No se encontró el archivo hootsuite_publicaciones_ig.csv en backend/data/')
+//       return resolve([])
+//     }
 
-    console.log('📊 Leyendo métricas exactas desde el CSV de Hootsuite...')
+//     console.log('📊 Leyendo métricas exactas desde el CSV de Hootsuite...')
 
-    fs.createReadStream(rutaArchivo)
-      .pipe(csv())
-      .on('data', row => {
-        // Filtramos para guardar solo lo que nos importa
-        // Nota: Verificamos los nombres de columnas en mayúscula o minúscula
-        const mensaje = row['POST MESSAGE'] || row['Post Message'] || ''
-        if (mensaje) {
-          postsExportados.push({
-            mensaje: mensaje,
-            fecha: row['DATE (GMT)'] || row['Date (GMT)'] || '',
-            alcance: parseInt(row['REACH'] || row['Reach'] || 0),
-            interacciones: parseInt(row['ENGAGEMENT'] || row['Engagement'] || 0),
-            visitas: parseInt(row['VIEWS'] || row['Views'] || 0),
-            tipoPost: row['POST TYPE'] || row['Post Type'] || '',
-            shares: parseInt(row['SHARES'] || row['Shares'] || 0),
-            postPermalink: row['POST PERMALINK'] || row['Post Permalink'] || '',
-          })
-        }
-      })
-      .on('end', () => {
-        console.log(`✅ CSV leído: ¡Se encontraron ${postsExportados.length} posts con sus métricas!`)
-        resolve(postsExportados)
-      })
-      .on('error', error => reject(error))
-  })
-}
+//     fs.createReadStream(rutaArchivo)
+//       .pipe(csv())
+//       .on('data', row => {
+//         // Filtramos para guardar solo lo que nos importa
+//         // Nota: Verificamos los nombres de columnas en mayúscula o minúscula
+//         const mensaje = row['POST MESSAGE'] || row['Post Message'] || ''
+//         if (mensaje) {
+//           postsExportados.push({
+//             mensaje: mensaje,
+//             fecha: row['DATE (GMT)'] || row['Date (GMT)'] || '',
+//             alcance: parseInt(row['REACH'] || row['Reach'] || 0),
+//             interacciones: parseInt(row['ENGAGEMENT'] || row['Engagement'] || 0),
+//             visitas: parseInt(row['VIEWS'] || row['Views'] || 0),
+//             tipoPost: row['POST TYPE'] || row['Post Type'] || '',
+//             shares: parseInt(row['SHARES'] || row['Shares'] || 0),
+//             postPermalink: row['POST PERMALINK'] || row['Post Permalink'] || '',
+//           })
+//         }
+//       })
+//       .on('end', () => {
+//         console.log(`✅ CSV leído: ¡Se encontraron ${postsExportados.length} posts con sus métricas!`)
+//         resolve(postsExportados)
+//       })
+//       .on('error', error => reject(error))
+//   })
+// }
 
 // hootsuite_metricas_ig.csv para obtener KPIs generales de Facebook (seguidores, clics, shares, etc.) y también las ciudades top
 function leerKpisInstagramHootsuite() {
@@ -378,4 +378,49 @@ function leerKpisInstagramHootsuite() {
   })
 }
 
-module.exports = { leerMetricasCSV, leerKpisGenerales, leerKpisFacebookHootsuite, leerMetricasIgCSV, leerKpisInstagramHootsuite }
+// NUEVA FUNCIÓN DINÁMICA: Lee publicaciones de cualquier archivo que le pidas
+function leerPublicacionesCSV(nombreArchivo) {
+  return new Promise((resolve, reject) => {
+    const postsExportados = []
+    const rutaArchivo = path.join(__dirname, 'data', nombreArchivo)
+
+    if (!fs.existsSync(rutaArchivo)) {
+      console.log(`⚠️ No se encontró el archivo ${nombreArchivo} en backend/data/`)
+      return resolve([])
+    }
+
+    console.log(`📊 Leyendo métricas exactas desde ${nombreArchivo}...`)
+
+    fs.createReadStream(rutaArchivo)
+      .pipe(csv())
+      .on('data', row => {
+        const mensaje = row['POST MESSAGE'] || row['Post Message'] || ''
+        const tipoPost = row['POST TYPE'] || row['Post Type'] || ''
+
+        if (mensaje || tipoPost.toUpperCase().includes('STORY')) {
+          postsExportados.push({
+            mensaje: mensaje,
+            fecha: row['DATE (GMT)'] || row['Date (GMT)'] || '',
+            alcance: parseInt(row['REACH'] || row['Reach'] || 0),
+            interacciones: parseInt(row['ENGAGEMENT'] || row['Engagement'] || 0),
+            visitas: parseInt(row['VIEWS'] || row['Views'] || 0),
+            likes: parseInt(row['LIKES'] || row['Likes'] || 0),
+            tipoPost: row['POST TYPE'] || row['Post Type'] || '',
+            shares: parseInt(row['SHARES'] || row['Shares'] || 0),
+            saves: parseInt(row['SAVES'] || row['Saves'] || 0),
+            postPermalink: row['POST PERMALINK'] || row['Post Permalink'] || '',
+          })
+        }
+      })
+      .on('end', () => {
+        console.log(`✅ ${nombreArchivo} leído: ¡${postsExportados.length} posts encontrados!`)
+        resolve(postsExportados)
+      })
+      .on('error', error => reject(error))
+  })
+}
+
+// Asegúrate de exportar el nuevo nombre de la función:
+module.exports = { leerPublicacionesCSV, leerKpisGenerales, leerKpisFacebookHootsuite, leerKpisInstagramHootsuite }
+
+// module.exports = { leerMetricasCSV, leerKpisGenerales, leerKpisFacebookHootsuite, leerMetricasIgCSV, leerKpisInstagramHootsuite }

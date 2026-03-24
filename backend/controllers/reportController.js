@@ -1,88 +1,109 @@
 const { getSocialMetrics } = require('../hootsuiteService')
-const { leerMetricasCSV, leerKpisGenerales, leerKpisFacebookHootsuite, leerMetricasIgCSV, leerKpisInstagramHootsuite } = require('../csvService')
+const { leerPublicacionesCSV, leerKpisGenerales, leerKpisFacebookHootsuite, leerKpisInstagramHootsuite } = require('../csvService')
 
 const getReportData = async (req, res) => {
   try {
     console.log('Iniciando fusión de datos...')
 
-    // OPTIMIZACIÓN: Promise.all ejecuta todas las lecturas al mismo tiempo (mucho más rápido)
-    const [metricasExcel, hootsuiteData, hootsuiteIgData, kpisManuales, kpisFbReales, kpisIgReales] = await Promise.all([
-      leerMetricasCSV(),
+    // 1. LEEMOS TODO AL MISMO TIEMPO (Incluyendo ambos CSVs de posts)
+    const [publicacionesFb, publicacionesIg, hootsuiteData, kpisManuales, kpisFbReales, kpisIgReales] = await Promise.all([
+      leerPublicacionesCSV('hootsuite_publicaciones_fb.csv'), // Pide los de FB
+      leerPublicacionesCSV('hootsuite_publicaciones_ig.csv'), // Pide los de IG
       getSocialMetrics(),
       leerKpisGenerales(),
       leerKpisFacebookHootsuite(),
-      leerMetricasIgCSV(),
       leerKpisInstagramHootsuite(),
     ])
 
-    const postsFusionados = metricasExcel.map(postExcel => {
-      let imagenMapeada = 'https://placehold.co/300x400/cccccc/ffffff?text=Post+Sin+Imagen'
-      let tipoPost = 'POST'
+    // 2. FUSIÓN Y MAPEO PARA FACEBOOK
+    const topPostsFb = (publicacionesFb || [])
+      .map(postExcel => {
+        let imagenMapeada = 'https://placehold.co/300x400/cccccc/ffffff?text=Post+Sin+Imagen'
+        let tipoPost = postExcel.tipoPost || 'POST'
 
-      if (hootsuiteData && hootsuiteData.facebook && hootsuiteData.facebook.realPosts) {
+        if (hootsuiteData && hootsuiteData.facebook && hootsuiteData.facebook.realPosts) {
+          const textoCortoExcel = postExcel.mensaje.substring(0, 20).trim()
+          const postCoincidente = hootsuiteData.facebook.realPosts.find(p => p.text && p.text.includes(textoCortoExcel))
+
+          if (postCoincidente) {
+            if (postCoincidente.mediaUrls && postCoincidente.mediaUrls.length > 0) {
+              imagenMapeada = postCoincidente.mediaUrls[0].thumbnailUrl || postCoincidente.mediaUrls[0].url
+            }
+            if (postCoincidente.postUrl && postCoincidente.postUrl.includes('reel')) tipoPost = 'REEL'
+            else if (postCoincidente.mediaUrls && postCoincidente.mediaUrls[0] && postCoincidente.mediaUrls[0].url.includes('.mp4')) tipoPost = 'VIDEO'
+          }
+        }
+
+        return {
+          id: Math.random().toString(36).substr(2, 9),
+          type: tipoPost,
+          reach: postExcel.alcance,
+          interactions: postExcel.interacciones,
+          saved: postExcel.shares,
+          img: imagenMapeada,
+          postPermalink: postExcel.postPermalink,
+          text: postExcel.mensaje.substring(0, 60) + '...',
+        }
+      })
+      .sort((a, b) => b.reach - a.reach)
+      .slice(0, 8) // Ordenamos y tomamos 8
+
+    // 3. FUSIÓN Y MAPEO PARA INSTAGRAM (Separando Posts y Stories)
+    const igPostsList = []
+    const igStoriesList = []
+
+    ;(publicacionesIg || []).forEach(postExcel => {
+      let imagenMapeada = 'https://placehold.co/300x400/e1306c/ffffff?text=IG+Sin+Imagen'
+      let tipoPost = (postExcel.tipoPost || 'POST').toUpperCase()
+
+      // Si es historia, cambiamos la imagen por defecto a vertical
+      if (tipoPost.includes('STORY')) {
+        imagenMapeada = 'https://placehold.co/300x533/f56040/ffffff?text=IG+Story'
+      }
+
+      if (hootsuiteData && hootsuiteData.instagram && hootsuiteData.instagram.realPosts) {
         const textoCortoExcel = postExcel.mensaje.substring(0, 20).trim()
-        const postCoincidente = hootsuiteData.facebook.realPosts.find(p => p.text && p.text.includes(textoCortoExcel))
+        const postCoincidente = hootsuiteData.instagram.realPosts.find(p => p.text && p.text.includes(textoCortoExcel))
 
         if (postCoincidente) {
           if (postCoincidente.mediaUrls && postCoincidente.mediaUrls.length > 0) {
             imagenMapeada = postCoincidente.mediaUrls[0].thumbnailUrl || postCoincidente.mediaUrls[0].url
           }
-          if (postCoincidente.postUrl && postCoincidente.postUrl.includes('reel')) tipoPost = 'REEL'
-          else if (postCoincidente.mediaUrls && postCoincidente.mediaUrls[0] && postCoincidente.mediaUrls[0].url.includes('.mp4')) tipoPost = 'VIDEO'
-        }
-      }
-
-      return {
-        id: Math.random().toString(36).substr(2, 9), // Un ID temporal
-        type: postExcel.tipoPost,
-        reach: postExcel.alcance,
-        interactions: postExcel.interacciones,
-        saved: postExcel.shares,
-        img: imagenMapeada,
-        postPermalink: postExcel.postPermalink,
-        text: postExcel.mensaje.substring(0, 60) + '...',
-      }
-    })
-
-    // ORDENAMOS Y CORTAMOS
-    // Ordenamos de mayor a menor alcance (Los más virales primero)
-    postsFusionados.sort((a, b) => b.reach - a.reach)
-    const topPostsFinales = postsFusionados
-
-    const postsIgFusionados = metricasExcel.map(postExcel => {
-      let imagenMapeada = 'https://placehold.co/300x400/cccccc/ffffff?text=Post+Sin+Imagen'
-      let tipoPost = 'POST'
-
-      if (hootsuiteIgData && hootsuiteIgData.instagram && hootsuiteIgData.instagram.realPosts) {
-        const textoCortoExcel = postExcel.mensaje.substring(0, 20).trim()
-        const postCoincidente = hootsuiteIgData.instagram.realPosts.find(p => p.text && p.text.includes(textoCortoExcel))
-
-        if (postCoincidente) {
-          if (postCoincidente.mediaUrls && postCoincidente.mediaUrls.length > 0) {
-            imagenMapeada = postCoincidente.mediaUrls[0].thumbnailUrl || postCoincidente.mediaUrls[0].url
+          // Si NO es historia, adivinamos si es reel o carrusel
+          if (!tipoPost.includes('STORY')) {
+            if (postCoincidente.postUrl && postCoincidente.postUrl.includes('reel')) tipoPost = 'REEL'
+            else if (postCoincidente.mediaUrls && postCoincidente.mediaUrls.length > 1) tipoPost = 'CAROUSEL'
           }
-          if (postCoincidente.postUrl && postCoincidente.postUrl.includes('reel')) tipoPost = 'REEL'
-          else if (postCoincidente.mediaUrls && postCoincidente.mediaUrls[0] && postCoincidente.mediaUrls[0].url.includes('.mp4')) tipoPost = 'VIDEO'
         }
       }
 
-      return {
-        id: Math.random().toString(36).substr(2, 9), // Un ID temporal
-        type: postExcel.tipoPost,
-        reach: postExcel.alcance,
-        interactions: postExcel.interacciones,
-        saved: postExcel.shares,
+      const postFormateado = {
+        id: Math.random().toString(36).substr(2, 9),
+        type: tipoPost.includes('STORY') ? 'STORY' : tipoPost, // Forzamos etiqueta STORY
+        views: postExcel.visitas || postExcel.alcance || 0,
+        reach: postExcel.alcance || 0,
+        interactions: postExcel.interacciones || 0,
+        saved: postExcel.saves || 0,
+        likes: postExcel.likes || 0,
+        shares: postExcel.shares || 0,
         img: imagenMapeada,
         postPermalink: postExcel.postPermalink,
-        text: postExcel.mensaje.substring(0, 60) + '...',
+        text: postExcel.mensaje ? postExcel.mensaje.substring(0, 60) + '...' : 'Historia sin texto',
+      }
+
+      // Los separamos en sus respectivas listas
+      if (tipoPost.includes('STORY')) {
+        igStoriesList.push(postFormateado)
+      } else {
+        igPostsList.push(postFormateado)
       }
     })
 
-    // ORDENAMOS Y CORTAMOS
-    // Ordenamos de mayor a menor alcance (Los más virales primero)
-    postsIgFusionados.sort((a, b) => b.reach - a.reach)
-    const topPostsIgFinales = postsIgFusionados
+    // Ordenamos ambas listas por vistas y tomamos las 4 mejores
+    const topPostsIg = igPostsList.sort((a, b) => b.views - a.views)
+    const topStoriesIg = igStoriesList.sort((a, b) => b.views - a.views)
 
+    // 4. ARMAMOS EL REPORTE FINAL
     const fullReport = {
       metadata: { client: 'Pluxee', title: 'SOCIAL MEDIA REPORT', period: 'February 2026', agency: 'TOLKO' },
       context: {
@@ -94,6 +115,7 @@ const getReportData = async (req, res) => {
           'En Facebook, los carruseles fueron los formatos que mantuvieron mayor interacción de usuarios, mientras que en IG fue reel.',
         ],
       },
+
       facebook: {
         username: hootsuiteData ? hootsuiteData.facebook.username : 'Pluxee FB',
         kpis: {
@@ -117,19 +139,12 @@ const getReportData = async (req, res) => {
           },
         },
         topCities: kpisFbReales && kpisFbReales.topCities ? kpisFbReales.topCities : [],
-        // AQUI INYECTAMOS LOS POSTS FUSIONADOS
-        topPosts:
-          topPostsFinales.length > 0
-            ? topPostsFinales
-            : [
-                // Respaldo por si algo falla
-                { id: 1, type: 'IMAGE', reach: 860, interactions: 37, saved: 1, img: 'https://placehold.co/300x400/ac2d72/ffffff?text=Pizza+Post' },
-              ],
+        topPosts: topPostsFb.length > 0 ? topPostsFb : [{ id: 1, type: 'IMAGE', reach: 860, interactions: 37, saved: 1, img: 'https://placehold.co/300x400/ac2d72/ffffff?text=Pizza+Post' }],
       },
+
       instagram: {
         username: hootsuiteData ? hootsuiteData.instagram.username : 'Pluxee IG',
         kpis: {
-          // followers: kpisManuales.ig_followers || 2677,
           followers: kpisIgReales ? kpisIgReales.followers : 2677,
           page_engagement_rate: `${kpisIgReales ? kpisIgReales.page_engagement_rate : 19.01}%`,
           post_saves: kpisIgReales ? kpisIgReales.post_saves : 1,
@@ -142,18 +157,20 @@ const getReportData = async (req, res) => {
           },
         },
         topCities: kpisIgReales && kpisIgReales.topCities ? kpisIgReales.topCities : [],
-        topInstagramPosts:
-          topPostsIgFinales.length > 0
-            ? topPostsIgFinales
+
+        // ¡INYECTAMOS LOS POSTS REALES!
+        topPosts: topPostsIg.length > 0 ? topPostsIg : [{ id: 'ig_p1', type: 'CAROUSEL', views: 771, interactions: 348, saved: 1, img: 'https://placehold.co/300x400/e1306c/ffffff?text=IG+Post+1' }],
+
+        // ¡INYECTAMOS LAS STORIES REALES!
+        topStories:
+          topStoriesIg.length > 0
+            ? topStoriesIg
             : [
-                // Respaldo por si algo falla
-                { id: 1, type: 'IMAGE', reach: 860, interactions: 37, saved: 1, img: 'https://placehold.co/300x400/ac2d72/ffffff?text=Pizza+Post' },
+                { id: 'ig_s1', type: 'STORY', views: 418, interactions: 5, shares: 0, img: 'https://placehold.co/300x533/f56040/ffffff?text=IG+Story+1' },
+                { id: 'ig_s2', type: 'STORY', views: 368, interactions: 2, shares: 0, img: 'https://placehold.co/300x533/f56040/ffffff?text=IG+Story+2' },
               ],
-        topStories: [
-          { id: 'ig_s1', type: 'STORY', views: 418, interactions: 5, shares: 0, img: 'https://placehold.co/300x533/f56040/ffffff?text=IG+Story+1' },
-          { id: 'ig_s2', type: 'STORY', views: 368, interactions: 2, shares: 0, img: 'https://placehold.co/300x533/f56040/ffffff?text=IG+Story+2' },
-        ],
       },
+
       benchmarking: [
         { id: 1, name: 'Si Vale', description: 'Una empresa líder en soluciones en tarjetas...', followers: '217.3 mil', following: '1209', posts: 10 },
         { id: 2, name: 'Edenred México', description: 'Somos líderes a nivel mundial en soluciones de pago...', followers: '212.8 mil', following: '1529', posts: 3 },
@@ -189,5 +206,4 @@ const getReportData = async (req, res) => {
   }
 }
 
-// Exportamos el controlador
 module.exports = { getReportData }
