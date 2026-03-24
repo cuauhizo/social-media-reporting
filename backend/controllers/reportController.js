@@ -1,12 +1,19 @@
 const { getSocialMetrics } = require('../hootsuiteService')
-const { leerMetricasCSV, leerKpisGenerales, leerKpisFacebookHootsuite, leerKpisInstagramHootsuite } = require('../csvService')
+const { leerMetricasCSV, leerKpisGenerales, leerKpisFacebookHootsuite, leerMetricasIgCSV, leerKpisInstagramHootsuite } = require('../csvService')
 
 const getReportData = async (req, res) => {
   try {
     console.log('Iniciando fusión de datos...')
 
     // OPTIMIZACIÓN: Promise.all ejecuta todas las lecturas al mismo tiempo (mucho más rápido)
-    const [metricasExcel, hootsuiteData, kpisManuales, kpisFbReales, kpisIgReales] = await Promise.all([leerMetricasCSV(), getSocialMetrics(), leerKpisGenerales(), leerKpisFacebookHootsuite(), leerKpisInstagramHootsuite()])
+    const [metricasExcel, hootsuiteData, hootsuiteIgData, kpisManuales, kpisFbReales, kpisIgReales] = await Promise.all([
+      leerMetricasCSV(),
+      getSocialMetrics(),
+      leerKpisGenerales(),
+      leerKpisFacebookHootsuite(),
+      leerMetricasIgCSV(),
+      leerKpisInstagramHootsuite(),
+    ])
 
     const postsFusionados = metricasExcel.map(postExcel => {
       let imagenMapeada = 'https://placehold.co/300x400/cccccc/ffffff?text=Post+Sin+Imagen'
@@ -41,6 +48,40 @@ const getReportData = async (req, res) => {
     // Ordenamos de mayor a menor alcance (Los más virales primero)
     postsFusionados.sort((a, b) => b.reach - a.reach)
     const topPostsFinales = postsFusionados
+
+    const postsIgFusionados = metricasExcel.map(postExcel => {
+      let imagenMapeada = 'https://placehold.co/300x400/cccccc/ffffff?text=Post+Sin+Imagen'
+      let tipoPost = 'POST'
+
+      if (hootsuiteIgData && hootsuiteIgData.instagram && hootsuiteIgData.instagram.realPosts) {
+        const textoCortoExcel = postExcel.mensaje.substring(0, 20).trim()
+        const postCoincidente = hootsuiteIgData.instagram.realPosts.find(p => p.text && p.text.includes(textoCortoExcel))
+
+        if (postCoincidente) {
+          if (postCoincidente.mediaUrls && postCoincidente.mediaUrls.length > 0) {
+            imagenMapeada = postCoincidente.mediaUrls[0].thumbnailUrl || postCoincidente.mediaUrls[0].url
+          }
+          if (postCoincidente.postUrl && postCoincidente.postUrl.includes('reel')) tipoPost = 'REEL'
+          else if (postCoincidente.mediaUrls && postCoincidente.mediaUrls[0] && postCoincidente.mediaUrls[0].url.includes('.mp4')) tipoPost = 'VIDEO'
+        }
+      }
+
+      return {
+        id: Math.random().toString(36).substr(2, 9), // Un ID temporal
+        type: postExcel.tipoPost,
+        reach: postExcel.alcance,
+        interactions: postExcel.interacciones,
+        saved: postExcel.shares,
+        img: imagenMapeada,
+        postPermalink: postExcel.postPermalink,
+        text: postExcel.mensaje.substring(0, 60) + '...',
+      }
+    })
+
+    // ORDENAMOS Y CORTAMOS
+    // Ordenamos de mayor a menor alcance (Los más virales primero)
+    postsIgFusionados.sort((a, b) => b.reach - a.reach)
+    const topPostsIgFinales = postsIgFusionados
 
     const fullReport = {
       metadata: { client: 'Pluxee', title: 'SOCIAL MEDIA REPORT', period: 'February 2026', agency: 'TOLKO' },
@@ -101,10 +142,13 @@ const getReportData = async (req, res) => {
           },
         },
         topCities: kpisIgReales && kpisIgReales.topCities ? kpisIgReales.topCities : [],
-        topPosts: [
-          { id: 'ig_p1', type: 'CAROUSEL', views: 771, interactions: 348, saved: 1, img: 'https://placehold.co/300x400/e1306c/ffffff?text=IG+Post+1' },
-          { id: 'ig_p2', type: 'CAROUSEL', views: 733, interactions: 32, saved: 1, img: 'https://placehold.co/300x400/e1306c/ffffff?text=IG+Post+2' },
-        ],
+        topInstagramPosts:
+          topPostsIgFinales.length > 0
+            ? topPostsIgFinales
+            : [
+                // Respaldo por si algo falla
+                { id: 1, type: 'IMAGE', reach: 860, interactions: 37, saved: 1, img: 'https://placehold.co/300x400/ac2d72/ffffff?text=Pizza+Post' },
+              ],
         topStories: [
           { id: 'ig_s1', type: 'STORY', views: 418, interactions: 5, shares: 0, img: 'https://placehold.co/300x533/f56040/ffffff?text=IG+Story+1' },
           { id: 'ig_s2', type: 'STORY', views: 368, interactions: 2, shares: 0, img: 'https://placehold.co/300x533/f56040/ffffff?text=IG+Story+2' },

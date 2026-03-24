@@ -3,7 +3,7 @@
     <div class="w-full h-32 bg-linear-to-r from-[#833ab4] via-[#fd1d1d] to-[#fcb045] flex items-center justify-center shadow-inner">
       <h2 class="text-4xl font-black text-white tracking-widest uppercase">Instagram Metrics {{ data.username }}</h2>
     </div>
-    <!-- <pre>{{ data }}</pre> -->
+    <pre>{{ data }}</pre>
     <div class="py-12 px-8 max-w-7xl mx-auto">
       <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
         <div class="bg-gray-50 p-6 rounded-xl border-l-4 border-[#e1306c] shadow-sm">
@@ -71,7 +71,7 @@
 
       <h3 class="text-2xl font-black text-pluxeeBlue mb-6 uppercase border-b-2 border-gray-100 pb-2">Top Stories</h3>
       <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
-        <div v-for="story in data.topStories" :key="story.id" class="flex flex-col shadow-md rounded-lg overflow-hidden">
+        <div v-for="story in data.topInstagramPosts" :key="story.id" class="flex flex-col shadow-md rounded-lg overflow-hidden">
           <div class="bg-gray-900 h-64 flex justify-center items-center">
             <img :src="story.img" class="object-cover h-full w-full opacity-90 hover:opacity-100 transition-opacity" />
           </div>
@@ -79,7 +79,7 @@
             <p class="font-black text-xs mb-1">{{ story.type }}</p>
             <p>
               <strong>Vis:</strong>
-              {{ story.views }}
+              {{ story.reach }}
             </p>
             <p>
               <strong>Int:</strong>
