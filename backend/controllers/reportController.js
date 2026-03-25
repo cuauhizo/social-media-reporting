@@ -57,20 +57,32 @@ const getReportData = async (req, res) => {
       let imagenMapeada = 'https://placehold.co/300x400/e1306c/ffffff?text=IG+Sin+Imagen'
       let tipoPost = (postExcel.tipoPost || 'POST').toUpperCase()
 
-      // Si es historia, cambiamos la imagen por defecto a vertical
+      // 1. TRUCO PARA HISTORIAS: Usamos la imagen directa que viene en el CSV
       if (tipoPost.includes('STORY')) {
         imagenMapeada = 'https://placehold.co/300x533/f56040/ffffff?text=IG+Story'
+
+        // Si la URL del permalink contiene "scontent" (servidor de Meta), "jpg" o "mp4", es la imagen real
+        if (postExcel.postPermalink && postExcel.postPermalink.includes('scontent')) {
+          imagenMapeada = postExcel.postPermalink
+        }
       }
 
+      // 2. TRUCO PARA POSTS: Cruzamos los datos usando la URL en lugar del texto
       if (hootsuiteData && hootsuiteData.instagram && hootsuiteData.instagram.realPosts) {
-        const textoCortoExcel = postExcel.mensaje.substring(0, 20).trim()
-        const postCoincidente = hootsuiteData.instagram.realPosts.find(p => p.text && p.text.includes(textoCortoExcel))
+        // Limpiamos la URL del Excel para evitar problemas con parámetros extra
+        const urlLimpiaExcel = (postExcel.postPermalink || '').split('?')[0].replace(/\/$/, '')
+
+        // Buscamos el post en la API que tenga exactamente la misma URL
+        const postCoincidente = hootsuiteData.instagram.realPosts.find(p => {
+          const urlLimpiaApi = (p.postUrl || '').split('?')[0].replace(/\/$/, '')
+          return urlLimpiaApi === urlLimpiaExcel || (urlLimpiaApi !== '' && urlLimpiaExcel.includes(urlLimpiaApi))
+        })
 
         if (postCoincidente) {
           if (postCoincidente.mediaUrls && postCoincidente.mediaUrls.length > 0) {
             imagenMapeada = postCoincidente.mediaUrls[0].thumbnailUrl || postCoincidente.mediaUrls[0].url
           }
-          // Si NO es historia, adivinamos si es reel o carrusel
+          // Adivinamos si es reel o carrusel
           if (!tipoPost.includes('STORY')) {
             if (postCoincidente.postUrl && postCoincidente.postUrl.includes('reel')) tipoPost = 'REEL'
             else if (postCoincidente.mediaUrls && postCoincidente.mediaUrls.length > 1) tipoPost = 'CAROUSEL'
@@ -80,7 +92,7 @@ const getReportData = async (req, res) => {
 
       const postFormateado = {
         id: Math.random().toString(36).substr(2, 9),
-        type: tipoPost.includes('STORY') ? 'STORY' : tipoPost, // Forzamos etiqueta STORY
+        type: tipoPost.includes('STORY') ? 'STORY' : tipoPost,
         views: postExcel.visitas || postExcel.alcance || 0,
         reach: postExcel.alcance || 0,
         interactions: postExcel.interacciones || 0,
@@ -154,6 +166,7 @@ const getReportData = async (req, res) => {
             back: kpisIgReales?.story_taps_back || 0,
             exit: kpisIgReales?.story_exits || 0,
           },
+          reach_by_type: kpisIgReales?.reach_by_type || { carousel: 0, photo: 0, reel: 0, story: 0 },
           sentiment: {
             neutral: sentimientosIg?.neutral || 0,
             positive: sentimientosIg?.positive || 0,

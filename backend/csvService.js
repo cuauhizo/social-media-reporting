@@ -129,7 +129,7 @@ function leerKpisFacebookHootsuite() {
 }
 
 // hootsuite_metricas_ig.csv para obtener KPIs generales de Facebook (seguidores, clics, shares, etc.) y también las ciudades top
-function leerKpisInstagramHootsuite() {
+function leerKpisInstagramHootsuite_old() {
   return new Promise((resolve, reject) => {
     // Asegúrate de que el archivo se llame así en tu carpeta data/
     const rutaArchivo = path.join(__dirname, 'data', 'hootsuite_metricas_ig.csv')
@@ -155,6 +155,10 @@ function leerKpisInstagramHootsuite() {
         const keyStoryExits = keys.find(k => k.includes('Story exits'))
         const keyPostSaves = keys.find(k => k.includes('Post saves'))
         const keyPostLikes = keys.find(k => k.includes('Post likes'))
+        const keyReachCarousel = keys.find(k => k.includes('Post reach - Carousel'))
+        const keyReachPhoto = keys.find(k => k.includes('Post reach - Photo'))
+        const keyReachReel = keys.find(k => k.includes('Post reach - Reel'))
+        const keyReachStory = keys.find(k => k.includes('Post reach - Story'))
 
         // Solo guardamos si la fila tiene datos (ignoramos los días vacíos)
         if (keyFollowers && row[keyFollowers]) {
@@ -209,6 +213,12 @@ function leerKpisInstagramHootsuite() {
             story_exits: parseFloat(row[keyStoryExits]),
             post_saves: parseFloat(row[keyPostSaves]),
             post_likes: parseFloat(row[keyPostLikes]),
+            reach_by_type: {
+              carousel: parseFloat(row[keyReachCarousel]) || 0,
+              photo: parseFloat(row[keyReachPhoto]) || 0,
+              reel: parseFloat(row[keyReachReel]) || 0,
+              story: parseFloat(row[keyReachStory]) || 0,
+            },
             topCities: topCities,
           }
         }
@@ -254,6 +264,104 @@ function leerKpisInstagramHootsuite() {
               // Si "b" es Other, lo mandamos al fondo (retorna -1)
               if (b.name === 'Other') return -1
               // Para el resto, ordenamos de mayor a menor número de seguidores
+              return b.followers - a.followers
+            })
+
+          kpisMensuales = {
+            followers: parseFloat(row[keyFollowers]),
+            page_engagement_rate: parseFloat(row[keyPageEngagement]),
+            posts_total: parseFloat(row[keyPosts]),
+            story_taps_forward: parseFloat(row[keyStoryTapsForward]),
+            story_taps_back: parseFloat(row[keyStoryTapsBack]),
+            story_exits: parseFloat(row[keyStoryExits]),
+            post_saves: parseFloat(row[keyPostSaves]),
+            post_likes: parseFloat(row[keyPostLikes]),
+            reach_by_type: {
+              carousel: parseFloat(row[keyReachCarousel]) || 0,
+              photo: parseFloat(row[keyReachPhoto]) || 0,
+              reel: parseFloat(row[keyReachReel]) || 0,
+              story: parseFloat(row[keyReachStory]) || 0,
+            },
+            topCities: topCities,
+          }
+        }
+      })
+      .on('end', () => {
+        console.log('✅ KPIs Generales de Instagram leídos directamente del reporte de Hootsuite!')
+        resolve(kpisMensuales)
+      })
+      .on('error', error => reject(error))
+  })
+}
+
+// hootsuite_metricas_ig.csv para obtener KPIs generales de IG y las ciudades top
+function leerKpisInstagramHootsuite() {
+  return new Promise((resolve, reject) => {
+    const rutaArchivo = path.join(__dirname, 'data', 'hootsuite_metricas_ig.csv')
+
+    if (!fs.existsSync(rutaArchivo)) {
+      console.log('⚠️ No se encontró hootsuite_metricas_ig.csv. Usando respaldo.')
+      return resolve(null)
+    }
+
+    let kpisMensuales = null
+
+    // ✨ CAJAS FUERTES: Para no perder los datos si la última fila está vacía
+    let maxCarousel = 0
+    let maxPhoto = 0
+    let maxReel = 0
+    let maxStory = 0
+
+    fs.createReadStream(rutaArchivo)
+      .pipe(csv())
+      .on('data', row => {
+        const keys = Object.keys(row)
+
+        const keyFollowers = keys.find(k => k.includes('Followers'))
+        const keyPosts = keys.find(k => k.includes('Posts'))
+        const keyPageEngagement = keys.find(k => k.includes('Page engagement rate'))
+        const keyStoryTapsForward = keys.find(k => k.includes('Story taps forward'))
+        const keyStoryTapsBack = keys.find(k => k.includes('Story taps back'))
+        const keyStoryExits = keys.find(k => k.includes('Story exits'))
+        const keyPostSaves = keys.find(k => k.includes('Post saves'))
+        const keyPostLikes = keys.find(k => k.includes('Post likes'))
+
+        // Buscadores para la gráfica de Alcance
+        const keyReachCarousel = keys.find(k => k.includes('Post reach - Carousel'))
+        const keyReachPhoto = keys.find(k => k.includes('Post reach - Photo'))
+        const keyReachReel = keys.find(k => k.includes('Post reach - Reel'))
+        const keyReachStory = keys.find(k => k.includes('Post reach - Story'))
+
+        // ✨ ATRAPAMOS EL VALOR MÁS ALTO DEL MES ✨
+        if (keyReachCarousel) maxCarousel = Math.max(maxCarousel, parseFloat(row[keyReachCarousel]) || 0)
+        if (keyReachPhoto) maxPhoto = Math.max(maxPhoto, parseFloat(row[keyReachPhoto]) || 0)
+        if (keyReachReel) maxReel = Math.max(maxReel, parseFloat(row[keyReachReel]) || 0)
+        if (keyReachStory) maxStory = Math.max(maxStory, parseFloat(row[keyReachStory]) || 0)
+
+        // SOLO UN BLOQUE (Eliminamos el duplicado)
+        if (keyFollowers && row[keyFollowers]) {
+          const cityKeys = keys.filter(k => k.includes('Seguidores de la página > Ciudad') || k.includes('Audience > City'))
+
+          const topCities = cityKeys
+            .map(k => {
+              let cityName = 'Desconocida'
+              if (k.includes('Other')) {
+                cityName = 'Other'
+              } else {
+                const rawName = k.split('Ciudad - ')[1]?.split(' (')[0] || k.split('City - ')[1]?.split(' (')[0] || ''
+                const parts = rawName.split(',')
+                if (parts.length >= 2) {
+                  cityName = `${parts[0].trim()}, ${parts[1].trim()}`
+                } else {
+                  cityName = rawName.trim()
+                }
+              }
+              return { name: cityName, followers: parseFloat(row[k]) || 0 }
+            })
+            .filter(c => c.followers > 0)
+            .sort((a, b) => {
+              if (a.name === 'Other') return 1
+              if (b.name === 'Other') return -1
               return b.followers - a.followers
             })
 
@@ -271,6 +379,16 @@ function leerKpisInstagramHootsuite() {
         }
       })
       .on('end', () => {
+        // ✨ INYECTAMOS LOS ALCANCES MÁXIMOS AL FINAL ✨
+        if (kpisMensuales) {
+          kpisMensuales.reach_by_type = {
+            carousel: maxCarousel,
+            photo: maxPhoto,
+            reel: maxReel,
+            story: maxStory,
+          }
+        }
+
         console.log('✅ KPIs Generales de Instagram leídos directamente del reporte de Hootsuite!')
         resolve(kpisMensuales)
       })

@@ -47,7 +47,7 @@
             </div>
           </div>
         </div>
-        <div class="col-span-12 md:col-span-7 xl:col-span-9">
+        <div class="col-span-12 lg:col-span-6">
           <div class="grid grid-cols-1 gap-6 mb-8">
             <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-pluxeeGreen">
               <table class="w-full text-left">
@@ -72,8 +72,13 @@
             </div>
           </div>
         </div>
-        <div class="col-span-12 md:col-span-5 xl:col-span-3">
-          <div class="grid grid-cols-1 md:col-3">
+        <div class="col-span-12 md:col-span-6 lg:col-span-3">
+          <div class="grid grid-cols-1 md:col-3 gap-4">
+            <ReachChart :reachData="data.kpis.reach_by_type" />
+          </div>
+        </div>
+        <div class="col-span-12 md:col-span-6 lg:col-span-3">
+          <div class="grid grid-cols-1 md:col-3 gap-4">
             <SentimentChart :sentimentData="data.kpis.sentiment" />
           </div>
         </div>
@@ -150,8 +155,9 @@
 </template>
 
 <script setup>
-  import SentimentChart from './SentimentChart.vue'
   import { formatNumber } from '@/utils/formatters'
+  import SentimentChart from './SentimentChart.vue'
+  import ReachChart from './ReachChart.vue'
   defineProps({
     data: Object,
   })
