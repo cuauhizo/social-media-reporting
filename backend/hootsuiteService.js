@@ -4,13 +4,13 @@ require('dotenv').config()
 const HOOTSUITE_API_URL = 'https://platform.hootsuite.com/v1'
 
 async function getSocialMetrics() {
-  const token = process.env.HOOTSUITE_USER_TOKEN
+  const token = process.env.HOOTSUITE_ACCESS_TOKEN
   const fbId = process.env.PLUXEE_FB_ID
   const igId = process.env.PLUXEE_IG_ID
 
   // Si falta algún dato del .env, detenemos la función
   if (!token || !fbId || !igId) {
-    // console.log('Faltan credenciales o IDs en el archivo .env')
+    console.log('Faltan credenciales o IDs en el archivo .env')
     return null
   }
 

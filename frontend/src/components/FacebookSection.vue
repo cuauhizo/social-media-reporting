@@ -12,7 +12,7 @@
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-center">
             <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-pluxeeYellow">
               <p class="text-gray-500 text-sm">Page Engagement</p>
-              <h2 class="text-3xl font-bold text-blue-900">{{ formatNumber(data.kpis.page_engagement) }}</h2>
+              <h2 class="text-3xl font-bold text-blue-900">{{ formatNumber(data.kpis.interactions) }}</h2>
             </div>
             <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-pluxeeYellow">
               <p class="text-gray-500 text-sm">Total followers</p>
@@ -90,8 +90,12 @@
       <h2 class="text-2xl font-black text-pluxeeBlue mb-2 uppercase">Post Metrics</h2>
       <p class="text-sm text-gray-600 mb-8 font-bold">Ordenados de mayor a menor alcance en Facebook</p>
       <!-- <pre>{{ data.topPosts }}</pre> -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+      <div v-if="data.topPosts && data.topPosts.length > 0" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
         <PostCard v-for="post in data.topPosts" :key="post.id" :post="post" />
+      </div>
+
+      <div v-else class="bg-gray-50 rounded-2xl p-8 text-center border border-gray-100 mt-6">
+        <p class="text-gray-500 font-medium">No se encontraron publicaciones en Facebook para este periodo.</p>
       </div>
     </div>
   </div>

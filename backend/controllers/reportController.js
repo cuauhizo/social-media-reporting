@@ -1,18 +1,20 @@
 const { getSocialMetrics } = require('../hootsuiteService')
-const { leerPublicacionesCSV, leerKpisGenerales, leerKpisFacebookHootsuite, leerKpisInstagramHootsuite } = require('../csvService')
+const { leerPublicacionesCSV, leerKpisGenerales, leerKpisFacebookHootsuite, leerKpisInstagramHootsuite, leerSentimientos } = require('../csvService')
 
 const getReportData = async (req, res) => {
   try {
     console.log('Iniciando fusión de datos...')
 
     // 1. LEEMOS TODO AL MISMO TIEMPO (Incluyendo ambos CSVs de posts)
-    const [publicacionesFb, publicacionesIg, hootsuiteData, kpisManuales, kpisFbReales, kpisIgReales] = await Promise.all([
+    const [publicacionesFb, publicacionesIg, hootsuiteData, kpisManuales, kpisFbReales, kpisIgReales, sentimientosFb, sentimientosIg] = await Promise.all([
       leerPublicacionesCSV('hootsuite_publicaciones_fb.csv'), // Pide los de FB
       leerPublicacionesCSV('hootsuite_publicaciones_ig.csv'), // Pide los de IG
       getSocialMetrics(),
       leerKpisGenerales(),
       leerKpisFacebookHootsuite(),
       leerKpisInstagramHootsuite(),
+      leerSentimientos('fb_inbound_messages.csv'),
+      leerSentimientos('ig_inbound_messages.csv'),
     ])
 
     // 2. FUSIÓN Y MAPEO PARA FACEBOOK
@@ -46,7 +48,6 @@ const getReportData = async (req, res) => {
         }
       })
       .sort((a, b) => b.reach - a.reach)
-      .slice(0, 8) // Ordenamos y tomamos 8
 
     // 3. FUSIÓN Y MAPEO PARA INSTAGRAM (Separando Posts y Stories)
     const igPostsList = []
@@ -105,7 +106,7 @@ const getReportData = async (req, res) => {
 
     // 4. ARMAMOS EL REPORTE FINAL
     const fullReport = {
-      metadata: { client: 'Pluxee', title: 'SOCIAL MEDIA REPORT', period: 'February 2026', agency: 'TOLKO' },
+      metadata: { client: 'Pluxee', title: 'SOCIAL MEDIA REPORT', period: kpisManuales?.month || 'Periodo Actual', agency: 'TOLKO' },
       context: {
         title: 'Contexto actual de las RRSS',
         insights: [
@@ -115,62 +116,54 @@ const getReportData = async (req, res) => {
           'En Facebook, los carruseles fueron los formatos que mantuvieron mayor interacción de usuarios, mientras que en IG fue reel.',
         ],
       },
-
       facebook: {
         username: hootsuiteData ? hootsuiteData.facebook.username : 'Pluxee FB',
         kpis: {
-          month: 'February 2026',
-          page_engagement: kpisManuales.fb_page_engagement || 9789,
-          followers: kpisFbReales ? kpisFbReales.followers : 3855,
-          clics: kpisFbReales ? kpisFbReales.clics : 1801,
-          shares: kpisFbReales ? kpisFbReales.shares : 310,
-          responding: kpisFbReales ? kpisFbReales.comments : 84,
-          post_engagement_rate: kpisFbReales ? `${kpisFbReales.post_engagement_rate}%` : '5.62%',
-          post_impressions: kpisFbReales ? kpisFbReales.post_impressions : 2100,
-          response_time: kpisFbReales ? kpisFbReales.time_visualization : 0,
-          page_organic_reach: kpisFbReales ? kpisFbReales.page_organic_reach : 1200,
-          page_no_followers_views: kpisFbReales ? kpisFbReales.page_no_followers_views : 300,
-          page_followers_views: kpisFbReales ? kpisFbReales.page_followers_views : 900,
-          reach: kpisManuales.fb_reach || 1801,
+          month: kpisFbReales?.month || 'Periodo Actual',
+          interactions: kpisFbReales?.interactions || 0,
+          followers: kpisFbReales?.followers || 0,
+          clics: kpisFbReales?.clics || 0,
+          shares: kpisFbReales?.shares || 0,
+          responding: kpisFbReales?.comments || 0,
+          post_engagement_rate: kpisFbReales?.post_engagement_rate ? `${kpisFbReales.post_engagement_rate}%` : '0%',
+          post_impressions: kpisFbReales?.post_impressions || 0,
+          response_time: kpisFbReales?.time_visualization || '0',
+          page_organic_reach: kpisFbReales?.page_organic_reach || 0,
+          page_no_followers_views: kpisFbReales?.page_no_followers_views || 0,
+          page_followers_views: kpisFbReales?.page_followers_views || 0,
+          reach: kpisFbReales?.fb_reach || 0,
           sentiment: {
-            neutral: kpisManuales.sentiment_neutral || 61.92,
-            positive: kpisManuales.sentiment_positive || 15.95,
-            negative: kpisManuales.sentiment_negative || 23.13,
+            neutral: sentimientosFb?.neutral || 0,
+            positive: sentimientosFb?.positive || 0,
+            negative: sentimientosFb?.negative || 0,
           },
         },
-        topCities: kpisFbReales && kpisFbReales.topCities ? kpisFbReales.topCities : [],
-        topPosts: topPostsFb.length > 0 ? topPostsFb : [{ id: 1, type: 'IMAGE', reach: 860, interactions: 37, saved: 1, img: 'https://placehold.co/300x400/ac2d72/ffffff?text=Pizza+Post' }],
+        topCities: kpisFbReales?.topCities || [],
+        topPosts: topPostsFb,
       },
-
       instagram: {
         username: hootsuiteData ? hootsuiteData.instagram.username : 'Pluxee IG',
         kpis: {
-          followers: kpisIgReales ? kpisIgReales.followers : 2677,
-          page_engagement_rate: `${kpisIgReales ? kpisIgReales.page_engagement_rate : 19.01}%`,
-          post_saves: kpisIgReales ? kpisIgReales.post_saves : 1,
-          post_likes: kpisIgReales ? kpisIgReales.post_likes : 1,
+          followers: kpisIgReales?.followers || 0,
+          page_engagement_rate: `${kpisIgReales?.page_engagement_rate || 0}%`,
+          post_saves: kpisIgReales?.post_saves || 0,
+          post_likes: kpisIgReales?.post_likes || 0,
           stories_metrics: {
-            total: kpisIgReales ? kpisIgReales.posts_total : 18,
-            forward: kpisIgReales ? kpisIgReales.story_taps_forward : 0,
-            back: kpisIgReales ? kpisIgReales.story_taps_back : 0,
-            exit: kpisIgReales ? kpisIgReales.story_exits : 310,
+            total: kpisIgReales?.posts_total || 0,
+            forward: kpisIgReales?.story_taps_forward || 0,
+            back: kpisIgReales?.story_taps_back || 0,
+            exit: kpisIgReales?.story_exits || 0,
+          },
+          sentiment: {
+            neutral: sentimientosIg?.neutral || 0,
+            positive: sentimientosIg?.positive || 0,
+            negative: sentimientosIg?.negative || 0,
           },
         },
-        topCities: kpisIgReales && kpisIgReales.topCities ? kpisIgReales.topCities : [],
-
-        // ¡INYECTAMOS LOS POSTS REALES!
-        topPosts: topPostsIg.length > 0 ? topPostsIg : [{ id: 'ig_p1', type: 'CAROUSEL', views: 771, interactions: 348, saved: 1, img: 'https://placehold.co/300x400/e1306c/ffffff?text=IG+Post+1' }],
-
-        // ¡INYECTAMOS LAS STORIES REALES!
-        topStories:
-          topStoriesIg.length > 0
-            ? topStoriesIg
-            : [
-                { id: 'ig_s1', type: 'STORY', views: 418, interactions: 5, shares: 0, img: 'https://placehold.co/300x533/f56040/ffffff?text=IG+Story+1' },
-                { id: 'ig_s2', type: 'STORY', views: 368, interactions: 2, shares: 0, img: 'https://placehold.co/300x533/f56040/ffffff?text=IG+Story+2' },
-              ],
+        topCities: kpisIgReales?.topCities || [],
+        topPosts: topPostsIg,
+        topStories: topStoriesIg,
       },
-
       benchmarking: [
         { id: 1, name: 'Si Vale', description: 'Una empresa líder en soluciones en tarjetas...', followers: '217.3 mil', following: '1209', posts: 10 },
         { id: 2, name: 'Edenred México', description: 'Somos líderes a nivel mundial en soluciones de pago...', followers: '212.8 mil', following: '1529', posts: 3 },

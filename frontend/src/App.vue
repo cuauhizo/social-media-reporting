@@ -7,7 +7,7 @@
   import BenchmarkSection from './components/BenchmarkSection.vue'
   import CustomerServiceSection from './components/CustomerServiceSection.vue'
   import NextStepsSection from './components/NextStepsSection.vue'
-  // import Responsive from '@/components/responsive.vue'
+  import Responsive from '@/components/responsive.vue'
 
   const reportData = ref(null)
   const loading = ref(true)
@@ -15,8 +15,10 @@
 
   onMounted(async () => {
     try {
-      // Hacemos UNA sola petición al mes específico
-      const res = await fetch('http://localhost:3000/api/reports/2026-02')
+      // Leemos la URL desde el .env (Si no existe, usa localhost por defecto)
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+
+      const res = await fetch(`${apiUrl}/api/reports/2026-02`)
       if (!res.ok) throw new Error('Error al cargar el reporte')
 
       reportData.value = await res.json()
@@ -46,7 +48,7 @@
       <NextStepsSection :data="reportData.nextSteps" />
     </div>
   </div>
-  <!-- <Responsive /> -->
+  <Responsive />
 </template>
 
 <style scoped></style>
