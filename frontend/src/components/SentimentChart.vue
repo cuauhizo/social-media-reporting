@@ -34,5 +34,17 @@
     }
   })
 
-  const chartOptions = { responsive: true }
+  const chartOptions = {
+    responsive: true,
+    plugins: {
+      tooltip: {
+        callbacks: {
+          // context.raw es el número puro (ej. 14.95), aquí le pegamos el '%'
+          label: context => {
+            return ` ${context.raw}%`
+          },
+        },
+      },
+    },
+  }
 </script>

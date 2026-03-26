@@ -152,11 +152,18 @@
       </div>
     </div>
   </div>
+  <div class="p-10 bg-gray-100">
+    <div class="max-w-7xl mx-auto min-h-screen">
+      <h2 class="text-2xl font-black text-pluxeeBlue mb-2 uppercase">Post metrics Tolko - Pluxee</h2>
+      <TagsTable :tags="data.reachByTags" :topPosts="data.topPosts" />
+    </div>
+  </div>
 </template>
 
 <script setup>
   import { formatNumber } from '@/utils/formatters'
   import SentimentChart from './SentimentChart.vue'
+  import TagsTable from './TagsTable.vue'
   import ReachChart from './ReachChart.vue'
   defineProps({
     data: Object,
