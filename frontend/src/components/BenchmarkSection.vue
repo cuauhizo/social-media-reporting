@@ -1,8 +1,7 @@
 <template>
   <div class="py-12 px-8 bg-white font-sans text-gray-800 min-h-screen">
     <div class="max-w-7xl mx-auto min-h-screen">
-      <h2 class="text-3xl font-black text-pluxeeBlue mb-2 uppercase">Benchmark: Pluxee vs. Competitors</h2>
-      <p class="text-gray-600 mb-8 font-medium">Seguimos siendo la cuenta con más posts orgánicos vs. los competidores.</p>
+      <h2 class="text-3xl font-black text-pluxeeBlue mb-8 uppercase">Benchmark: Pluxee vs. Competitors</h2>
 
       <!-- <pre>{{ data }}</pre> -->
 
@@ -31,6 +30,7 @@
       </div>
 
       <div class="mt-6 space-y-2 text-sm text-pluxeeBlue font-medium">
+        <p>✅ Seguimos siendo la cuenta con más posts orgánicos vs. los competidores.</p>
         <p>✅ Nos mantenemos con buenas interacciones por parte de publicaciones orgánicas, lo que refleja una comunidad activa.</p>
         <p>🛡️ Tras un nuevo ataque de bots, se lograron mantener resultados positivos y se observan señales de mejora.</p>
       </div>

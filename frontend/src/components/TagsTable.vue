@@ -21,7 +21,7 @@
 
             <div class="flex-1 text-xs overflow-hidden">
               <div class="flex justify-between items-center mb-1.5 gap-2">
-                <p class="text-gray-400 font-bold whitespace-nowrap">{{ post.date }}</p>
+                <p class="text-gray-400 font-bold whitespace-nowrap capitalize">{{ formatDate(post.date) }}</p>
 
                 <span v-if="post.tags && post.tags !== 'Sin etiqueta'" :class="getDynamicTagClasses(post.tags)" :title="post.tags">
                   {{ post.tags.split(',')[0] }}
@@ -47,7 +47,7 @@
   import { computed } from 'vue'
   import { Line } from 'vue-chartjs'
   import { Chart as ChartJS, Title, Tooltip, Legend, PointElement, LineElement, CategoryScale, LinearScale } from 'chart.js'
-  import { formatNumber } from '@/utils/formatters'
+  import { formatNumber, formatDate } from '@/utils/formatters'
 
   ChartJS.register(Title, Tooltip, Legend, PointElement, LineElement, CategoryScale, LinearScale)
 
@@ -88,7 +88,8 @@
       }
     })
 
-    return { labels: sortedDates, datasets: datasets }
+    // return { labels: sortedDates, datasets: datasets }
+    return { labels: sortedDates.map(date => formatDate(date)), datasets: datasets }
   })
 
   const chartOptions = {
