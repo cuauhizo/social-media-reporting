@@ -1,6 +1,6 @@
 <template>
-  <div class="w-full h-32 bg-linear-to-r from-[#833ab4] via-[#fd1d1d] to-[#fcb045] flex items-center justify-center shadow-inner">
-    <h2 class="text-4xl font-black text-white tracking-widest uppercase">Instagram Metrics {{ data.username }}</h2>
+  <div class="w-full h-32 bg-linear-to-r from-[#833ab4] via-[#fd1d1d] to-[#fcb045] flex items-center justify-center shadow-inner px-4">
+    <h2 class="text-4xl text-center font-black text-white tracking-widest uppercase">Instagram Metrics {{ data.username }}</h2>
   </div>
   <div class="p-8 bg-white">
     <div class="max-w-7xl mx-auto min-h-screen">

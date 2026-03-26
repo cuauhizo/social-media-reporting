@@ -427,6 +427,7 @@ function leerPublicacionesCSV(nombreArchivo) {
             shares: parseInt(row['SHARES'] || row['Shares'] || 0),
             saves: parseInt(row['SAVES'] || row['Saves'] || 0),
             postPermalink: row['POST PERMALINK'] || row['Post Permalink'] || '',
+            tags: row['POST TAGS'] || row['Post Tags'] || row['Etiquetas'] || '',
           })
         }
       })
@@ -490,5 +491,71 @@ function leerSentimientos(nombreArchivo) {
   })
 }
 
+// NUEVA FUNCIÓN GENÉRICA: Analiza Alcance por Tags (Funciona para FB e IG)
+// NUEVA VERSIÓN: Guarda cada post por fecha para dibujar una línea de tiempo
+function leerAlcancePorTags(nombreArchivo) {
+  return new Promise((resolve, reject) => {
+    const rutaArchivo = path.join(__dirname, 'data', nombreArchivo)
+
+    if (!fs.existsSync(rutaArchivo)) {
+      console.log(`⚠️ No se encontró ${nombreArchivo} para análisis de Tags.`)
+      return resolve([])
+    }
+
+    // Estructura: { 'Educativo': [ { date: '2026-02-01', reach: 500 }, ... ] }
+    const tagMap = {}
+
+    fs.createReadStream(rutaArchivo)
+      .pipe(csv())
+      .on('data', row => {
+        const keys = Object.keys(row)
+
+        const keyTags = keys.find(k => k.toLowerCase().includes('post tags') || k.toLowerCase().includes('etiquetas'))
+        const keyReach = keys.find(k => k.toLowerCase().includes('reach') || k.toLowerCase().includes('alcance'))
+        const keyDate = keys.find(k => k.toLowerCase().includes('date') || k.toLowerCase().includes('fecha'))
+
+        if (keyTags && row[keyTags] && keyReach && row[keyReach]) {
+          const rawTags = row[keyTags]
+          const reachVal = parseInt(row[keyReach]) || 0
+          // Extraemos solo la fecha (YYYY-MM-DD) ignorando la hora
+          const dateVal = keyDate && row[keyDate] ? row[keyDate].split(' ')[0] : 'Desconocida'
+
+          const tagsArray = rawTags
+            .split(',')
+            .map(tag => tag.trim())
+            .filter(tag => tag !== '')
+
+          tagsArray.forEach(tag => {
+            if (!tagMap[tag]) {
+              tagMap[tag] = [] // Creamos el arreglo vacío para esta etiqueta
+            }
+            // Guardamos el punto en la línea de tiempo
+            tagMap[tag].push({ date: dateVal, reach: reachVal })
+          })
+        }
+      })
+      .on('end', () => {
+        // Formateamos el resultado
+        const tagResults = Object.keys(tagMap)
+          .map(tagName => {
+            return {
+              name: tagName,
+              posts: tagMap[tagName].sort((a, b) => new Date(a.date) - new Date(b.date)), // Ordenamos cronológicamente
+            }
+          })
+          // Ordenamos las etiquetas por alcance total para que la más fuerte salga primero en la leyenda
+          .sort((a, b) => {
+            const totalA = a.posts.reduce((sum, p) => sum + p.reach, 0)
+            const totalB = b.posts.reduce((sum, p) => sum + p.reach, 0)
+            return totalB - totalA
+          })
+
+        console.log(`✅ Evolución de Tags analizada en ${nombreArchivo}`)
+        resolve(tagResults)
+      })
+      .on('error', error => reject(error))
+  })
+}
+
 // Asegúrate de exportar el nuevo nombre de la función:
-module.exports = { leerPublicacionesCSV, leerKpisGenerales, leerKpisFacebookHootsuite, leerKpisInstagramHootsuite, leerSentimientos }
+module.exports = { leerPublicacionesCSV, leerKpisGenerales, leerKpisFacebookHootsuite, leerKpisInstagramHootsuite, leerSentimientos, leerAlcancePorTags }

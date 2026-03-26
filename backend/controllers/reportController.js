@@ -1,12 +1,12 @@
 const { getSocialMetrics } = require('../hootsuiteService')
-const { leerPublicacionesCSV, leerKpisGenerales, leerKpisFacebookHootsuite, leerKpisInstagramHootsuite, leerSentimientos } = require('../csvService')
+const { leerPublicacionesCSV, leerKpisGenerales, leerKpisFacebookHootsuite, leerKpisInstagramHootsuite, leerSentimientos, leerAlcancePorTags } = require('../csvService')
 
 const getReportData = async (req, res) => {
   try {
     console.log('Iniciando fusión de datos...')
 
     // 1. LEEMOS TODO AL MISMO TIEMPO (Incluyendo ambos CSVs de posts)
-    const [publicacionesFb, publicacionesIg, hootsuiteData, kpisManuales, kpisFbReales, kpisIgReales, sentimientosFb, sentimientosIg] = await Promise.all([
+    const [publicacionesFb, publicacionesIg, hootsuiteData, kpisManuales, kpisFbReales, kpisIgReales, sentimientosFb, sentimientosIg, tagFb, tagIg] = await Promise.all([
       leerPublicacionesCSV('hootsuite_publicaciones_fb.csv'), // Pide los de FB
       leerPublicacionesCSV('hootsuite_publicaciones_ig.csv'), // Pide los de IG
       getSocialMetrics(),
@@ -15,6 +15,8 @@ const getReportData = async (req, res) => {
       leerKpisInstagramHootsuite(),
       leerSentimientos('fb_inbound_messages.csv'),
       leerSentimientos('ig_inbound_messages.csv'),
+      leerAlcancePorTags('hootsuite_publicaciones_fb.csv'),
+      leerAlcancePorTags('hootsuite_publicaciones_ig.csv'),
     ])
 
     // 2. FUSIÓN Y MAPEO PARA FACEBOOK
@@ -45,6 +47,8 @@ const getReportData = async (req, res) => {
           img: imagenMapeada,
           postPermalink: postExcel.postPermalink,
           text: postExcel.mensaje.substring(0, 60) + '...',
+          date: postExcel.fecha ? postExcel.fecha.split(' ')[0] : 'Sin fecha',
+          tags: postExcel.tags || 'Sin etiqueta',
         }
       })
       .sort((a, b) => b.reach - a.reach)
@@ -102,6 +106,8 @@ const getReportData = async (req, res) => {
         img: imagenMapeada,
         postPermalink: postExcel.postPermalink,
         text: postExcel.mensaje ? postExcel.mensaje.substring(0, 60) + '...' : 'Historia sin texto',
+        date: postExcel.fecha ? postExcel.fecha.split(' ')[0] : 'Sin fecha',
+        tags: postExcel.tags || 'Sin etiqueta',
       }
 
       // Los separamos en sus respectivas listas
@@ -152,6 +158,7 @@ const getReportData = async (req, res) => {
         },
         topCities: kpisFbReales?.topCities || [],
         topPosts: topPostsFb,
+        reachByTags: tagFb || [],
       },
       instagram: {
         username: hootsuiteData ? hootsuiteData.instagram.username : 'Pluxee IG',
@@ -176,6 +183,7 @@ const getReportData = async (req, res) => {
         topCities: kpisIgReales?.topCities || [],
         topPosts: topPostsIg,
         topStories: topStoriesIg,
+        reachByTags: tagIg || [],
       },
       benchmarking: [
         { id: 1, name: 'Si Vale', description: 'Una empresa líder en soluciones en tarjetas...', followers: '217.3 mil', following: '1209', posts: 10 },

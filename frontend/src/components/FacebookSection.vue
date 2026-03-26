@@ -1,6 +1,6 @@
 <template>
-  <div class="w-full h-32 bg-[#1877F2] flex items-center justify-center shadow-inner">
-    <h2 class="text-4xl font-black text-white tracking-widest uppercase">Facebook Metrics {{ data.username }}</h2>
+  <div class="w-full h-32 bg-[#1877F2] flex items-center justify-center shadow-inner px-4">
+    <h2 class="text-4xl text-center font-black text-white tracking-widest uppercase">Facebook Metrics {{ data.username }}</h2>
   </div>
   <div class="p-8 bg-gray-100">
     <div class="max-w-7xl mx-auto min-h-screen">
@@ -99,11 +99,18 @@
       </div>
     </div>
   </div>
+  <div class="p-10 bg-gray-100">
+    <div class="max-w-7xl mx-auto min-h-screen">
+      <h2 class="text-2xl font-black text-pluxeeBlue mb-2 uppercase">Post metrics Tolko - Pluxee</h2>
+      <TagsTable :tags="data.reachByTags" :topPosts="data.topPosts" />
+    </div>
+  </div>
 </template>
 
 <script setup>
   import PostCard from '@/components/PostCard.vue'
   import SentimentChart from '@/components/SentimentChart.vue'
+  import TagsTable from './TagsTable.vue'
   import { formatNumber } from '@/utils/formatters'
 
   defineProps({

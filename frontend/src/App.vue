@@ -7,7 +7,7 @@
   import BenchmarkSection from './components/BenchmarkSection.vue'
   import CustomerServiceSection from './components/CustomerServiceSection.vue'
   import NextStepsSection from './components/NextStepsSection.vue'
-  import Responsive from '@/components/responsive.vue'
+  // import Responsive from '@/components/responsive.vue'
 
   const reportData = ref(null)
   const loading = ref(true)
@@ -48,7 +48,7 @@
       <NextStepsSection :data="reportData.nextSteps" />
     </div>
   </div>
-  <Responsive />
+  <!-- <Responsive /> -->
 </template>
 
 <style scoped></style>
