@@ -127,12 +127,14 @@ const getReportData = async (req, res) => {
       metadata: { client: 'Pluxee', title: 'SOCIAL MEDIA REPORT', period: kpisManuales?.month || 'Periodo Actual', agency: 'TOLKO' },
       context: {
         title: 'Contexto actual de las RRSS',
-        insights: [
-          'Durante el mes de febrero nuestro crecimiento fue estable. Los usuarios se mantuvieron activos.',
-          'La mayor interacción en contenido fue referente a promociones y educativo en Instagram',
-          'El número de quejas disminuyó considerablemente.',
-          'En Facebook, los carruseles fueron los formatos que mantuvieron mayor interacción de usuarios, mientras que en IG fue reel.',
-        ],
+        // insights: [
+        //   'Durante el mes de febrero nuestro crecimiento fue estable. Los usuarios se mantuvieron activos.',
+        //   'La mayor interacción en contenido fue referente a promociones y educativo en Instagram',
+        //   'El número de quejas disminuyó considerablemente.',
+        //   'En Facebook, los carruseles fueron los formatos que mantuvieron mayor interacción de usuarios, mientras que en IG fue reel.',
+        //   'Este es otro punto importante a destacar, que nos habla de la importancia de mantener una estrategia de contenido variada y adaptada a cada plataforma.',
+        // ],
+        insights: kpisManuales.insight || ['No hay insights registrados en este periodo.'],
       },
       facebook: {
         username: hootsuiteData ? hootsuiteData.facebook.username : 'Pluxee FB',
@@ -258,23 +260,44 @@ const getReportData = async (req, res) => {
           },
         },
       ],
+      benchmarkInsights: kpisManuales.benchmark_insight || [
+        '✅ cuauhixo Seguimos siendo la cuenta con más posts orgánicos vs. los competidores.',
+        '✅ Nos mantenemos con buenas interacciones por parte de publicaciones orgánicas.',
+        '✅ Tras un nuevo ataque de bots, se lograron mantener resultados positivos.',
+      ],
       customerService: {
         messages: {
-          total: kpisManuales.cs_total || 84,
-          escalated: kpisManuales.cs_escalated || 31,
-          breakdown: { facebook: { count: 63, percentage: 75.0 }, instagram: { count: 21, percentage: 25.0 } },
+          total: kpisManuales.cs_total || 0,
+          escalated: kpisManuales.cs_escalated || 0,
+          breakdown: {
+            facebook: {
+              count: kpisManuales.msj_fb || 0,
+              percentage: kpisManuales.percentage_fb || 0,
+            },
+            instagram: {
+              count: kpisManuales.msj_ig || 0,
+              percentage: kpisManuales.percentage_ig || 0,
+            },
+          },
         },
-        complaints: [
-          { id: 1, topic: 'RFC Duplicado' },
-          { id: 2, topic: 'Rechazo en establecimientos' },
-          { id: 3, topic: 'Pérdida o robo' },
-          { id: 4, topic: 'La app no reconoce mi tarjeta' },
-          { id: 5, topic: 'Cómo ingreso a la app' },
-        ],
+        // complaints: [
+        //   { id: 1, topic: 'RFC Duplicado' },
+        //   { id: 2, topic: 'Rechazo en establecimientos' },
+        //   { id: 3, topic: 'Pérdida o robo' },
+        //   { id: 4, topic: 'La app no reconoce mi tarjeta' },
+        //   { id: 5, topic: 'Cómo ingreso a la app' },
+        // ],
+        complaints: (kpisManuales.complaint || []).map((texto, index) => {
+          return { id: index + 1, topic: texto }
+        }),
       },
+      // nextSteps: {
+      //   proposals: ['Dar seguimiento a los casos registrados en la pestaña de escalamiento.', 'Mantener el cover de portada y/o con promociones nuevas.', 'Contenido educativo con videos y carruseles.'],
+      //   commitments: ['Continuar resolviendo problemáticas que no requieran un escalamiento y uso de post.', 'Repostear el contenido de feed en historias.', 'Mantener tiempo de respuesta en comentarios y mensajes directos de cada red social.'],
+      // },
       nextSteps: {
-        proposals: ['Dar seguimiento a los casos registrados en la pestaña de escalamiento.', 'Mantener el cover de portada y/o con promociones nuevas.', 'Contenido educativo con videos y carruseles.'],
-        commitments: ['Continuar resolviendo problemáticas que no requieran un escalamiento y uso de post.', 'Repostear el contenido de feed en historias.', 'Mantener tiempo de respuesta en comentarios y mensajes directos de cada red social.'],
+        proposals: kpisManuales.proposal || ['No hay propuestas registradas.'],
+        commitments: kpisManuales.commitment || ['No hay compromisos registrados.'],
       },
     }
 

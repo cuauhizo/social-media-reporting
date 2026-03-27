@@ -2,7 +2,7 @@ const fs = require('fs')
 const path = require('path')
 const csv = require('csv-parser')
 
-// Lee metricas_pluxee.csv para obtener KPIs generales (alcance total, seguidores, etc.)
+// Lee metricas_pluxee.csv para obtener KPIs generales y textos dinámicos
 function leerKpisGenerales() {
   return new Promise((resolve, reject) => {
     const kpis = {}
@@ -10,17 +10,26 @@ function leerKpisGenerales() {
 
     if (!fs.existsSync(rutaArchivo)) {
       console.log('⚠️ No se encontró metricas_pluxee.csv. Usando datos por defecto.')
-      return resolve({}) // Devolvemos objeto vacío si no existe
+      return resolve({})
     }
 
     fs.createReadStream(rutaArchivo)
       .pipe(csv())
       .on('data', row => {
-        // Guardamos la llave y su valor (ej. kpis['fb_followers'] = 3950)
-        kpis[row.kpi] = row.valor
+        // Definimos qué llaves deben comportarse como "Listas" (pueden venir varias veces)
+        const clavesLista = ['insight', 'complaint', 'proposal', 'commitment', 'benchmark_insight']
+
+        if (clavesLista.includes(row.kpi)) {
+          // Si es un texto de lista, lo empujamos a un arreglo
+          if (!kpis[row.kpi]) kpis[row.kpi] = []
+          kpis[row.kpi].push(row.valor)
+        } else {
+          // Si es un valor único (ej. cs_total), lo guardamos normal
+          kpis[row.kpi] = row.valor
+        }
       })
       .on('end', () => {
-        console.log('✅ KPIs Generales maestros leídos con éxito.')
+        console.log('✅ KPIs Generales y Textos dinámicos leídos con éxito.')
         resolve(kpis)
       })
       .on('error', error => reject(error))

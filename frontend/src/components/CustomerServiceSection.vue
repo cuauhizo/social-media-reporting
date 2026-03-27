@@ -53,15 +53,29 @@
   ChartJS.register(ArcElement, Tooltip, Legend)
 
   const chartData = ref({})
-  const chartOptions = { responsive: true, maintainAspectRatio: false }
+  // const chartOptions = { responsive: true, maintainAspectRatio: false }
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      tooltip: {
+        callbacks: {
+          // context.raw es el número puro (ej. 14.95), aquí le pegamos el '%'
+          label: context => {
+            return ` ${context.raw}%`
+          },
+        },
+      },
+    },
+  }
 
   // Configuramos los datos para el gráfico de pastel
   chartData.value = {
     labels: ['Facebook', 'Instagram'],
     datasets: [
       {
-        backgroundColor: ['#dbeafe', '#fbcfe8'], // Azul claro y rosa claro como en el PDF
-        data: [props.data.messages.breakdown.facebook.percentage, props.data.messages.breakdown.instagram.percentage],
+        backgroundColor: ['#dbeafe', '#fbcfe8'],
+        data: [parseFloat(props.data.messages.breakdown.facebook.percentage) || 0, parseFloat(props.data.messages.breakdown.instagram.percentage) || 0],
       },
     ],
   }

@@ -42,7 +42,9 @@
       <CoverSection :metadata="reportData.metadata" />
       <ContextSection :data="reportData.context" />
       <FacebookSection :data="reportData.facebook" />
-      <BenchmarkSection :data="reportData.benchmarking" />
+      <!-- <BenchmarkSection :data="reportData.benchmarking" />
+        -->
+      <BenchmarkSection :data="reportData.benchmarking" :insights="reportData.benchmarkInsights" />
       <InstagramSection :data="reportData.instagram" />
       <CustomerServiceSection :data="reportData.customerService" />
       <NextStepsSection :data="reportData.nextSteps" />
