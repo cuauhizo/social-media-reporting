@@ -7,7 +7,8 @@
 
 /* Configuración de Tailwind v4 */
 @theme {
-  --color-pluxeeBlue: #002d72;
+  /* --color-pluxeeBlue: #002d72; */
+  --color-pluxeeBlue: #221c46;
   --color-pluxeeBlueLight: #17ccf9;
   --color-pluxeeYellow: #ffeb00;
   --color-pluxeeGreen: #00eb5d;
