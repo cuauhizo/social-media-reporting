@@ -22,10 +22,10 @@
   // Mapeamos los datos con sus colores representativos
   const chartItems = computed(() =>
     [
-      { label: 'Reels', value: props.reachData.reel, color: '#e1306c' }, // Magenta IG
-      { label: 'Carousel', value: props.reachData.carousel, color: '#fcb045' }, // Naranja
-      { label: 'Stories', value: props.reachData.story, color: '#f56040' }, // Rojo anaranjado
-      { label: 'Photos', value: props.reachData.photo, color: '#833ab4' }, // Morado
+      { label: 'Reels', value: props.reachData.reel, color: '#17ccf9' },
+      { label: 'Carousel', value: props.reachData.carousel, color: '#ffdc37' },
+      { label: 'Stories', value: props.reachData.story, color: '#ff7375' },
+      { label: 'Photos', value: props.reachData.photo, color: '#00eb5d' },
     ].sort((a, b) => b.value - a.value),
   ) // Los ordenamos de mayor a menor alcance
 

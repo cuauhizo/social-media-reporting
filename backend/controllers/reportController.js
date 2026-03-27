@@ -22,7 +22,7 @@ const getReportData = async (req, res) => {
     // 2. FUSIÓN Y MAPEO PARA FACEBOOK
     const topPostsFb = (publicacionesFb || [])
       .map(postExcel => {
-        let imagenMapeada = 'https://placehold.co/300x400/cccccc/ffffff?text=Post+Sin+Imagen'
+        let imagenMapeada = 'https://placehold.co/300x400/00eb5d/ffffff?text=Post+Sin+Imagen'
         let tipoPost = postExcel.tipoPost || 'POST'
 
         if (hootsuiteData && hootsuiteData.facebook && hootsuiteData.facebook.realPosts) {
@@ -58,12 +58,12 @@ const getReportData = async (req, res) => {
     const igStoriesList = []
 
     ;(publicacionesIg || []).forEach(postExcel => {
-      let imagenMapeada = 'https://placehold.co/300x400/e1306c/ffffff?text=IG+Sin+Imagen'
+      let imagenMapeada = 'https://placehold.co/300x400/ff7375/ffffff?text=IG+Sin+Imagen'
       let tipoPost = (postExcel.tipoPost || 'POST').toUpperCase()
 
       // 1. TRUCO PARA HISTORIAS: Usamos la imagen directa que viene en el CSV
       if (tipoPost.includes('STORY')) {
-        imagenMapeada = 'https://placehold.co/300x533/f56040/ffffff?text=IG+Story'
+        imagenMapeada = 'https://placehold.co/300x533/00eb5d/ffffff?text=IG+Story'
 
         // Si la URL del permalink contiene "scontent" (servidor de Meta), "jpg" o "mp4", es la imagen real
         if (postExcel.postPermalink && postExcel.postPermalink.includes('scontent')) {

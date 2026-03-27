@@ -9,7 +9,6 @@
           <div class="flex items-center justify-center mb-6 h-64">
             <Pie :data="chartData" :options="chartOptions" />
           </div>
-
           <div class="bg-blue-50 p-4 rounded-lg text-pluxeeBlue font-medium space-y-2">
             <p>
               📩 Se recibieron

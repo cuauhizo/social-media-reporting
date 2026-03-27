@@ -53,7 +53,7 @@
 
   const props = defineProps({
     tags: { type: Array, default: () => [] },
-    topPosts: { type: Array, default: () => [] }, // ✨ RECIBIMOS LOS POSTS AQUÍ
+    topPosts: { type: Array, default: () => [] },
   })
 
   const chartData = computed(() => {
@@ -67,7 +67,7 @@
     })
 
     const sortedDates = Array.from(allDates).sort((a, b) => new Date(a) - new Date(b))
-    const colors = ['#cc0032', '#00eb5d', '#f56040', '#fcb045', '#833ab4', '#00cccc']
+    const colors = ['#cc0032', '#00eb5d', '#ff7375', '#ffdc37', '#17ccf9', '#221c46']
 
     const datasets = props.tags.map((tag, index) => {
       const dataPoints = sortedDates.map(date => {
@@ -127,12 +127,12 @@
     // 1. Lógica para TOLKO (#cc0032)
     // Usamos arbitrary values de Tailwind y opacidad 10% [/10] para fondo suave
     if (lowerTags.includes('tolko')) {
-      return `${baseClasses} bg-[#cc0032]/10 text-[#cc0032] border-[#cc0032]/20`
+      return `${baseClasses} bg-tolkoRed/10 text-tolkoRed border-tolkoRed/20`
     }
 
     // 2. Lógica para PLUXEE (#00eb5d)
     if (lowerTags.includes('pluxee')) {
-      return `${baseClasses} bg-[#00eb5d]/10 text-[#00eb5d] border-[#00eb5d]/20`
+      return `${baseClasses} bg-pluxeeGreen/10 text-pluxeeGreen border-pluxeeGreen/20`
     }
 
     // 3. Respaldo Genérico (el color azul original que propusiste)

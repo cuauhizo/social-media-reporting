@@ -26,7 +26,7 @@
       labels: ['Neutral', 'Positive', 'Negative'],
       datasets: [
         {
-          backgroundColor: ['#ff9300', '#9bbb59', '#ff2600'],
+          backgroundColor: ['#ffdc37', '#00eb5d', '#ff7375'],
           // parseFloat le quita el "%" y lo convierte en número decimal para Chart.js
           data: [parseFloat(props.sentimentData.neutral) || 0, parseFloat(props.sentimentData.positive) || 0, parseFloat(props.sentimentData.negative) || 0],
         },
