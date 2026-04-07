@@ -10,50 +10,17 @@
       <div class="grid grid-cols-12 gap-4">
         <div class="col-span-12 xl:col-span-9">
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-center">
-            <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-pluxeeYellow">
-              <p class="text-gray-500 text-sm">Page Engagement</p>
-              <h2 class="text-3xl font-bold text-pluxeeBlue">{{ formatNumber(data.kpis.interactions) }}</h2>
-            </div>
-            <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-pluxeeYellow">
-              <p class="text-gray-500 text-sm">Total followers</p>
-              <h2 class="text-3xl font-bold text-pluxeeBlue">{{ formatNumber(data.kpis.followers) }}</h2>
-            </div>
-            <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-pluxeeYellow">
-              <p class="text-gray-500 text-sm">Clicks organic Link</p>
-              <h2 class="text-3xl font-bold text-pluxeeBlue">{{ formatNumber(data.kpis.clics) }}</h2>
-            </div>
-            <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-pluxeeYellow">
-              <p class="text-gray-500 text-sm">Post shares</p>
-              <h2 class="text-3xl font-bold text-pluxeeBlue">{{ data.kpis.shares }}</h2>
-            </div>
-            <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-pluxeeYellow">
-              <p class="text-gray-500 text-sm">Responding</p>
-              <h2 class="text-3xl font-bold text-pluxeeBlue">{{ data.kpis.responding }}</h2>
-            </div>
-            <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-pluxeeYellow">
-              <p class="text-gray-500 text-sm">Post engagement rate</p>
-              <h2 class="text-3xl font-bold text-pluxeeBlue">{{ data.kpis.post_engagement_rate }}</h2>
-            </div>
-            <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-pluxeeYellow">
-              <p class="text-gray-500 text-sm">Post impressions</p>
-              <h2 class="text-3xl font-bold text-pluxeeBlue">{{ formatNumber(data.kpis.post_impressions) }}</h2>
-            </div>
-            <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-pluxeeYellow">
-              <p class="text-gray-500 text-sm">Response time</p>
-              <h2 class="text-3xl font-bold text-pluxeeBlue">{{ data.kpis.response_time }}</h2>
-            </div>
-            <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-pluxeeYellow">
-              <p class="text-gray-500 text-sm">Page organic reach</p>
-              <h2 class="text-3xl font-bold text-pluxeeBlue">{{ formatNumber(data.kpis.page_organic_reach) }}</h2>
-            </div>
-            <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-pluxeeYellow">
-              <p class="text-gray-500 text-sm">Views from non-followers</p>
-              <h2 class="text-3xl font-bold text-pluxeeBlue">{{ formatNumber(data.kpis.page_no_followers_views) }}</h2>
-            </div>
-            <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-pluxeeYellow">
-              <p class="text-gray-500 text-sm">Views from followers</p>
-              <h2 class="text-3xl font-bold text-pluxeeBlue">{{ formatNumber(data.kpis.page_followers_views) }}</h2>
-            </div>
+            <KpiCard title="Page Engagement" :value="formatNumber(data.kpis.interactions)" />
+            <KpiCard title="Total followers" :value="formatNumber(data.kpis.followers)" />
+            <KpiCard title="Clicks organic Link" :value="formatNumber(data.kpis.clics)" />
+            <KpiCard title="Post shares" :value="data.kpis.shares" />
+            <KpiCard title="Responding" :value="data.kpis.responding" />
+            <KpiCard title="Post engagement rate" :value="data.kpis.post_engagement_rate" />
+            <KpiCard title="Post impressions" :value="formatNumber(data.kpis.post_impressions)" />
+            <KpiCard title="Response time" :value="data.kpis.response_time" />
+            <KpiCard title="Page organic reach" :value="formatNumber(data.kpis.page_organic_reach)" />
+            <KpiCard title="Views from non-followers" :value="formatNumber(data.kpis.page_no_followers_views)" />
+            <KpiCard title="Views from followers" :value="formatNumber(data.kpis.page_followers_views)" />
           </div>
           <div class="grid grid-cols-1 gap-8 mt-4">
             <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-pluxeeGreen">
@@ -111,6 +78,7 @@
   import PostCard from '@/components/PostCard.vue'
   import SentimentChart from '@/components/SentimentChart.vue'
   import TagsTable from './TagsTable.vue'
+  import KpiCard from '@/components/KpiCard.vue'
   import { formatNumber } from '@/utils/formatters'
 
   defineProps({
