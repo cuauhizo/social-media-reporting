@@ -18,7 +18,18 @@
       // Leemos la URL desde el .env (Si no existe, usa localhost por defecto)
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000'
 
-      const res = await fetch(`${apiUrl}/api/reports/2026-02`)
+      const hoy = new Date()
+      hoy.setMonth(hoy.getMonth() - 1) // Restamos 1 mes
+
+      const año = hoy.getFullYear()
+      // getMonth() devuelve 0-11, así que sumamos 1. padStart asegura que "2" sea "02"
+      const mesAnterior = String(hoy.getMonth() + 1).padStart(2, '0')
+
+      const periodId = `${año}-${mesAnterior}` // Resultado: "2026-03" (si estamos en abril)
+
+      // Le pasamos la variable dinámica a la URL
+      const res = await fetch(`${apiUrl}/api/reports/${periodId}`)
+
       if (!res.ok) throw new Error('Error al cargar el reporte')
 
       reportData.value = await res.json()

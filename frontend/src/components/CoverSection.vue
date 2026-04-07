@@ -2,7 +2,7 @@
   <div class="min-h-screen w-full bg-pluxeeGreen flex flex-col justify-between p-12 text-white overflow-hidden relative">
     <div class="absolute top-10 right-10 w-32 h-32 border-4 border-pluxeeYellow rounded-full opacity-50"></div>
     <div class="absolute -bottom-12.5 -left-12.5 w-64 h-64 bg-pluxeeBlue rounded-full opacity-10"></div>
-
+    <!-- <pre>{{ metadata }}</pre> -->
     <div class="z-10">
       <h2 class="text-4xl font-light tracking-widest uppercase">{{ metadata.client }}</h2>
     </div>

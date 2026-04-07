@@ -159,7 +159,7 @@ const getReportData = async (req, res) => {
       facebook: {
         username: hootsuiteData ? hootsuiteData.facebook.username : 'Pluxee FB',
         kpis: {
-          month: kpisFbReales?.month || 'Periodo Actual',
+          month: kpisManuales?.month || 'Periodo Actual',
           interactions: kpisFbReales?.interactions || 0,
           followers: kpisFbReales?.followers || 0,
           clics: kpisFbReales?.clics || 0,
