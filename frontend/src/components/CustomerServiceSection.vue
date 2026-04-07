@@ -5,6 +5,13 @@
       <!-- <pre>{{ data }}</pre> -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div class="bg-white p-6 rounded-xl shadow-md border-t-4 border-pluxeeBlue">
+          <h3 class="text-xl font-bold text-gray-800 mb-4">Tipos de Casos (CAS)</h3>
+          <div class="flex items-center justify-center mb-6 h-96">
+            <Pie :data="chartData2" :options="chartOptions" />
+          </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl shadow-md border-t-4 border-pluxeeBlue">
           <h3 class="text-xl font-bold text-gray-800 mb-4">Origen de Mensajes</h3>
           <div class="flex items-center justify-center mb-6 h-64">
             <Pie :data="chartData" :options="chartOptions" />
@@ -28,11 +35,11 @@
           <p class="text-sm text-gray-500 mb-4">Temas recurrentes escalados durante el mes</p>
 
           <ul class="space-y-3">
-            <li v-for="complaint in data.complaints" :key="complaint.id" class="flex items-center bg-gray-50 p-3 rounded-lg border border-gray-100">
+            <li v-for="complaint in data.complaints" :key="complaint.id" class="flex items-start bg-gray-50 p-3 rounded-lg border border-gray-100">
               <div class="w-8 h-8 rounded-full bg-pluxeeBlue text-white flex justify-center items-center font-bold mr-4">
                 {{ complaint.id }}
               </div>
-              <span class="text-gray-700 font-medium text-lg">{{ complaint.topic }}</span>
+              <span class="text-gray-700 font-medium text-lg w-full">{{ complaint.topic }}</span>
             </li>
           </ul>
         </div>
@@ -53,6 +60,10 @@
   ChartJS.register(ArcElement, Tooltip, Legend)
 
   const chartData = ref({})
+  const chartData2 = ref({})
+  const casItems = props.data.cas || []
+  // Paleta de colores extensa: Mezcla de corporativos de Pluxee/Tolko y colores de apoyo
+  const colorPalette = ['#002d72', '#17ccf9', '#ffeb00', '#00eb5d', '#cc0032', '#f56040', '#833ab4', '#e1306c', '#fd1d1d', '#fcb045', '#9bbb59', '#ff9300', '#dbeafe', '#fbcfe8', '#9ca3af']
   // const chartOptions = { responsive: true, maintainAspectRatio: false }
   const chartOptions = {
     responsive: true,
@@ -76,6 +87,19 @@
       {
         backgroundColor: ['#dbeafe', '#fbcfe8'],
         data: [parseFloat(props.data.messages.breakdown.facebook.percentage) || 0, parseFloat(props.data.messages.breakdown.instagram.percentage) || 0],
+      },
+    ],
+  }
+
+  chartData2.value = {
+    // Usamos .map() para extraer los nombres que limpiamos en el backend
+    labels: casItems.map(item => item.label),
+    datasets: [
+      {
+        // Usamos % (módulo) para que si hay más de 15 datos, recicle la paleta de colores automáticamente y no se rompa
+        backgroundColor: casItems.map((_, index) => colorPalette[index % colorPalette.length]),
+        // Usamos .map() para extraer los valores numéricos
+        data: casItems.map(item => item.value),
       },
     ],
   }

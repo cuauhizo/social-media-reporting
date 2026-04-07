@@ -122,6 +122,26 @@ const getReportData = async (req, res) => {
     const topPostsIg = igPostsList.sort((a, b) => b.views - a.views)
     const topStoriesIg = igStoriesList.sort((a, b) => b.views - a.views)
 
+    // ✨ NUEVA LÓGICA DINÁMICA PARA LOS CAS (Customer Service) ✨
+    const dynamicCas = []
+    if (kpisManuales) {
+      for (const key in kpisManuales) {
+        // Buscamos cualquier llave que empiece con 'cas_'
+        if (key.startsWith('cas_')) {
+          // Limpiamos el texto: de "cas_actualizacion_de_datos" a "Actualizacion de datos"
+          let label = key.replace('cas_', '').replace(/_/g, ' ')
+          label = label.charAt(0).toUpperCase() + label.slice(1) // Mayúscula inicial
+
+          dynamicCas.push({
+            label: label,
+            value: parseFloat(kpisManuales[key]) || 0,
+          })
+        }
+      }
+    }
+    // Ordenamos de mayor a menor para que la gráfica de pastel se vea ordenada
+    dynamicCas.sort((a, b) => b.value - a.value)
+
     // 4. ARMAMOS EL REPORTE FINAL
     const fullReport = {
       metadata: { client: 'Pluxee', title: 'SOCIAL MEDIA REPORT', period: kpisManuales?.month || 'Periodo Actual', agency: 'TOLKO' },
@@ -260,12 +280,9 @@ const getReportData = async (req, res) => {
           },
         },
       ],
-      benchmarkInsights: kpisManuales.benchmark_insight || [
-        '✅ cuauhixo Seguimos siendo la cuenta con más posts orgánicos vs. los competidores.',
-        '✅ Nos mantenemos con buenas interacciones por parte de publicaciones orgánicas.',
-        '✅ Tras un nuevo ataque de bots, se lograron mantener resultados positivos.',
-      ],
+      benchmarkInsights: kpisManuales.benchmark_insight || [],
       customerService: {
+        cas: dynamicCas,
         messages: {
           total: kpisManuales.cs_total || 0,
           escalated: kpisManuales.cs_escalated || 0,
@@ -280,21 +297,10 @@ const getReportData = async (req, res) => {
             },
           },
         },
-        // complaints: [
-        //   { id: 1, topic: 'RFC Duplicado' },
-        //   { id: 2, topic: 'Rechazo en establecimientos' },
-        //   { id: 3, topic: 'Pérdida o robo' },
-        //   { id: 4, topic: 'La app no reconoce mi tarjeta' },
-        //   { id: 5, topic: 'Cómo ingreso a la app' },
-        // ],
         complaints: (kpisManuales.complaint || []).map((texto, index) => {
           return { id: index + 1, topic: texto }
         }),
       },
-      // nextSteps: {
-      //   proposals: ['Dar seguimiento a los casos registrados en la pestaña de escalamiento.', 'Mantener el cover de portada y/o con promociones nuevas.', 'Contenido educativo con videos y carruseles.'],
-      //   commitments: ['Continuar resolviendo problemáticas que no requieran un escalamiento y uso de post.', 'Repostear el contenido de feed en historias.', 'Mantener tiempo de respuesta en comentarios y mensajes directos de cada red social.'],
-      // },
       nextSteps: {
         proposals: kpisManuales.proposal || ['No hay propuestas registradas.'],
         commitments: kpisManuales.commitment || ['No hay compromisos registrados.'],

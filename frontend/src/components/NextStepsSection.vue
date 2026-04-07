@@ -17,7 +17,7 @@
           </ul>
         </div>
 
-        <div class="bg-gray-50 p-8 rounded-2xl border-l-8 border-pluxeeBlue shadow-sm hover:shadow-md transition-shadow">
+        <div class="bg-gray-50 p-8 rounded-2xl border-l-8 border-pluxeeGreen shadow-sm hover:shadow-md transition-shadow">
           <h3 class="text-2xl font-bold text-pluxeeBlue mb-6 flex items-center">
             <span class="text-3xl mr-3">🤝</span>
             Compromisos
