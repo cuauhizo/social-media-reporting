@@ -67,28 +67,44 @@
     })
 
     const sortedDates = Array.from(allDates).sort((a, b) => new Date(a) - new Date(b))
-    const colors = ['#cc0032', '#00eb5d', '#ff7375', '#ffdc37', '#17ccf9', '#221c46']
 
-    const datasets = props.tags.map((tag, index) => {
+    // Quitamos el rojo y el verde de la lista por defecto, ya que serán exclusivos
+    const defaultColors = ['#ff7375', '#ffdc37', '#17ccf9', '#221c46', '#833ab4', '#fcb045']
+    let defaultColorIndex = 0 // Contador para las etiquetas que no sean ni Tolko ni Pluxee
+
+    const datasets = props.tags.map(tag => {
       const dataPoints = sortedDates.map(date => {
         const postsOnDate = tag.posts.filter(p => p.date === date)
         return postsOnDate.length > 0 ? postsOnDate.reduce((sum, p) => sum + p.reach, 0) : null
       })
 
+      // ✨ LÓGICA DE COLOR DINÁMICO PARA LA LÍNEA ✨
+      let lineColor = ''
+      const lowerTagName = tag.name.toLowerCase()
+
+      if (lowerTagName.includes('tolko')) {
+        lineColor = '#cc0032' // Rojo oficial
+      } else if (lowerTagName.includes('pluxee')) {
+        lineColor = '#00eb5d' // Verde oficial
+      } else {
+        // Si es otra etiqueta (ej. "Educativo", "Promociones"), toma un color de la lista de respaldo
+        lineColor = defaultColors[defaultColorIndex % defaultColors.length]
+        defaultColorIndex++
+      }
+
       return {
         label: tag.name,
         data: dataPoints,
-        borderColor: colors[index % colors.length],
-        backgroundColor: colors[index % colors.length],
+        borderColor: lineColor,
+        backgroundColor: lineColor,
         tension: 0.3,
         spanGaps: true,
-        pointRadius: 5,
-        pointHoverRadius: 8,
+        pointRadius: 4,
+        pointHoverRadius: 7,
         fill: false,
       }
     })
 
-    // return { labels: sortedDates, datasets: datasets }
     return { labels: sortedDates.map(date => formatDate(date)), datasets: datasets }
   })
 
