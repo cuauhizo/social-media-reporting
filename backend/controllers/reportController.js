@@ -8,16 +8,16 @@ const getReportData = async (req, res) => {
 
     // 1. LEEMOS TODO AL MISMO TIEMPO
     const [publicacionesFb, publicacionesIg, hootsuiteData, kpisManuales, kpisFbReales, kpisIgReales, sentimientosFb, sentimientosIg, tagFb, tagIg] = await Promise.all([
-      leerPublicacionesCSV('hootsuite_publicaciones_fb.csv'),
-      leerPublicacionesCSV('hootsuite_publicaciones_ig.csv'),
+      leerPublicacionesCSV('01_fb_posts_metrics.csv'),
+      leerPublicacionesCSV('02_ig_posts_metrics.csv'),
       getSocialMetrics(),
       leerKpisGenerales(),
       leerKpisFacebookHootsuite(),
       leerKpisInstagramHootsuite(),
-      leerSentimientos('fb_inbound_messages.csv'),
-      leerSentimientos('ig_inbound_messages.csv'),
-      leerAlcancePorTags('hootsuite_publicaciones_fb.csv'),
-      leerAlcancePorTags('hootsuite_publicaciones_ig.csv'),
+      leerSentimientos('01_fb_inbound_sentiment.csv'),
+      leerSentimientos('02_ig_inbound_sentiment.csv'),
+      leerAlcancePorTags('01_fb_posts_metrics.csv'),
+      leerAlcancePorTags('02_ig_posts_metrics.csv'),
     ])
 
     // ✨ 2. USAMOS LAS FUNCIONES DE MAPEO PARA LIMPIAR LOS DATOS ✨

@@ -2,14 +2,14 @@ const fs = require('fs')
 const path = require('path')
 const csv = require('csv-parser')
 
-// Lee metricas_pluxee.csv para obtener KPIs generales y textos dinámicos
+// Lee 00_global_manual_data.csv para obtener KPIs generales y textos dinámicos
 function leerKpisGenerales() {
   return new Promise((resolve, reject) => {
     const kpis = {}
-    const rutaArchivo = path.join(__dirname, 'data', 'metricas_pluxee.csv')
+    const rutaArchivo = path.join(__dirname, 'data', '00_global_manual_data.csv')
 
     if (!fs.existsSync(rutaArchivo)) {
-      console.log('⚠️ No se encontró metricas_pluxee.csv. Usando datos por defecto.')
+      console.log('⚠️ No se encontró 00_global_manual_data.csv. Usando datos por defecto.')
       return resolve({})
     }
 
@@ -36,14 +36,14 @@ function leerKpisGenerales() {
   })
 }
 
-// Lee hootsuite_metricas_fb.csv para obtener KPIs generales de Facebook (seguidores, clics, shares, etc.) y también las ciudades top
+// Lee 01_fb_overview_kpis.csv para obtener KPIs generales de Facebook (seguidores, clics, shares, etc.) y también las ciudades top
 function leerKpisFacebookHootsuite() {
   return new Promise((resolve, reject) => {
     // Asegúrate de que el archivo se llame así en tu carpeta data/
-    const rutaArchivo = path.join(__dirname, 'data', 'hootsuite_metricas_fb.csv')
+    const rutaArchivo = path.join(__dirname, 'data', '01_fb_overview_kpis.csv')
 
     if (!fs.existsSync(rutaArchivo)) {
-      console.log('⚠️ No se encontró hootsuite_metricas_fb.csv. Usando respaldo.')
+      console.log('⚠️ No se encontró 01_fb_overview_kpis.csv. Usando respaldo.')
       return resolve(null)
     }
 
@@ -137,13 +137,13 @@ function leerKpisFacebookHootsuite() {
   })
 }
 
-// hootsuite_metricas_ig.csv para obtener KPIs generales de IG y las ciudades top
+// 02_ig_overview_kpis.csv para obtener KPIs generales de IG y las ciudades top
 function leerKpisInstagramHootsuite() {
   return new Promise((resolve, reject) => {
-    const rutaArchivo = path.join(__dirname, 'data', 'hootsuite_metricas_ig.csv')
+    const rutaArchivo = path.join(__dirname, 'data', '02_ig_overview_kpis.csv')
 
     if (!fs.existsSync(rutaArchivo)) {
-      console.log('⚠️ No se encontró hootsuite_metricas_ig.csv. Usando respaldo.')
+      console.log('⚠️ No se encontró 02_ig_overview_kpis.csv. Usando respaldo.')
       return resolve(null)
     }
 
