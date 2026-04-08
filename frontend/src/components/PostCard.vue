@@ -3,12 +3,16 @@
     <div class="bg-pluxeeBlue p-4 flex justify-center items-center h-64">
       <img :src="post.img" class="object-contain h-full w-full" />
     </div>
-
+    <!-- <pre>{{ post }}</pre> -->
     <div class="bg-pluxeeYellow p-4 text-pluxeeBlue font-sans">
       <div class="font-bold text-xs mb-2 uppercase tracking-widest text-center">
         {{ post.type }}
       </div>
       <div class="text-sm space-y-1">
+        <p>
+          <strong>Visualizaciones:</strong>
+          {{ formatNumber(post.views) }}
+        </p>
         <p>
           <strong>Alcance:</strong>
           {{ post.reach }}
@@ -30,6 +34,7 @@
 </template>
 
 <script setup>
+  import { formatNumber } from '@/utils/formatters'
   defineProps({
     post: {
       type: Object,

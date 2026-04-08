@@ -20,6 +20,7 @@ const formatFacebookPosts = (publicacionesFb, fbHootsuiteData) => {
       return {
         id: Math.random().toString(36).substr(2, 9),
         type: tipoPost,
+        views: postExcel.visitas,
         reach: postExcel.alcance,
         interactions: postExcel.interacciones,
         saved: postExcel.shares,
@@ -30,7 +31,7 @@ const formatFacebookPosts = (publicacionesFb, fbHootsuiteData) => {
         tags: postExcel.tags || 'Sin etiqueta',
       }
     })
-    .sort((a, b) => b.reach - a.reach)
+    .sort((a, b) => b.views - a.views)
 }
 
 const formatInstagramPosts = (publicacionesIg, igHootsuiteData) => {
@@ -69,7 +70,7 @@ const formatInstagramPosts = (publicacionesIg, igHootsuiteData) => {
     const postFormateado = {
       id: Math.random().toString(36).substr(2, 9),
       type: tipoPost.includes('STORY') ? 'STORY' : tipoPost,
-      views: postExcel.visitas || postExcel.alcance || 0,
+      views: postExcel.visitas || 0,
       reach: postExcel.alcance || 0,
       interactions: postExcel.interacciones || 0,
       saved: postExcel.saves || 0,

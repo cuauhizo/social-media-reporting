@@ -1,7 +1,7 @@
 <template>
   <div class="bg-white p-6 rounded-xl shadow-md w-full max-w-md mx-auto">
     <h3 class="text-pluxeeBlue font-bold mb-4 text-center">Post Reach</h3>
-    <Doughnut :data="chartData" :options="chartOptions" />
+    <Doughnut :data="chartData" :options="chartOptions" :plugins="[ChartDataLabels]" />
   </div>
 </template>
 
@@ -9,6 +9,8 @@
   import { computed } from 'vue'
   import { Doughnut } from 'vue-chartjs'
   import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js'
+  import ChartDataLabels from 'chartjs-plugin-datalabels'
+  import { formatNumber } from '@/utils/formatters'
 
   ChartJS.register(ArcElement, Tooltip, Legend)
 
@@ -39,5 +41,26 @@
     ],
   }))
 
-  const chartOptions = { responsive: true }
+  const chartOptions = {
+    responsive: true,
+    plugins: {
+      datalabels: {
+        color: '#ffffff', // Color del texto (blanco para que resalte sobre la dona)
+        // Si el porcentaje es 0, no dibujamos el número para que no se vea amontonado
+        display: function (context) {
+          return context.dataset.data[context.dataIndex] > 0
+        },
+        // Formateamos el texto para que incluya el símbolo de %
+        formatter: value => {
+          return formatNumber(value)
+        },
+      },
+      legend: {
+        labels: {
+          usePointStyle: true,
+          pointStyle: 'circle', // Convierte el indicador en un círculo
+        },
+      },
+    },
+  }
 </script>

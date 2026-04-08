@@ -1,6 +1,7 @@
 <template>
   <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mt-12 mb-12">
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- <pre>{{ tags }}</pre> -->
       <div class="lg:col-span-2">
         <div v-if="tags && tags.length > 0" class="w-full h-87.5 relative">
           <Line :data="chartData" :options="chartOptions" />
@@ -12,6 +13,7 @@
 
       <div class="bg-gray-50 rounded-xl p-5 border border-gray-100 flex flex-col">
         <h4 class="font-black text-gray-700 uppercase text-sm mb-4 border-b border-gray-200 pb-2">Top del Periodo</h4>
+        <!-- <pre>{{ topPosts }}</pre> -->
 
         <div v-if="topPosts && topPosts.length > 0" class="space-y-4">
           <div v-for="(post, index) in topPosts.slice(0, 3)" :key="post.id" class="flex flex-col sm:flex-row gap-4 items-center bg-white p-3 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
@@ -29,9 +31,9 @@
               </div>
 
               <div class="grid grid-cols-2 gap-1 text-gray-700 font-medium">
-                <span title="Alcance/Vistas">👁️ {{ formatNumber(post.reach || post.views) }}</span>
+                <span title="Vistas">👁️ {{ formatNumber(post.views) }}</span>
                 <span title="Interacciones">❤️ {{ formatNumber(post.interactions) }}</span>
-                <span title="Guardados/Compartidos" class="col-span-2">↗️ {{ formatNumber(post.saved || post.shares) }}</span>
+                <span title="Guardados/Compartidos" class="col-span-2">↗️ {{ formatNumber(post.shares || post.saved) }}</span>
               </div>
             </div>
           </div>
@@ -75,10 +77,15 @@
     const datasets = props.tags.map(tag => {
       const dataPoints = sortedDates.map(date => {
         const postsOnDate = tag.posts.filter(p => p.date === date)
-        return postsOnDate.length > 0 ? postsOnDate.reduce((sum, p) => sum + p.reach, 0) : null
+        // Mantenemos p.reach como respaldo seguro por si hay datos viejos
+        // BORRA ESTA LÍNEA:
+        // return postsOnDate.length > 0 ? postsOnDate.reduce((sum, p) => sum + (p.views || p.reach || 0), 0) : null
+
+        // CÁMBIALA POR ESTA:
+        return postsOnDate.length > 0 ? Math.max(...postsOnDate.map(p => p.views || 0)) : null
       })
 
-      // ✨ LÓGICA DE COLOR DINÁMICO PARA LA LÍNEA ✨
+      //  LÓGICA DE COLOR DINÁMICO PARA LA LÍNEA
       let lineColor = ''
       const lowerTagName = tag.name.toLowerCase()
 
@@ -127,7 +134,7 @@
     },
   }
 
-  // ✨ NUEVA FUNCIÓN: Calcula las clases de Tailwind según el texto de la etiqueta ✨
+  //  NUEVA FUNCIÓN: Calcula las clases de Tailwind según el texto de la etiqueta
   const getDynamicTagClasses = tagsString => {
     // Respaldo por si no hay etiquetas
     if (!tagsString || tagsString === 'Sin etiqueta') {

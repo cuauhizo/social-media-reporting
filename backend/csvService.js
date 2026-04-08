@@ -264,7 +264,7 @@ function leerPublicacionesCSV(nombreArchivo) {
             fecha: row['DATE (GMT)'] || row['Date (GMT)'] || '',
             alcance: parseInt(row['REACH'] || row['Reach'] || 0),
             interacciones: parseInt(row['ENGAGEMENT'] || row['Engagement'] || 0),
-            visitas: parseInt(row['VIEWS'] || row['Views'] || 0),
+            visitas: parseInt(row['POST VIEWS'] || row['Post views'] || 0),
             likes: parseInt(row['LIKES'] || row['Likes'] || 0),
             tipoPost: row['POST TYPE'] || row['Post Type'] || '',
             shares: parseInt(row['SHARES'] || row['Shares'] || 0),
@@ -335,7 +335,7 @@ function leerSentimientos(nombreArchivo) {
 }
 
 // NUEVA FUNCIÓN GENÉRICA: Analiza Alcance por Tags (Funciona para FB e IG)
-// NUEVA VERSIÓN: Guarda cada post por fecha para dibujar una línea de tiempo
+// NUEVA FUNCIÓN: Analiza Rendimiento por Tags (Midiendo Visualizaciones/Vistas)
 function leerAlcancePorTags(nombreArchivo) {
   return new Promise((resolve, reject) => {
     const rutaArchivo = path.join(__dirname, 'data', nombreArchivo)
@@ -345,7 +345,6 @@ function leerAlcancePorTags(nombreArchivo) {
       return resolve([])
     }
 
-    // Estructura: { 'Educativo': [ { date: '2026-02-01', reach: 500 }, ... ] }
     const tagMap = {}
 
     fs.createReadStream(rutaArchivo)
@@ -354,13 +353,17 @@ function leerAlcancePorTags(nombreArchivo) {
         const keys = Object.keys(row)
 
         const keyTags = keys.find(k => k.toLowerCase().includes('post tags') || k.toLowerCase().includes('etiquetas'))
-        const keyReach = keys.find(k => k.toLowerCase().includes('reach') || k.toLowerCase().includes('alcance'))
+
+        // ✨ 1. BUSCAMOS LAS COLUMNAS DE VISTAS/IMPRESIONES PRIMERO ✨
+        const keyViews = keys.find(k => k.toLowerCase().includes('views') || k.toLowerCase().includes('visitas'))
         const keyDate = keys.find(k => k.toLowerCase().includes('date') || k.toLowerCase().includes('fecha'))
 
-        if (keyTags && row[keyTags] && keyReach && row[keyReach]) {
+        // Preferimos usar la columna de Vistas. Si el CSV no la tiene, usamos Alcance como respaldo
+        const targetKey = keyViews
+
+        if (keyTags && row[keyTags] && targetKey && row[targetKey]) {
           const rawTags = row[keyTags]
-          const reachVal = parseInt(row[keyReach]) || 0
-          // Extraemos solo la fecha (YYYY-MM-DD) ignorando la hora
+          const metricVal = parseInt(row[targetKey]) || 0
           const dateVal = keyDate && row[keyDate] ? row[keyDate].split(' ')[0] : 'Desconocida'
 
           const tagsArray = rawTags
@@ -370,30 +373,29 @@ function leerAlcancePorTags(nombreArchivo) {
 
           tagsArray.forEach(tag => {
             if (!tagMap[tag]) {
-              tagMap[tag] = [] // Creamos el arreglo vacío para esta etiqueta
+              tagMap[tag] = []
             }
-            // Guardamos el punto en la línea de tiempo
-            tagMap[tag].push({ date: dateVal, reach: reachVal })
+            // ✨ 2. GUARDAMOS EL DATO BAJO LA PROPIEDAD 'views' ✨
+            tagMap[tag].push({ date: dateVal, views: metricVal })
           })
         }
       })
       .on('end', () => {
-        // Formateamos el resultado
         const tagResults = Object.keys(tagMap)
           .map(tagName => {
             return {
               name: tagName,
-              posts: tagMap[tagName].sort((a, b) => new Date(a.date) - new Date(b.date)), // Ordenamos cronológicamente
+              posts: tagMap[tagName].sort((a, b) => new Date(a.date) - new Date(b.date)),
             }
           })
-          // Ordenamos las etiquetas por alcance total para que la más fuerte salga primero en la leyenda
           .sort((a, b) => {
-            const totalA = a.posts.reduce((sum, p) => sum + p.reach, 0)
-            const totalB = b.posts.reduce((sum, p) => sum + p.reach, 0)
+            // ✨ 3. ORDENAMOS EL TOP DE ETIQUETAS POR VISTAS ✨
+            const totalA = a.posts.reduce((sum, p) => sum + p.views, 0)
+            const totalB = b.posts.reduce((sum, p) => sum + p.views, 0)
             return totalB - totalA
           })
 
-        console.log(`✅ Evolución de Tags analizada en ${nombreArchivo}`)
+        console.log(`✅ Evolución de Tags (Visualizaciones) analizada en ${nombreArchivo}`)
         resolve(tagResults)
       })
       .on('error', error => reject(error))

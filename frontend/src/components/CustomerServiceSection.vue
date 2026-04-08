@@ -7,14 +7,14 @@
         <div class="bg-white p-6 rounded-xl shadow-md border-t-4 border-pluxeeBlue">
           <h3 class="text-xl font-bold text-gray-800 mb-4">Tipos de Casos (CAS)</h3>
           <div class="flex items-center justify-center mb-6 h-96">
-            <Pie :data="chartData2" :options="chartOptions" />
+            <Pie :data="chartData2" :options="chartOptions" :plugins="[ChartDataLabels]" />
           </div>
         </div>
 
         <div class="bg-white p-6 rounded-xl shadow-md border-t-4 border-pluxeeBlue">
           <h3 class="text-xl font-bold text-gray-800 mb-4">Origen de Mensajes</h3>
-          <div class="flex items-center justify-center mb-6 h-64">
-            <Pie :data="chartData" :options="chartOptions" />
+          <div class="flex items-center justify-center mb-6 h-80">
+            <Pie :data="chartData" :options="chartOptions" :plugins="[ChartDataLabels]" />
           </div>
           <div class="bg-blue-50 p-4 rounded-lg text-pluxeeBlue font-medium space-y-2">
             <p>
@@ -52,6 +52,7 @@
   import { ref } from 'vue'
   import { Pie } from 'vue-chartjs'
   import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js'
+  import ChartDataLabels from 'chartjs-plugin-datalabels'
 
   const props = defineProps({
     data: Object,
@@ -69,6 +70,23 @@
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
+      datalabels: {
+        color: '#ffffff', // Color del texto (blanco para que resalte sobre la dona)
+        // Si el porcentaje es 0, no dibujamos el número para que no se vea amontonado
+        display: function (context) {
+          return context.dataset.data[context.dataIndex] > 0
+        },
+        // Formateamos el texto para que incluya el símbolo de %
+        formatter: value => {
+          return value + '%'
+        },
+      },
+      legend: {
+        labels: {
+          usePointStyle: true,
+          pointStyle: 'circle', // Convierte el indicador en un círculo
+        },
+      },
       tooltip: {
         callbacks: {
           // context.raw es el número puro (ej. 14.95), aquí le pegamos el '%'
