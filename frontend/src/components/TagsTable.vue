@@ -31,7 +31,7 @@
               </div>
 
               <div class="grid grid-cols-2 gap-1 text-gray-700 font-medium">
-                <span title="Vistas">👁️ {{ formatNumber(post.views) }}</span>
+                <span title="Vistas">👁️ {{ formatNumber(post.views || post.reach) }}</span>
                 <span title="Interacciones">❤️ {{ formatNumber(post.interactions) }}</span>
                 <span title="Guardados/Compartidos" class="col-span-2">↗️ {{ formatNumber(post.shares || post.saved) }}</span>
               </div>

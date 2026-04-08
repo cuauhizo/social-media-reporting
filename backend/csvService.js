@@ -264,7 +264,7 @@ function leerPublicacionesCSV(nombreArchivo) {
             fecha: row['DATE (GMT)'] || row['Date (GMT)'] || '',
             alcance: parseInt(row['REACH'] || row['Reach'] || 0),
             interacciones: parseInt(row['ENGAGEMENT'] || row['Engagement'] || 0),
-            visitas: parseInt(row['POST VIEWS'] || row['Post views'] || 0),
+            visitas: parseInt(row['POST VIEWS'] || row['Post views'] || row['Views'] || row['views'] || 0),
             likes: parseInt(row['LIKES'] || row['Likes'] || 0),
             tipoPost: row['POST TYPE'] || row['Post Type'] || '',
             shares: parseInt(row['SHARES'] || row['Shares'] || 0),
@@ -335,7 +335,7 @@ function leerSentimientos(nombreArchivo) {
 }
 
 // NUEVA FUNCIÓN GENÉRICA: Analiza Alcance por Tags (Funciona para FB e IG)
-// NUEVA FUNCIÓN: Analiza Rendimiento por Tags (Midiendo Visualizaciones/Vistas)
+// NUEVA FUNCIÓN: Analiza Rendimiento por Tags (A prueba de fotos vs videos)
 function leerAlcancePorTags(nombreArchivo) {
   return new Promise((resolve, reject) => {
     const rutaArchivo = path.join(__dirname, 'data', nombreArchivo)
@@ -353,31 +353,35 @@ function leerAlcancePorTags(nombreArchivo) {
         const keys = Object.keys(row)
 
         const keyTags = keys.find(k => k.toLowerCase().includes('post tags') || k.toLowerCase().includes('etiquetas'))
-
-        // ✨ 1. BUSCAMOS LAS COLUMNAS DE VISTAS/IMPRESIONES PRIMERO ✨
-        const keyViews = keys.find(k => k.toLowerCase().includes('views') || k.toLowerCase().includes('visitas'))
+        const keyViews = keys.find(k => k.toLowerCase().includes('views') || k.toLowerCase().includes('visitas') || k.toLowerCase().includes('impresiones'))
+        const keyReach = keys.find(k => k.toLowerCase().includes('reach') || k.toLowerCase().includes('alcance'))
         const keyDate = keys.find(k => k.toLowerCase().includes('date') || k.toLowerCase().includes('fecha'))
 
-        // Preferimos usar la columna de Vistas. Si el CSV no la tiene, usamos Alcance como respaldo
-        const targetKey = keyViews
-
-        if (keyTags && row[keyTags] && targetKey && row[targetKey]) {
+        if (keyTags && row[keyTags]) {
           const rawTags = row[keyTags]
-          const metricVal = parseInt(row[targetKey]) || 0
           const dateVal = keyDate && row[keyDate] ? row[keyDate].split(' ')[0] : 'Desconocida'
 
-          const tagsArray = rawTags
-            .split(',')
-            .map(tag => tag.trim())
-            .filter(tag => tag !== '')
+          // ✨ LEEMOS AMBAS CELDAS (Vistas y Alcance) DE FORMA INDEPENDIENTE ✨
+          const vistas = keyViews ? parseInt(row[keyViews]) || 0 : 0
+          const alcance = keyReach ? parseInt(row[keyReach]) || 0 : 0
 
-          tagsArray.forEach(tag => {
-            if (!tagMap[tag]) {
-              tagMap[tag] = []
-            }
-            // ✨ 2. GUARDAMOS EL DATO BAJO LA PROPIEDAD 'views' ✨
-            tagMap[tag].push({ date: dateVal, views: metricVal })
-          })
+          // Lógica inteligente: Si Vistas es 0 (ej. porque es una foto), usamos su Alcance.
+          const metricVal = vistas > 0 ? vistas : alcance
+
+          // Solo guardamos si realmente tuvo algún impacto
+          if (metricVal > 0) {
+            const tagsArray = rawTags
+              .split(',')
+              .map(tag => tag.trim())
+              .filter(tag => tag !== '')
+
+            tagsArray.forEach(tag => {
+              if (!tagMap[tag]) {
+                tagMap[tag] = []
+              }
+              tagMap[tag].push({ date: dateVal, views: metricVal })
+            })
+          }
         }
       })
       .on('end', () => {
@@ -389,13 +393,12 @@ function leerAlcancePorTags(nombreArchivo) {
             }
           })
           .sort((a, b) => {
-            // ✨ 3. ORDENAMOS EL TOP DE ETIQUETAS POR VISTAS ✨
             const totalA = a.posts.reduce((sum, p) => sum + p.views, 0)
             const totalB = b.posts.reduce((sum, p) => sum + p.views, 0)
             return totalB - totalA
           })
 
-        console.log(`✅ Evolución de Tags (Visualizaciones) analizada en ${nombreArchivo}`)
+        console.log(`✅ Evolución de Tags analizada correctamente en ${nombreArchivo}`)
         resolve(tagResults)
       })
       .on('error', error => reject(error))
