@@ -9,6 +9,10 @@
         <router-link to="/" class="bg-pluxeeBlue text-white px-6 py-2 rounded-lg font-bold hover:bg-opacity-90 transition">Ver Reporte 👉</router-link>
       </div>
 
+      <div v-if="alert.show" :class="alert.type === 'success' ? 'bg-green-100 text-green-800 border-green-300' : 'bg-red-100 text-red-800 border-red-300'" class="p-4 rounded-lg border mb-8 font-bold text-center transition-all">
+        {{ alert.message }}
+      </div>
+
       <section class="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm mb-10">
         <h2 class="text-2xl font-black text-pluxeeBlue uppercase mb-6 flex items-center">
           <span class="mr-3">📝</span>
@@ -32,9 +36,79 @@
         </div>
       </section>
 
-      <div v-if="alert.show" :class="alert.type === 'success' ? 'bg-green-100 text-green-800 border-green-300' : 'bg-red-100 text-red-800 border-red-300'" class="p-4 rounded-lg border mb-8 font-bold text-center transition-all">
-        {{ alert.message }}
-      </div>
+      <section class="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm mb-10">
+        <h2 class="text-2xl font-black text-red-500 uppercase mb-6 flex items-center">
+          <span class="mr-3">⚠️</span>
+          Editar Principales Quejas (CS)
+        </h2>
+
+        <div class="flex gap-4 mb-8">
+          <input v-model="nuevaQueja" type="text" placeholder="Escribe una nueva queja recurrente..." class="flex-1 border-2 border-gray-200 rounded-xl px-4 py-2 focus:border-red-500 outline-none transition" @keyup.enter="agregarQueja" />
+          <button @click="agregarQueja" class="bg-red-500 text-white px-6 py-2 rounded-xl font-bold hover:scale-105 transition active:scale-95">Agregar +</button>
+        </div>
+
+        <div class="space-y-3">
+          <div v-for="item in listaQuejas" :key="item.id" class="flex items-center justify-between bg-gray-50 p-4 rounded-xl border border-gray-100 group">
+            <div class="flex-1">
+              <input v-model="item.queja" class="bg-transparent w-full font-medium text-gray-700 outline-none focus:text-red-500" @change="actualizarQueja(item)" />
+            </div>
+            <button @click="borrarQueja(item.id)" class="text-red-400 hover:text-red-600 ml-4 opacity-0 group-hover:opacity-100 transition">🗑️ Borrar</button>
+          </div>
+
+          <div v-if="listaQuejas.length === 0" class="text-center text-gray-400 py-4 italic">No hay quejas registradas. ¡Excelente trabajo del equipo!</div>
+        </div>
+      </section>
+
+      <section class="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm mb-10">
+        <h2 class="text-2xl font-black text-pluxeeGreen uppercase mb-6 flex items-center">
+          <span class="mr-3">🚀</span>
+          Editar Propuestas (Next Steps)
+        </h2>
+
+        <div class="flex gap-4 mb-8">
+          <input
+            v-model="nuevaPropuesta"
+            type="text"
+            placeholder="Escribe una nueva estrategia o acción..."
+            class="flex-1 border-2 border-gray-200 rounded-xl px-4 py-2 focus:border-pluxeeGreen outline-none transition"
+            @keyup.enter="agregarPropuesta" />
+          <button @click="agregarPropuesta" class="bg-pluxeeGreen text-white px-6 py-2 rounded-xl font-bold hover:scale-105 transition active:scale-95">Agregar +</button>
+        </div>
+
+        <div class="space-y-3">
+          <div v-for="item in listaPropuestas" :key="item.id" class="flex items-center justify-between bg-gray-50 p-4 rounded-xl border border-gray-100 group">
+            <div class="flex-1">
+              <input v-model="item.propuesta" class="bg-transparent w-full font-medium text-gray-700 outline-none focus:text-pluxeeGreen" @change="actualizarPropuesta(item)" />
+            </div>
+            <button @click="borrarPropuesta(item.id)" class="text-red-400 hover:text-red-600 ml-4 opacity-0 group-hover:opacity-100 transition">🗑️ Borrar</button>
+          </div>
+
+          <div v-if="listaPropuestas.length === 0" class="text-center text-gray-400 py-4 italic">No hay próximos pasos definidos aún.</div>
+        </div>
+      </section>
+
+      <section class="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm mb-10">
+        <h2 class="text-2xl font-black text-pluxeePink uppercase mb-6 flex items-center">
+          <span class="mr-3">🚀</span>
+          Editar Compromisos (Next Steps)
+        </h2>
+
+        <div class="flex gap-4 mb-8">
+          <input v-model="nuevoCompromiso" type="text" placeholder="Escribe una nuevo compromiso..." class="flex-1 border-2 border-gray-200 rounded-xl px-4 py-2 focus:border-pluxeeGreen outline-none transition" @keyup.enter="agregarCompromiso" />
+          <button @click="agregarCompromiso" class="bg-pluxeeGreen text-white px-6 py-2 rounded-xl font-bold hover:scale-105 transition active:scale-95">Agregar +</button>
+        </div>
+
+        <div class="space-y-3">
+          <div v-for="item in listaCompromisos" :key="item.id" class="flex items-center justify-between bg-gray-50 p-4 rounded-xl border border-gray-100 group">
+            <div class="flex-1">
+              <input v-model="item.compromiso" class="bg-transparent w-full font-medium text-gray-700 outline-none focus:text-pluxeeGreen" @change="actualizarCompromiso(item)" />
+            </div>
+            <button @click="borrarCompromiso(item.id)" class="text-red-400 hover:text-red-600 ml-4 opacity-0 group-hover:opacity-100 transition">🗑️ Borrar</button>
+          </div>
+
+          <div v-if="listaCompromisos.length === 0" class="text-center text-gray-400 py-4 italic">No hay compromisos definidos aún.</div>
+        </div>
+      </section>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div v-for="file in fileCategories" :key="file.id" class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition">
@@ -82,10 +156,16 @@
 <script setup>
   import { ref, onMounted } from 'vue'
 
-  const listaContexto = ref([])
-  const nuevoPunto = ref('')
   const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000'
   const alert = ref({ show: false, message: '', type: '' })
+  const listaContexto = ref([])
+  const nuevoPunto = ref('')
+  const listaQuejas = ref([])
+  const nuevaQueja = ref('')
+  const listaPropuestas = ref([])
+  const nuevaPropuesta = ref('')
+  const listaCompromisos = ref([])
+  const nuevoCompromiso = ref('')
 
   // Objeto reactivo para saber qué cajita está recibiendo un "Drag" (Hover de archivo)
   const dragState = ref({})
@@ -154,8 +234,12 @@
   // Cargar datos al entrar
   onMounted(async () => {
     fetchContexto()
+    fetchQuejas()
+    fetchPropuestas()
+    fetchCompromisos()
   })
 
+  //  LÓGICA PARA CONTEXTO
   const fetchContexto = async () => {
     const res = await fetch(`${apiUrl}/api/contexto`)
     listaContexto.value = await res.json()
@@ -188,5 +272,110 @@
     if (!confirm('¿Seguro que quieres eliminar este punto?')) return
     await fetch(`${apiUrl}/api/contexto/${id}`, { method: 'DELETE' })
     fetchContexto()
+  }
+
+  //  LÓGICA PARA QUEJAS
+  const fetchQuejas = async () => {
+    const res = await fetch(`${apiUrl}/api/quejas`)
+    listaQuejas.value = await res.json()
+  }
+
+  const agregarQueja = async () => {
+    if (!nuevaQueja.value.trim()) return
+    const res = await fetch(`${apiUrl}/api/quejas`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ queja: nuevaQueja.value }),
+    })
+    if (res.ok) {
+      nuevaQueja.value = ''
+      fetchQuejas()
+      showAlert('Queja agregada con éxito', 'success')
+    }
+  }
+
+  const actualizarQueja = async item => {
+    await fetch(`${apiUrl}/api/quejas/${item.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ queja: item.queja }),
+    })
+    showAlert('Cambio guardado', 'success')
+  }
+
+  const borrarQueja = async id => {
+    if (!confirm('¿Seguro que quieres eliminar esta queja?')) return
+    await fetch(`${apiUrl}/api/quejas/${id}`, { method: 'DELETE' })
+    fetchQuejas()
+  }
+
+  //  LÓGICA PARA PROPUESTAS - PRÓXIMOS PASOS
+  const fetchPropuestas = async () => {
+    const res = await fetch(`${apiUrl}/api/propuestas`)
+    listaPropuestas.value = await res.json()
+  }
+
+  const agregarPropuesta = async () => {
+    if (!nuevaPropuesta.value.trim()) return
+    const res = await fetch(`${apiUrl}/api/propuestas`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ propuesta: nuevaPropuesta.value }),
+    })
+    if (res.ok) {
+      nuevaPropuesta.value = ''
+      fetchPropuestas()
+      showAlert('Paso agregado con éxito', 'success')
+    }
+  }
+
+  const actualizarPropuesta = async item => {
+    await fetch(`${apiUrl}/api/propuestas/${item.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ propuesta: item.paso }),
+    })
+    showAlert('Cambio guardado', 'success')
+  }
+
+  const borrarPropuesta = async id => {
+    if (!confirm('¿Seguro que quieres eliminar este paso?')) return
+    await fetch(`${apiUrl}/api/propuestas/${id}`, { method: 'DELETE' })
+    fetchPropuestas()
+  }
+
+  //  LÓGICA PARA COMPROMISOS - PRÓXIMOS PASOS
+  const fetchCompromisos = async () => {
+    const res = await fetch(`${apiUrl}/api/compromisos`)
+    listaCompromisos.value = await res.json()
+  }
+
+  const agregarCompromiso = async () => {
+    if (!nuevoCompromiso.value.trim()) return
+    const res = await fetch(`${apiUrl}/api/compromisos`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ compromiso: nuevoCompromiso.value }),
+    })
+    if (res.ok) {
+      nuevoCompromiso.value = ''
+      fetchCompromisos()
+      showAlert('Compromiso agregado con éxito', 'success')
+    }
+  }
+
+  const actualizarCompromiso = async item => {
+    await fetch(`${apiUrl}/api/compromisos/${item.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ compromiso: item.paso }),
+    })
+    showAlert('Cambio guardado', 'success')
+  }
+
+  const borrarCompromiso = async id => {
+    if (!confirm('¿Seguro que quieres eliminar este compromiso?')) return
+    await fetch(`${apiUrl}/api/compromisos/${id}`, { method: 'DELETE' })
+    fetchCompromisos()
   }
 </script>

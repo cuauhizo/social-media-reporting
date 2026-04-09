@@ -7,6 +7,9 @@ const reportRoutes = require('./routes/reportRoutes')
 const authRoutes = require('./routes/authRoutes')
 const uploadRoutes = require('./routes/uploadRoutes')
 const contextoRoutes = require('./routes/contextoRoutes')
+const quejasRoutes = require('./routes/quejasRoutes')
+const propuestasRoutes = require('./routes/propuestasRoutes')
+const compromisosRoutes = require('./routes/compromisosRoutes')
 
 const app = express()
 
@@ -21,6 +24,9 @@ app.use('/api/reports', reportRoutes)
 app.use('/api/auth', authRoutes)
 app.use('/api/upload', uploadRoutes)
 app.use('/api/contexto', contextoRoutes)
+app.use('/api/quejas', quejasRoutes)
+app.use('/api/propuestas', propuestasRoutes)
+app.use('/api/compromisos', compromisosRoutes)
 
 // Iniciamos el servidor con puerto dinámico (Mejor práctica para Producción)
 const PORT = process.env.PORT || 3000

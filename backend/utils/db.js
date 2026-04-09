@@ -36,6 +36,33 @@ async function initDB() {
       )
     `)
 
+    //  NUEVA TABLA: Para las quejas de Servicio al Cliente
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS quejas_rrss (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        queja TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `)
+
+    //  NUEVA TABLA: Para las Propuestas (Next Steps)
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS propuestas (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        propuesta TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `)
+
+    //  NUEVA TABLA: Para los Compromisos (Next Steps)
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS compromisos (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        compromiso TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `)
+
     connection.release()
     console.log('✅ Base de datos MySQL: Tablas de Tokens y Contexto listas.')
   } catch (error) {

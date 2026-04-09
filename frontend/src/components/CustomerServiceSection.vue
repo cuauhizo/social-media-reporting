@@ -35,11 +35,11 @@
           <p class="text-sm text-gray-500 mb-4">Temas recurrentes escalados durante el mes</p>
 
           <ul class="space-y-3">
-            <li v-for="complaint in data.complaints" :key="complaint.id" class="flex items-start bg-gray-50 p-3 rounded-lg border border-gray-100">
+            <li v-for="item in listaQuejas" :key="item.id" class="flex items-start bg-gray-50 p-3 rounded-lg border border-gray-100">
               <div class="w-8 h-8 rounded-full bg-pluxeeBlue text-white flex justify-center items-center font-bold mr-4">
-                {{ complaint.id }}
+                {{ item.id }}
               </div>
-              <span class="text-gray-700 font-medium text-lg w-full">{{ complaint.topic }}</span>
+              <span class="text-gray-700 font-medium text-lg w-full">{{ item.queja }}</span>
             </li>
           </ul>
         </div>
@@ -49,7 +49,7 @@
 </template>
 
 <script setup>
-  import { ref } from 'vue'
+  import { ref, onMounted } from 'vue'
   import { Pie } from 'vue-chartjs'
   import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js'
   import ChartDataLabels from 'chartjs-plugin-datalabels'
@@ -57,6 +57,7 @@
   const props = defineProps({
     data: Object,
   })
+  const listaQuejas = ref([])
 
   ChartJS.register(ArcElement, Tooltip, Legend)
 
@@ -65,7 +66,7 @@
   const casItems = props.data.cas || []
   // Paleta de colores extensa: Mezcla de corporativos de Pluxee/Tolko y colores de apoyo
   const colorPalette = ['#002d72', '#17ccf9', '#ffeb00', '#00eb5d', '#cc0032', '#f56040', '#833ab4', '#e1306c', '#fd1d1d', '#fcb045', '#9bbb59', '#ff9300', '#dbeafe', '#fbcfe8', '#9ca3af']
-  // const chartOptions = { responsive: true, maintainAspectRatio: false }
+
   const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
@@ -121,4 +122,16 @@
       },
     ],
   }
+
+  onMounted(async () => {
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+      const res = await fetch(`${apiUrl}/api/quejas`)
+      if (!res.ok) throw new Error('Error al cargar quejas')
+
+      listaQuejas.value = await res.json()
+    } catch (error) {
+      console.error('Error cargando quejas:', error)
+    }
+  })
 </script>
