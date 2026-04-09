@@ -9,6 +9,29 @@
         <router-link to="/" class="bg-pluxeeBlue text-white px-6 py-2 rounded-lg font-bold hover:bg-opacity-90 transition">Ver Reporte 👉</router-link>
       </div>
 
+      <section class="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm mb-10">
+        <h2 class="text-2xl font-black text-pluxeeBlue uppercase mb-6 flex items-center">
+          <span class="mr-3">📝</span>
+          Editar Contexto Actual (RRSS)
+        </h2>
+
+        <div class="flex gap-4 mb-8">
+          <input v-model="nuevoPunto" type="text" placeholder="Escribe un nuevo hallazgo o contexto..." class="flex-1 border-2 border-gray-200 rounded-xl px-4 py-2 focus:border-pluxeeBlue outline-none transition" @keyup.enter="agregarPunto" />
+          <button @click="agregarPunto" class="bg-pluxeeBlue text-white px-6 py-2 rounded-xl font-bold hover:scale-105 transition active:scale-95">Agregar +</button>
+        </div>
+
+        <div class="space-y-3">
+          <div v-for="item in listaContexto" :key="item.id" class="flex items-center justify-between bg-gray-50 p-4 rounded-xl border border-gray-100 group">
+            <div class="flex-1">
+              <input v-model="item.punto" class="bg-transparent w-full font-medium text-gray-700 outline-none focus:text-pluxeeBlue" @change="actualizarPunto(item)" />
+            </div>
+            <button @click="borrarPunto(item.id)" class="text-red-400 hover:text-red-600 ml-4 opacity-0 group-hover:opacity-100 transition">🗑️ Borrar</button>
+          </div>
+
+          <div v-if="listaContexto.length === 0" class="text-center text-gray-400 py-4 italic">No hay puntos registrados. Agrega el primero arriba.</div>
+        </div>
+      </section>
+
       <div v-if="alert.show" :class="alert.type === 'success' ? 'bg-green-100 text-green-800 border-green-300' : 'bg-red-100 text-red-800 border-red-300'" class="p-4 rounded-lg border mb-8 font-bold text-center transition-all">
         {{ alert.message }}
       </div>
@@ -57,8 +80,11 @@
 </template>
 
 <script setup>
-  import { ref } from 'vue'
+  import { ref, onMounted } from 'vue'
 
+  const listaContexto = ref([])
+  const nuevoPunto = ref('')
+  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000'
   const alert = ref({ show: false, message: '', type: '' })
 
   // Objeto reactivo para saber qué cajita está recibiendo un "Drag" (Hover de archivo)
@@ -81,7 +107,7 @@
     }, 4000)
   }
 
-  // ✨ LÓGICA CENTRALIZADA DE SUBIDA ✨
+  //  LÓGICA CENTRALIZADA DE SUBIDA
   const processFile = async (typeId, file) => {
     if (!file) return
 
@@ -123,5 +149,44 @@
     // Extraemos el archivo que el usuario soltó desde el evento 'dataTransfer'
     const file = event.dataTransfer.files[0]
     processFile(typeId, file)
+  }
+
+  // Cargar datos al entrar
+  onMounted(async () => {
+    fetchContexto()
+  })
+
+  const fetchContexto = async () => {
+    const res = await fetch(`${apiUrl}/api/contexto`)
+    listaContexto.value = await res.json()
+  }
+
+  const agregarPunto = async () => {
+    if (!nuevoPunto.value.trim()) return
+    const res = await fetch(`${apiUrl}/api/contexto`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ punto: nuevoPunto.value }),
+    })
+    if (res.ok) {
+      nuevoPunto.value = ''
+      fetchContexto()
+      showAlert('Punto agregado con éxito', 'success')
+    }
+  }
+
+  const actualizarPunto = async item => {
+    await fetch(`${apiUrl}/api/contexto/${item.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ punto: item.punto }),
+    })
+    showAlert('Cambio guardado', 'success')
+  }
+
+  const borrarPunto = async id => {
+    if (!confirm('¿Seguro que quieres eliminar este punto?')) return
+    await fetch(`${apiUrl}/api/contexto/${id}`, { method: 'DELETE' })
+    fetchContexto()
   }
 </script>

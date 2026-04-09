@@ -9,21 +9,46 @@
 
       <div>
         <h2 class="text-4xl font-black text-pluxeeBlue mb-6 uppercase tracking-wide">
-          {{ data.title }}
+          {{ data.title || 'Contexto Actual (RRSS)' }}
         </h2>
+
         <ul class="space-y-4 text-gray-700 text-lg font-medium">
-          <li v-for="(item, index) in data.insights" :key="index" class="flex items-start">
+          <li v-for="item in puntosContexto" :key="item.id" class="flex items-start">
             <span class="text-pluxeeBlue font-black mr-4 text-2xl leading-none">•</span>
-            <span>{{ item }}</span>
+            <span>{{ item.punto }}</span>
           </li>
         </ul>
+
+        <p v-if="puntosContexto.length === 0" class="text-gray-400 italic mt-4">Cargando contexto actual...</p>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
+  import { ref, onMounted } from 'vue'
+
+  const puntosContexto = ref([])
+
   defineProps({
-    data: Object,
+    data: {
+      type: Object,
+      default: () => ({}),
+    },
+  })
+
+  onMounted(async () => {
+    try {
+      //  1. DECLARAMOS LA VARIABLE apiUrl AQUÍ TAMBIÉN
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+
+      // 2. Hacemos la petición a MySQL
+      const res = await fetch(`${apiUrl}/api/contexto`)
+      if (!res.ok) throw new Error('Error al cargar el contexto')
+
+      puntosContexto.value = await res.json()
+    } catch (error) {
+      console.error('Error cargando los puntos de contexto:', error)
+    }
   })
 </script>

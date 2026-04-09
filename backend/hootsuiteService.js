@@ -1,59 +1,75 @@
 const axios = require('axios')
+const { getTokens, saveTokens } = require('./utils/db') //  IMPORTAMOS MySQL
 require('dotenv').config()
 
 const HOOTSUITE_API_URL = 'https://platform.hootsuite.com/v1'
 
-/**
- * Obtiene los perfiles y publicaciones (último mes) de Facebook e Instagram desde Hootsuite.
- * @returns {Object|null} Objeto con la información formateada para el frontend o null si hay error.
- */
+//  RENOVACIÓN SILENCIOSA
+async function autoRenewToken(oldRefreshToken) {
+  console.log('🔄 Token caducado. Solicitando uno nuevo a Hootsuite silenciosamente...')
+  const credentials = Buffer.from(`${process.env.HOOTSUITE_CLIENT_ID}:${process.env.HOOTSUITE_CLIENT_SECRET}`).toString('base64')
+
+  const response = await axios.post('https://platform.hootsuite.com/oauth2/token', `grant_type=refresh_token&refresh_token=${oldRefreshToken}`, {
+    headers: {
+      Authorization: `Basic ${credentials}`,
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+  })
+
+  const newAccess = response.data.access_token
+  const newRefresh = response.data.refresh_token
+
+  await saveTokens(newAccess, newRefresh) // Actualizamos MySQL
+  console.log('✅ ¡Token renovado en MySQL con éxito!')
+
+  return newAccess
+}
+
 async function getSocialMetrics() {
-  const token = process.env.HOOTSUITE_ACCESS_TOKEN
   const fbId = process.env.PLUXEE_FB_ID
   const igId = process.env.PLUXEE_IG_ID
 
-  // Verificación de seguridad: Si falta algún dato del .env, detenemos la función
-  if (!token || !fbId || !igId) {
-    console.error('⚠️ Faltan credenciales o IDs de Hootsuite en el archivo .env')
+  // 1. LEEMOS EL TOKEN DESDE MySQL
+  const tokens = await getTokens()
+  if (!tokens || !tokens.access_token) {
+    console.error('⚠️ No hay tokens en MySQL. Por favor entra a /api/auth/login en tu navegador primero.')
     return null
   }
 
+  let currentToken = tokens.access_token
+
   try {
-    // Configuración base de autorización para todas las peticiones a Hootsuite
-    const axiosConfig = {
-      headers: { Authorization: `Bearer ${token}` },
+    const fetchHootsuiteData = async tokenString => {
+      const axiosConfig = { headers: { Authorization: `Bearer ${tokenString}` } }
+      const startTime = new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1).toISOString()
+      const endTime = new Date(new Date().getFullYear(), new Date().getMonth(), 0).toISOString()
+
+      const [fbProfile, igProfile, fbPosts, igPosts] = await Promise.all([
+        axios.get(`${HOOTSUITE_API_URL}/socialProfiles/${fbId}`, axiosConfig),
+        axios.get(`${HOOTSUITE_API_URL}/socialProfiles/${igId}`, axiosConfig),
+        axios.get(`${HOOTSUITE_API_URL}/messages?socialProfileIds=${fbId}&startTime=${startTime}&endTime=${endTime}&state=SENT`, axiosConfig),
+        axios.get(`${HOOTSUITE_API_URL}/messages?socialProfileIds=${igId}&startTime=${startTime}&endTime=${endTime}&state=SENT`, axiosConfig),
+      ])
+
+      return {
+        facebook: { username: fbProfile.data.data.socialNetworkUsername, avatar: fbProfile.data.data.avatarUrl, realPosts: fbPosts.data.data },
+        instagram: { username: igProfile.data.data.socialNetworkUsername, avatar: igProfile.data.data.avatarUrl, realPosts: igPosts.data.data },
+      }
     }
 
-    // 1. Calcular el rango de fechas (Primer y último día del MES ANTERIOR)
-    const startTime = new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1).toISOString()
-    const endTime = new Date(new Date().getFullYear(), new Date().getMonth(), 0).toISOString()
+    try {
+      // 2. INTENTAMOS USAR EL TOKEN ACTUAL DE MYSQL
+      return await fetchHootsuiteData(currentToken)
+    } catch (error) {
+      // 3. SI CADUCÓ, RENOVAMOS Y REINTENTAMOS
+      const isUnauthorized = error.response?.status === 401 || error.response?.data?.error === 'request_forbidden' || error.response?.data?.error === 'invalid_token'
 
-    // 2. Obtener la información pública de los perfiles (Para extraer nombre de usuario y avatar)
-    const fbResponse = await axios.get(`${HOOTSUITE_API_URL}/socialProfiles/${fbId}`, axiosConfig)
-    const igResponse = await axios.get(`${HOOTSUITE_API_URL}/socialProfiles/${igId}`, axiosConfig)
-
-    // 3. Obtener el historial de publicaciones enviadas (state=SENT) en el rango de fechas
-    const fbPostsResponse = await axios.get(`${HOOTSUITE_API_URL}/messages?socialProfileIds=${fbId}&startTime=${startTime}&endTime=${endTime}&state=SENT`, axiosConfig)
-    const igPostsResponse = await axios.get(`${HOOTSUITE_API_URL}/messages?socialProfileIds=${igId}&startTime=${startTime}&endTime=${endTime}&state=SENT`, axiosConfig)
-
-    // 4. Extraer el contenido útil de las respuestas de la API
-    const fbData = fbResponse.data.data
-    const igData = igResponse.data.data
-    const fbPosts = fbPostsResponse.data.data
-    const igPosts = igPostsResponse.data.data
-
-    // 5. Empaquetar los datos reales y traducirlos al formato que espera nuestro Dashboard en Vue
-    return {
-      facebook: {
-        username: fbData.socialNetworkUsername,
-        avatar: fbData.avatarUrl,
-        realPosts: fbPosts,
-      },
-      instagram: {
-        username: igData.socialNetworkUsername,
-        avatar: igData.avatarUrl,
-        realPosts: igPosts,
-      },
+      if (isUnauthorized) {
+        currentToken = await autoRenewToken(tokens.refresh_token)
+        return await fetchHootsuiteData(currentToken)
+      } else {
+        throw error
+      }
     }
   } catch (error) {
     console.error('❌ Error consultando la API de Hootsuite:', error.response?.data || error.message)

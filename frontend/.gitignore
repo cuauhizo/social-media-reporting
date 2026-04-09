@@ -20,6 +20,7 @@ coverage
 *-copy.*
 *-old.*
 
+.env
 
 # Editor directories and files
 .vscode/*

@@ -1,6 +1,7 @@
 const express = require('express')
 const axios = require('axios')
 const router = express.Router()
+const { saveTokens } = require('../utils/db')
 
 router.get('/login', (req, res) => {
   const redirectUri = `${process.env.BACKEND_URL}/api/auth/callback`
@@ -21,13 +22,11 @@ router.get('/callback', async (req, res) => {
       },
     })
 
-    console.log('=========================================')
-    console.log('✅ ¡ÉXITO! GUARDA ESTOS DATOS EN TU .env:')
-    console.log('HOOTSUITE_ACCESS_TOKEN=', response.data.access_token)
-    console.log('HOOTSUITE_REFRESH_TOKEN=', response.data.refresh_token)
-    console.log('=========================================')
+    // GUARDAMOS EL TOKEN DIRECTO EN MySQL
+    await saveTokens(response.data.access_token, response.data.refresh_token)
 
-    res.send('¡Autorización exitosa! Revisa tu terminal en VS Code para copiar tu Token. Ya puedes cerrar esta ventana.')
+    console.log('✅ ¡Nuevos Tokens guardados en la Base de Datos MySQL!')
+    res.send('¡Autorización exitosa! Tus tokens ya están en MySQL. Puedes cerrar esta ventana.')
   } catch (error) {
     res.send('Error en la autorización: ' + (error.response?.data?.errors[0]?.message || error.message))
   }
