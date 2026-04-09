@@ -5,6 +5,7 @@ const cors = require('cors')
 // Importamos nuestras rutas ordenadas
 const reportRoutes = require('./routes/reportRoutes')
 const authRoutes = require('./routes/authRoutes')
+const uploadRoutes = require('./routes/uploadRoutes')
 
 const app = express()
 
@@ -17,6 +18,7 @@ app.use(express.json())
 // ==========================================
 app.use('/api/reports', reportRoutes)
 app.use('/api/auth', authRoutes)
+app.use('/api/upload', uploadRoutes)
 
 // Iniciamos el servidor con puerto dinámico (Mejor práctica para Producción)
 const PORT = process.env.PORT || 3000
