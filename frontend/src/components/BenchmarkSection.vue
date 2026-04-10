@@ -25,7 +25,7 @@
               <td class="p-4 text-center text-xl text-pluxeeBlue font-black">{{ comp.posts_count }}</td>
               <td class="p-4 text-center text-gray-800">{{ comp.frequency || 0 }} publicaciones/día</td>
               <td class="p-4 text-center text-gray-800">{{ comp.interaction || 0 }}</td>
-              <td class="p-4 text-center text-gray-800">{{ comp.followers }}</td>
+              <td class="p-4 text-center text-gray-800">{{ comp.followers }} mil</td>
 
               <td class="p-4 align-middle">
                 <div class="flex justify-center items-center w-full">

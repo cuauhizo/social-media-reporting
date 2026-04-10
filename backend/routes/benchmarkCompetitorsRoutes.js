@@ -18,10 +18,13 @@ router.post('/', async (req, res) => {
   try {
     const [result] = await pool.query(
       `INSERT INTO benchmark_competitors 
-      (brand_name, description, posts_count, frequency, interaction, followers, gained_followers, engagement_rate, is_main_brand) 
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [brand_name, description || '', posts_count || 0, frequency || 0, interaction || 0, followers || 0, gained_followers || 0, engagement_rate || 0, is_main_brand || 0],
+      (brand_name, description, posts_count, frequency, interaction, followers, gained_followers, is_main_brand) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [brand_name, description || '', posts_count || 0, frequency || 0, interaction || 0, followers || 0, gained_followers || 0, is_main_brand || 0],
     )
+
+    // INSERT INTO`benchmark_competitors`(`id`, `brand_name`, `description`, `posts_count`, `frequency`, `interaction`, `followers`, `gained_followers`, `is_main_brand`, `created_at`) VALUES(NULL, 'inventado', 'desde Oct, 2024', '3', '1.03', '4', '1256', '90', '0', CURRENT_TIMESTAMP);
+
     res.json({ id: result.insertId, brand_name })
   } catch (error) {
     res.status(500).json({ error: error.message })

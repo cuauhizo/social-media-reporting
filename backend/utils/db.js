@@ -98,10 +98,10 @@ async function initDB() {
         brand_name VARCHAR(100) NOT NULL,
         description VARCHAR(255),
         posts_count INT DEFAULT 0,
-        frequency DECIMAL(5,2) DEFAULT 0.00,
-        interaction INT DEFAULT 0,
-        followers INT DEFAULT 0,
-        gained_followers INT DEFAULT 0,
+        frequency INT DEFAULT 0,
+        interaction DECIMAL(5,1) DEFAULT 0.0,
+        followers DECIMAL(5,1) DEFAULT 0.0,
+        gained_followers DECIMAL(5,2) DEFAULT 0.00,
         is_main_brand TINYINT(1) DEFAULT 0,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )

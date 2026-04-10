@@ -36,7 +36,7 @@
         </div>
       </section>
 
-      <section class="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm mb-10">
+      <!-- <section class="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm mb-10">
         <h2 class="text-2xl font-black text-pluxeeBlue uppercase mb-6 flex items-center">
           <span class="mr-3">🏆</span>
           Benchmark: Competidores
@@ -94,6 +94,104 @@
             </tr>
           </tbody>
         </table>
+      </section> -->
+
+      <section class="mt-8 bg-white p-8 rounded-2xl border border-gray-200 shadow-sm mb-10">
+        <h2 class="text-2xl font-black text-pluxeeBlue uppercase mb-6 flex items-center">
+          <span class="mr-3">🏆</span>
+          Benchmark: Competidores e Insights
+        </h2>
+
+        <div class="mb-8">
+          <h3 class="font-bold text-gray-500 mb-2 text-sm uppercase">Insights de la competencia</h3>
+          <div class="flex gap-2 mb-4">
+            <input v-model="nuevoBenchmarkInsight" type="text" placeholder="Nuevo insight..." class="flex-1 border p-2 rounded-lg text-sm" @keyup.enter="agregarBenchmarkInsight" />
+            <button @click="agregarBenchmarkInsight" class="bg-pluxeeBlue text-white px-4 py-2 rounded-lg font-bold text-sm">Agregar Insight</button>
+          </div>
+          <div class="space-y-2">
+            <div v-for="item in listaBenchmarkInsights" :key="item.id" class="flex gap-2 bg-gray-50 p-2 rounded-lg group text-sm">
+              <input v-model="item.insight" class="bg-transparent flex-1 outline-none" @change="actualizarBenchmarkInsight(item)" />
+              <button @click="borrarBenchmarkInsight(item.id)" class="text-red-400 opacity-0 group-hover:opacity-100">🗑️</button>
+            </div>
+          </div>
+        </div>
+
+        <hr class="mb-8 border-gray-200" />
+
+        <h3 class="font-bold text-gray-500 mb-4 text-sm uppercase">Agregar / Editar Competidores</h3>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3 mb-6 bg-blue-50 p-4 rounded-xl border border-blue-100 items-end">
+          <div class="col-span-2 lg:col-span-2">
+            <label class="text-[10px] font-bold text-gray-500 uppercase">Marca</label>
+            <input v-model="nuevoComp.brand_name" type="text" class="w-full border p-2 rounded-lg text-sm" />
+          </div>
+          <div class="col-span-2 lg:col-span-2">
+            <label class="text-[10px] font-bold text-gray-500 uppercase">Descripción</label>
+            <input v-model="nuevoComp.description" type="text" class="w-full border p-2 rounded-lg text-sm" placeholder="Ej: Supermercado" />
+          </div>
+          <div>
+            <label class="text-[10px] font-bold text-gray-500 uppercase">Posts</label>
+            <input v-model="nuevoComp.posts_count" type="number" class="w-full border p-2 rounded-lg text-sm" />
+          </div>
+          <div>
+            <label class="text-[10px] font-bold text-gray-500 uppercase">Frecuencia</label>
+            <input v-model="nuevoComp.frequency" type="number" class="w-full border p-2 rounded-lg text-sm" />
+          </div>
+          <div>
+            <label class="text-[10px] font-bold text-gray-500 uppercase">Interacción</label>
+            <input v-model="nuevoComp.interaction" type="number" step="0.1" class="w-full border p-2 rounded-lg text-sm" />
+          </div>
+          <div>
+            <label class="text-[10px] font-bold text-gray-500 uppercase">Seguidores</label>
+            <input v-model="nuevoComp.followers" type="number" step="0.1" class="w-full border p-2 rounded-lg text-sm" />
+          </div>
+          <div>
+            <label class="text-[10px] font-bold text-gray-500 uppercase">Aumento Seg.</label>
+            <input v-model="nuevoComp.gained_followers" type="number" step="0.1" class="w-full border p-2 rounded-lg text-sm" />
+          </div>
+
+          <div class="flex items-center justify-center bg-white border p-2 rounded-lg">
+            <label class="text-[10px] font-bold text-pluxeeBlue uppercase flex items-center cursor-pointer">
+              <input v-model="nuevoComp.is_main_brand" type="checkbox" class="mr-1" />
+              Pluxee?
+            </label>
+          </div>
+          <button @click="agregarCompetidor" class="bg-pluxeeBlue text-white p-2 rounded-lg font-bold text-sm">Guardar</button>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm border-collapse">
+            <thead>
+              <tr class="text-gray-400 text-xs uppercase border-b-2">
+                <th class="pb-2">Marca</th>
+                <th class="pb-2">Posts</th>
+                <th class="pb-2">Frecuencia</th>
+                <th class="pb-2">Interacción</th>
+                <th class="pb-2">Seguidores</th>
+                <th class="pb-2">Aumento</th>
+                <th class="pb-2"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="comp in listaCompetidores" :key="comp.id" class="border-b hover:bg-gray-50" :class="comp.is_main_brand ? 'bg-yellow-50' : ''">
+                <td class="py-3 font-bold">
+                  {{ comp.brand_name }}
+                  <span v-if="comp.is_main_brand" class="text-pluxeeBlue text-xs ml-1">★</span>
+                  <div class="text-xs font-normal text-gray-400">{{ comp.description }}</div>
+                </td>
+                <td class="py-3">{{ comp.posts_count }}</td>
+                <td class="py-3">{{ comp.frequency }}</td>
+                <td class="py-3">{{ comp.interaction }}</td>
+                <td class="py-3">{{ comp.followers }}</td>
+                <td class="py-3 text-green-600 font-bold">+{{ comp.gained_followers }}</td>
+
+                <td class="py-3 text-right">
+                  <button @click="borrarCompetidor(comp.id)" class="text-red-400 hover:text-red-600">🗑️</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </section>
 
       <section class="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm mb-10">
@@ -330,7 +428,16 @@
   })
 
   const listaCompetidores = ref([])
-  const nuevoComp = ref({ brand_name: '', description: '', followers: 0, posts_count: 0, engagement_rate: 0, is_main_brand: 0 })
+  const nuevoComp = ref({
+    brand_name: '',
+    description: '',
+    posts_count: 0,
+    frequency: 0,
+    interaction: 0,
+    followers: 0,
+    gained_followers: 0,
+    is_main_brand: false,
+  })
 
   // Objeto reactivo para saber qué cajita está recibiendo un "Drag" (Hover de archivo)
   const dragState = ref({})
@@ -630,6 +737,30 @@
     fetchBenchmarkInsights()
   }
 
+  // // LÓGICA COMPETIDORES
+  // const fetchCompetidores = async () => {
+  //   const res = await fetch(`${apiUrl}/api/benchmark-competitors`)
+  //   listaCompetidores.value = await res.json()
+  // }
+  // const agregarCompetidor = async () => {
+  //   if (!nuevoComp.value.brand_name.trim()) return
+  //   await fetch(`${apiUrl}/api/benchmark-competitors`, {
+  //     method: 'POST',
+  //     headers: { 'Content-Type': 'application/json' },
+  //     body: JSON.stringify(nuevoComp.value),
+  //   })
+  //   console.log(nuevoComp.value)
+  //   // nuevoComp.value = { brand_name: '', description: '', followers: 0, posts_count: 0, engagement_rate: 0, is_main_brand: 0 }
+  //   nuevoComp.value = { brand_name: '', description: '', posts_count: 0, frequency: 0, interaction: 0, followers: 0, gained_followers: 0, engagement_rate: 0, is_main_brand: 0 }
+  //   fetchCompetidores()
+  //   showAlert('Competidor agregado', 'success')
+  // }
+  // const borrarCompetidor = async id => {
+  //   if (!confirm('¿Eliminar competidor?')) return
+  //   await fetch(`${apiUrl}/api/benchmark-competitors/${id}`, { method: 'DELETE' })
+  //   fetchCompetidores()
+  // }
+
   // LÓGICA COMPETIDORES
   const fetchCompetidores = async () => {
     const res = await fetch(`${apiUrl}/api/benchmark-competitors`)
@@ -637,16 +768,17 @@
   }
   const agregarCompetidor = async () => {
     if (!nuevoComp.value.brand_name.trim()) return
-    await fetch(`${apiUrl}/api/benchmark-competitors`, {
+    const dataToSave = { ...nuevoComp.value, is_main_brand: nuevoComp.value.is_main_brand ? 1 : 0 }
+    const res = await fetch(`${apiUrl}/api/benchmark-competitors`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(nuevoComp.value),
+      body: JSON.stringify(dataToSave),
     })
-    console.log(nuevoComp.value)
-    // nuevoComp.value = { brand_name: '', description: '', followers: 0, posts_count: 0, engagement_rate: 0, is_main_brand: 0 }
-    nuevoComp.value = { brand_name: '', description: '', posts_count: 0, frequency: 0, interaction: 0, followers: 0, gained_followers: 0, engagement_rate: 0, is_main_brand: 0 }
-    fetchCompetidores()
-    showAlert('Competidor agregado', 'success')
+    if (res.ok) {
+      nuevoComp.value = { brand_name: '', description: '', posts_count: 0, frequency: 0, interaction: 0, followers: 0, gained_followers: 0, is_main_brand: false }
+      fetchCompetidores()
+      showAlert('Competidor agregado', 'success')
+    }
   }
   const borrarCompetidor = async id => {
     if (!confirm('¿Eliminar competidor?')) return
