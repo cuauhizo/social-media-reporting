@@ -36,87 +36,11 @@
         </div>
       </section>
 
-      <!-- <section class="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm mb-10">
-        <h2 class="text-2xl font-black text-pluxeeBlue uppercase mb-6 flex items-center">
-          <span class="mr-3">🏆</span>
-          Benchmark: Competidores
-        </h2>
-
-        <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6 items-end">
-          <div>
-            <label class="text-xs font-bold text-gray-400 uppercase">Marca</label>
-            <input v-model="nuevoComp.brand_name" type="text" class="w-full border p-2 rounded-lg" placeholder="Nombre" />
-          </div>
-          <div>
-            <label class="text-xs font-bold text-gray-400 uppercase">Descripcion</label>
-            <input v-model="nuevoComp.description" type="text" class="w-full border p-2 rounded-lg" placeholder="Descripcion" />
-          </div>
-          <div>
-            <label class="text-xs font-bold text-gray-400 uppercase">Seguidores</label>
-            <input v-model="nuevoComp.followers" type="number" class="w-full border p-2 rounded-lg" />
-          </div>
-          <div>
-            <label class="text-xs font-bold text-gray-400 uppercase">Posts</label>
-            <input v-model="nuevoComp.posts_count" type="number" class="w-full border p-2 rounded-lg" />
-          </div>
-          <div>
-            <label class="text-xs font-bold text-gray-400 uppercase">Engagement</label>
-            <input v-model="nuevoComp.engagement_rate" type="number" step="0.01" class="w-full border p-2 rounded-lg" />
-          </div>
-          <button @click="agregarCompetidor" class="bg-pluxeeBlue text-white p-2 rounded-lg font-bold">Añadir</button>
-        </div>
-
-        <table class="w-full text-left">
-          <thead>
-            <tr class="text-gray-400 text-xs uppercase border-b">
-              <th class="pb-2">Marca</th>
-              <th class="pb-2">Seguidores</th>
-              <th class="pb-2">Posts</th>
-              <th class="pb-2">Eng %</th>
-              <th class="pb-2">Acción</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="comp in listaCompetidores" :key="comp.id" class="border-b hover:bg-gray-50">
-              <td class="py-3 font-bold">
-                {{ comp.brand_name }}
-                <br />
-                <span class="text-sm">
-                  {{ comp.description }}
-                </span>
-              </td>
-              <td class="py-3">{{ comp.followers }}</td>
-              <td class="py-3">{{ comp.posts_count }}</td>
-              <td class="py-3">{{ comp.engagement_rate }}%</td>
-              <td class="py-3">
-                <button @click="borrarCompetidor(comp.id)" class="text-red-400">🗑️</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </section> -->
-
       <section class="mt-8 bg-white p-8 rounded-2xl border border-gray-200 shadow-sm mb-10">
         <h2 class="text-2xl font-black text-pluxeeBlue uppercase mb-6 flex items-center">
           <span class="mr-3">🏆</span>
           Benchmark: Competidores e Insights
         </h2>
-
-        <div class="mb-8">
-          <h3 class="font-bold text-gray-500 mb-2 text-sm uppercase">Insights de la competencia</h3>
-          <div class="flex gap-2 mb-4">
-            <input v-model="nuevoBenchmarkInsight" type="text" placeholder="Nuevo insight..." class="flex-1 border p-2 rounded-lg text-sm" @keyup.enter="agregarBenchmarkInsight" />
-            <button @click="agregarBenchmarkInsight" class="bg-pluxeeBlue text-white px-4 py-2 rounded-lg font-bold text-sm">Agregar Insight</button>
-          </div>
-          <div class="space-y-2">
-            <div v-for="item in listaBenchmarkInsights" :key="item.id" class="flex gap-2 bg-gray-50 p-2 rounded-lg group text-sm">
-              <input v-model="item.insight" class="bg-transparent flex-1 outline-none" @change="actualizarBenchmarkInsight(item)" />
-              <button @click="borrarBenchmarkInsight(item.id)" class="text-red-400 opacity-0 group-hover:opacity-100">🗑️</button>
-            </div>
-          </div>
-        </div>
-
-        <hr class="mb-8 border-gray-200" />
 
         <h3 class="font-bold text-gray-500 mb-4 text-sm uppercase">Agregar / Editar Competidores</h3>
 
@@ -173,24 +97,63 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="comp in listaCompetidores" :key="comp.id" class="border-b hover:bg-gray-50" :class="comp.is_main_brand ? 'bg-yellow-50' : ''">
-                <td class="py-3 font-bold">
-                  {{ comp.brand_name }}
-                  <span v-if="comp.is_main_brand" class="text-pluxeeBlue text-xs ml-1">★</span>
-                  <div class="text-xs font-normal text-gray-400">{{ comp.description }}</div>
+              <tr v-for="comp in listaCompetidores" :key="comp.id" class="border-b hover:bg-gray-50 transition-colors" :class="comp.is_main_brand ? 'bg-yellow-50' : ''">
+                <td class="py-3 pr-2">
+                  <div class="flex items-center">
+                    <span v-if="comp.is_main_brand" class="text-pluxeeBlue text-xs mr-1">★</span>
+                    <input v-model="comp.brand_name" class="bg-transparent font-bold w-full outline-none focus:text-pluxeeBlue border-b border-transparent focus:border-gray-300" @change="actualizarCompetidor(comp)" />
+                  </div>
+                  <input v-model="comp.description" class="bg-transparent text-xs font-normal text-gray-500 w-full outline-none focus:text-pluxeeBlue border-b border-transparent focus:border-gray-300" @change="actualizarCompetidor(comp)" />
                 </td>
-                <td class="py-3">{{ comp.posts_count }}</td>
-                <td class="py-3">{{ comp.frequency }}</td>
-                <td class="py-3">{{ comp.interaction }}</td>
-                <td class="py-3">{{ comp.followers }}</td>
-                <td class="py-3 text-green-600 font-bold">+{{ comp.gained_followers }}</td>
 
+                <td class="py-3 pr-2">
+                  <input type="number" v-model="comp.posts_count" class="bg-transparent w-16 outline-none focus:text-pluxeeBlue border-b border-transparent focus:border-gray-300" @change="actualizarCompetidor(comp)" />
+                </td>
+
+                <td class="py-3 pr-2">
+                  <input type="number" step="0.1" v-model="comp.frequency" class="bg-transparent w-16 outline-none focus:text-pluxeeBlue border-b border-transparent focus:border-gray-300" @change="actualizarCompetidor(comp)" />
+                </td>
+
+                <td class="py-3 pr-2">
+                  <input type="number" v-model="comp.interaction" class="bg-transparent w-20 outline-none focus:text-pluxeeBlue border-b border-transparent focus:border-gray-300" @change="actualizarCompetidor(comp)" />
+                </td>
+
+                <td class="py-3 pr-2">
+                  <input type="number" v-model="comp.followers" class="bg-transparent w-24 outline-none focus:text-pluxeeBlue border-b border-transparent focus:border-gray-300" @change="actualizarCompetidor(comp)" />
+                </td>
+
+                <td class="py-3 pr-2 font-bold flex items-center" :class="comp.gained_followers >= 0 ? 'text-green-600' : 'text-red-600'">
+                  <span v-if="comp.gained_followers > 0">+</span>
+
+                  <input
+                    type="number"
+                    v-model="comp.gained_followers"
+                    class="bg-transparent w-20 outline-none border-b border-transparent ml-1 transition-colors"
+                    :class="comp.gained_followers >= 0 ? 'focus:text-green-800 focus:border-green-300' : 'focus:text-red-800 focus:border-red-300'"
+                    @change="actualizarCompetidor(comp)" />
+                </td>
                 <td class="py-3 text-right">
-                  <button @click="borrarCompetidor(comp.id)" class="text-red-400 hover:text-red-600">🗑️</button>
+                  <button @click="borrarCompetidor(comp.id)" class="text-red-400 hover:text-red-600 transition-transform hover:scale-110">🗑️</button>
                 </td>
               </tr>
             </tbody>
           </table>
+        </div>
+
+        <hr class="my-12 border-gray-200" />
+
+        <div class="mb-8">
+          <h3 class="font-bold text-gray-500 mb-2 text-sm uppercase">Insights de la competencia</h3>
+          <div class="flex gap-2 mb-4">
+            <input v-model="nuevoBenchmarkInsight" type="text" placeholder="Nuevo insight..." class="flex-1 border p-2 rounded-lg text-sm" @keyup.enter="agregarBenchmarkInsight" />
+            <button @click="agregarBenchmarkInsight" class="bg-pluxeeBlue text-white px-4 py-2 rounded-lg font-bold text-sm">Agregar Insight</button>
+          </div>
+          <div class="space-y-2">
+            <div v-for="item in listaBenchmarkInsights" :key="item.id" class="flex gap-2 bg-gray-50 p-2 rounded-lg group text-sm">
+              <input v-model="item.insight" class="bg-transparent flex-1 outline-none" @change="actualizarBenchmarkInsight(item)" />
+              <button @click="borrarBenchmarkInsight(item.id)" class="text-red-400 opacity-0 group-hover:opacity-100">🗑️</button>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -279,7 +242,7 @@
 
         <div class="flex gap-4 mb-8">
           <input v-model="nuevoCompromiso" type="text" placeholder="Escribe una nuevo compromiso..." class="flex-1 border-2 border-gray-200 rounded-xl px-4 py-2 focus:border-pluxeeGreen outline-none transition" @keyup.enter="agregarCompromiso" />
-          <button @click="agregarCompromiso" class="bg-pluxeeGreen text-white px-6 py-2 rounded-xl font-bold hover:scale-105 transition active:scale-95">Agregar +</button>
+          <button @click="agregarCompromiso" class="bg-pluxeePink text-white px-6 py-2 rounded-xl font-bold hover:scale-105 transition active:scale-95">Agregar +</button>
         </div>
 
         <div class="space-y-3">
@@ -737,30 +700,6 @@
     fetchBenchmarkInsights()
   }
 
-  // // LÓGICA COMPETIDORES
-  // const fetchCompetidores = async () => {
-  //   const res = await fetch(`${apiUrl}/api/benchmark-competitors`)
-  //   listaCompetidores.value = await res.json()
-  // }
-  // const agregarCompetidor = async () => {
-  //   if (!nuevoComp.value.brand_name.trim()) return
-  //   await fetch(`${apiUrl}/api/benchmark-competitors`, {
-  //     method: 'POST',
-  //     headers: { 'Content-Type': 'application/json' },
-  //     body: JSON.stringify(nuevoComp.value),
-  //   })
-  //   console.log(nuevoComp.value)
-  //   // nuevoComp.value = { brand_name: '', description: '', followers: 0, posts_count: 0, engagement_rate: 0, is_main_brand: 0 }
-  //   nuevoComp.value = { brand_name: '', description: '', posts_count: 0, frequency: 0, interaction: 0, followers: 0, gained_followers: 0, engagement_rate: 0, is_main_brand: 0 }
-  //   fetchCompetidores()
-  //   showAlert('Competidor agregado', 'success')
-  // }
-  // const borrarCompetidor = async id => {
-  //   if (!confirm('¿Eliminar competidor?')) return
-  //   await fetch(`${apiUrl}/api/benchmark-competitors/${id}`, { method: 'DELETE' })
-  //   fetchCompetidores()
-  // }
-
   // LÓGICA COMPETIDORES
   const fetchCompetidores = async () => {
     const res = await fetch(`${apiUrl}/api/benchmark-competitors`)
@@ -780,6 +719,20 @@
       showAlert('Competidor agregado', 'success')
     }
   }
+
+  const actualizarCompetidor = async comp => {
+    // Nos aseguramos de mantener el is_main_brand original para MySQL
+    const dataToSave = { ...comp, is_main_brand: comp.is_main_brand ? 1 : 0 }
+
+    await fetch(`${apiUrl}/api/benchmark-competitors/${comp.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(dataToSave),
+    })
+
+    showAlert('Competidor actualizado', 'success')
+  }
+
   const borrarCompetidor = async id => {
     if (!confirm('¿Eliminar competidor?')) return
     await fetch(`${apiUrl}/api/benchmark-competitors/${id}`, { method: 'DELETE' })

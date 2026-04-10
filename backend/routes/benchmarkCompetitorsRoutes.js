@@ -14,7 +14,7 @@ router.get('/', async (req, res) => {
 
 // Guardar o actualizar un competidor
 router.post('/', async (req, res) => {
-  const { brand_name, description, posts_count, frequency, interaction, followers, gained_followers, engagement_rate, is_main_brand } = req.body
+  const { brand_name, description, posts_count, frequency, interaction, followers, gained_followers, is_main_brand } = req.body
   try {
     const [result] = await pool.query(
       `INSERT INTO benchmark_competitors 
@@ -26,6 +26,25 @@ router.post('/', async (req, res) => {
     // INSERT INTO`benchmark_competitors`(`id`, `brand_name`, `description`, `posts_count`, `frequency`, `interaction`, `followers`, `gained_followers`, `is_main_brand`, `created_at`) VALUES(NULL, 'inventado', 'desde Oct, 2024', '3', '1.03', '4', '1256', '90', '0', CURRENT_TIMESTAMP);
 
     res.json({ id: result.insertId, brand_name })
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+})
+
+// EDITAR un competidor
+router.put('/:id', async (req, res) => {
+  const { id } = req.params
+  const { brand_name, description, posts_count, frequency, interaction, followers, gained_followers, is_main_brand } = req.body
+
+  try {
+    await pool.query(
+      `UPDATE benchmark_competitors 
+       SET brand_name=?, description=?, posts_count=?, frequency=?, 
+           interaction=?, followers=?, gained_followers=?, is_main_brand=? 
+       WHERE id=?`,
+      [brand_name, description, posts_count, frequency, interaction, followers, gained_followers, is_main_brand ? 1 : 0, id],
+    )
+    res.json({ message: 'Competidor actualizado' })
   } catch (error) {
     res.status(500).json({ error: error.message })
   }
