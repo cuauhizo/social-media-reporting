@@ -364,6 +364,31 @@
           placeholder="Escribe el resumen o la conclusión final del reporte mensual aquí..."
           class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-pluxeeBlue outline-none transition resize-none text-gray-700 font-medium leading-relaxed"></textarea>
       </section>
+
+      <section class="mt-8 bg-white p-8 rounded-2xl border border-gray-200 shadow-sm mb-10">
+        <h2 class="text-2xl font-black text-pluxeeBlue uppercase mb-6 flex items-center">
+          <span class="mr-3">🖼️</span>
+          Galería de Posts (Fijar Imágenes)
+        </h2>
+
+        <button @click="cargarPostsParaEditar" class="bg-pluxeeBlue text-white px-4 py-2 rounded-xl font-bold hover:scale-105 transition mb-6">🔍 Cargar Posts de este Mes</button>
+
+        <div v-if="postsParaEditar.length > 0" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div v-for="post in postsParaEditar" :key="post.id" class="border border-gray-200 p-4 rounded-xl flex flex-col items-center text-center bg-gray-50 relative">
+            <img :src="post.picture" class="h-24 w-24 object-cover mb-3 rounded-lg shadow-sm bg-gray-200 border" />
+
+            <a v-if="post.link" :href="post.link" target="_blank" class="text-xs text-pluxeeBlue font-black underline mb-2 hover:text-blue-800 transition">🔗 Ver Post Original</a>
+
+            <p class="text-xs text-gray-500 mb-3 line-clamp-2 w-full h-8" :title="post.text">{{ post.text }}</p>
+
+            <label class="bg-blue-100 text-pluxeeBlue text-xs font-bold px-3 py-1 rounded cursor-pointer hover:bg-blue-200 transition w-full">
+              Subir Imagen
+              <input type="file" class="hidden" accept="image/*" @change="subirImagenPost(post.id, $event)" />
+            </label>
+          </div>
+        </div>
+        <div v-else-if="postsParaEditar.length === 0" class="text-center text-gray-400 py-8 italic border-2 border-dashed rounded-xl mt-4">🎉 ¡Todos los posts están perfectos! No hay imágenes rotas que arreglar.</div>
+      </section>
     </div>
   </div>
 </template>
@@ -400,6 +425,8 @@
     is_main_brand: false,
   })
   const conclusionData = ref({ id: null, texto: '' })
+  const postsParaEditar = ref([])
+  const customPostImages = ref({})
 
   // Objeto reactivo para saber qué cajita está recibiendo un "Drag" (Hover de archivo)
   const dragState = ref({})
@@ -773,6 +800,74 @@
         conclusionData.value.id = result.id // Guardamos el ID que nos devolvió MySQL
         showAlert('Conclusión guardada', 'success')
       }
+    }
+  }
+
+  // LÓGICA DE POSTS (Trae el reporte, saca los posts y te deja editarlos)
+  const cargarPostsParaEditar = async () => {
+    try {
+      const hoy = new Date()
+      hoy.setMonth(hoy.getMonth() - 1)
+      const año = hoy.getFullYear()
+      const mesAnterior = String(hoy.getMonth() + 1).padStart(2, '0')
+      const periodId = `${año}-${mesAnterior}`
+
+      const resReporte = await fetch(`${apiUrl}/api/reports/${periodId}`)
+      if (!resReporte.ok) return showAlert('Error cargando el reporte mensual', 'error')
+
+      const data = await resReporte.json()
+
+      // TRUCO DE DEBUGGING: Si aún no ves nada, presiona F12 en tu navegador y revisa la consola
+      // para ver la estructura real de tus datos.
+      console.log('Datos del reporte cargados:', data)
+
+      const resImages = await fetch(`${apiUrl}/api/post-images`)
+      const imagesData = await resImages.json()
+      imagesData.forEach(img => (customPostImages.value[img.post_id] = img.image_url))
+
+      // ✨ LA CORRECCIÓN: Buscamos inteligentemente la llave correcta de los posts ✨
+      const fbPosts = data.facebook?.topPosts || data.facebook?.realPosts || data.facebook?.posts || []
+      const igPosts = data.instagram?.topPosts || data.instagram?.realPosts || data.instagram?.posts || []
+
+      const todosLosPosts = [...fbPosts, ...igPosts]
+
+      postsParaEditar.value = todosLosPosts.map(p => ({
+        id: p.id,
+        text: p.text || p.message || 'Sin texto',
+        picture: p.picture || p.thumbnail || '',
+        link: p.permalink || p.url || p.link || null,
+        custom_image: customPostImages.value[p.id] || null,
+      }))
+      // ✨ FILTRO: Hacemos que desaparezcan los que ya arreglamos ✨
+      // postsParaEditar.value = mappedPosts.filter(p => !p.custom_image)
+
+      if (postsParaEditar.value.length === 0) {
+        showAlert('No se encontraron posts en el reporte. Revisa la consola (F12).', 'error')
+      } else {
+        showAlert('Posts cargados. Sube la imagen a los que se vean rotos.', 'success')
+      }
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  const subirImagenPost = async (postId, event) => {
+    const file = event.target.files[0]
+    if (!file) return
+
+    const formData = new FormData()
+    // ✨ CORRECCIÓN: Primero enviamos el texto (ID), luego el archivo (Imagen) ✨
+    formData.append('post_id', postId)
+    formData.append('image', file)
+
+    try {
+      const res = await fetch(`${apiUrl}/api/post-images`, { method: 'POST', body: formData })
+      if (!res.ok) throw new Error('Error al subir imagen')
+
+      showAlert('Imagen del post actualizada', 'success')
+      cargarPostsParaEditar() // Recargamos para que se vea la nueva imagen
+    } catch (error) {
+      showAlert(error.message, 'error')
     }
   }
 </script>

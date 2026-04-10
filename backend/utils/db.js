@@ -116,6 +116,15 @@ async function initDB() {
       )
     `)
 
+    // NUEVA TABLA: Para reemplazar imágenes rotas de posts
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS post_images (
+        post_id VARCHAR(100) PRIMARY KEY,
+        image_url VARCHAR(255) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `)
+
     connection.release()
     console.log('✅ Base de datos MySQL: Tablas de Tokens y Contexto listas.')
   } catch (error) {

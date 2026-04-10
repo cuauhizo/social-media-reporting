@@ -34,6 +34,33 @@
       if (!res.ok) throw new Error('Error al cargar el reporte')
 
       reportData.value = await res.json()
+      // ✨ INTERCEPTOR DE IMÁGENES ROTAS ✨
+      try {
+        const resImages = await fetch(`${apiUrl}/api/post-images`)
+        if (resImages.ok) {
+          const overrides = await resImages.json()
+          const dict = {}
+          overrides.forEach(img => (dict[img.post_id] = img.image_url))
+
+          // Corregimos la búsqueda en Facebook (usando topPosts)
+          const fbPosts = reportData.value.facebook?.topPosts || reportData.value.facebook?.realPosts || reportData.value.facebook?.posts
+          if (fbPosts) {
+            fbPosts.forEach(post => {
+              if (dict[post.id]) post.picture = apiUrl + dict[post.id]
+            })
+          }
+
+          // Corregimos la búsqueda en Instagram (usando topPosts)
+          const igPosts = reportData.value.instagram?.topPosts || reportData.value.instagram?.realPosts || reportData.value.instagram?.posts
+          if (igPosts) {
+            igPosts.forEach(post => {
+              if (dict[post.id]) post.picture = apiUrl + dict[post.id]
+            })
+          }
+        }
+      } catch (err) {
+        console.error('No se pudieron cargar las imágenes personalizadas', err)
+      }
     } catch (err) {
       error.value = err.message
     } finally {
