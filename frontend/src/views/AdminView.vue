@@ -310,10 +310,6 @@
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
-            <label class="block text-sm font-bold text-gray-500 mb-2">Total de Casos (CS)</label>
-            <input v-model="metricas.cs_total" type="number" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-pluxeeBlue font-bold text-lg text-gray-800" />
-          </div>
-          <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
             <label class="block text-sm font-bold text-gray-500 mb-2">Casos Escalados</label>
             <input v-model="metricas.cs_escalated" type="number" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-pluxeeBlue font-bold text-lg text-gray-800" />
           </div>
@@ -324,14 +320,6 @@
           <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
             <label class="block text-sm font-bold text-gray-500 mb-2">Mensajes Instagram</label>
             <input v-model="metricas.msj_ig" type="number" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-pluxeeBlue font-bold text-lg text-gray-800" />
-          </div>
-          <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
-            <label class="block text-sm font-bold text-gray-500 mb-2">Sentimiento (+) FB %</label>
-            <input v-model="metricas.percentage_fb" type="number" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-pluxeeBlue font-bold text-lg text-gray-800" />
-          </div>
-          <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
-            <label class="block text-sm font-bold text-gray-500 mb-2">Sentimiento (+) IG %</label>
-            <input v-model="metricas.percentage_ig" type="number" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-pluxeeBlue font-bold text-lg text-gray-800" />
           </div>
         </div>
       </section>
@@ -381,14 +369,7 @@
   const listaCasosCS = ref([])
   const nuevoMotivo = ref('')
   const nuevaCantidad = ref('')
-  const metricas = ref({
-    cs_total: 0,
-    cs_escalated: 0,
-    msj_fb: 0,
-    msj_ig: 0,
-    percentage_fb: 0,
-    percentage_ig: 0,
-  })
+  const metricas = ref({ cs_escalated: 0, msj_fb: 0, msj_ig: 0 })
 
   const listaCompetidores = ref([])
   const nuevoComp = ref({

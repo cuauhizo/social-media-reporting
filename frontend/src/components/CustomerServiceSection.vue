@@ -2,7 +2,7 @@
   <div class="py-12 px-8 bg-gray-50">
     <div class="max-w-7xl mx-auto min-h-screen">
       <h2 class="text-3xl font-black text-pluxeeBlue mb-8 uppercase">Customer Service & Complains</h2>
-      <pre>{{ metricas }}</pre>
+      <!-- <pre>{{ metricas }}</pre> -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div class="bg-white p-6 rounded-xl shadow-md border-t-4 border-pluxeeBlue">
           <h3 class="text-xl font-bold text-gray-800 mb-4">Tipos de Casos (CAS)</h3>
@@ -21,7 +21,7 @@
           <div class="bg-blue-50 p-4 rounded-lg text-pluxeeBlue font-medium space-y-2">
             <p>
               📩 Se recibieron
-              <strong>{{ metricas.msj_fb + metricas.msj_ig }} mensajes</strong>
+              <strong>{{ metricas.total_calculado }} mensajes</strong>
               (Facebook y Instagram)
             </p>
             <p>
@@ -107,14 +107,29 @@
       // 2. Llenamos las Métricas Fijas y construimos su Gráfica
       if (resMetricas.ok) {
         const dataMetricas = await resMetricas.json()
-        metricas.value = dataMetricas // Guardamos en variable para imprimir textos
+
+        // ✨ CÁLCULO AUTOMÁTICO ✨
+        const fb = parseInt(dataMetricas.msj_fb) || 0
+        const ig = parseInt(dataMetricas.msj_ig) || 0
+        const total = fb + ig // Sumamos ambos para obtener el total de casos
+
+        // Guardamos los datos originales y le añadimos nuestro nuevo total calculado
+        metricas.value = {
+          ...dataMetricas,
+          total_calculado: total,
+        }
+
+        // Regla de 3 para sacar los porcentajes para la gráfica
+        const percFb = total > 0 ? ((fb / total) * 100).toFixed(1) : 0
+        const percIg = total > 0 ? ((ig / total) * 100).toFixed(1) : 0
 
         chartDataOrigen.value = {
           labels: ['Facebook', 'Instagram'],
           datasets: [
             {
+              // Opcional: Le puse los colores de marca de FB e IG para que se vea genial
               backgroundColor: ['#dbeafe', '#fbcfe8'],
-              data: [parseFloat(dataMetricas.percentage_fb) || 0, parseFloat(dataMetricas.percentage_ig) || 0],
+              data: [percFb, percIg],
             },
           ],
         }
