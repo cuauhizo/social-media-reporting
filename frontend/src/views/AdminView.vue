@@ -37,6 +37,92 @@
       </section>
 
       <section class="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm mb-10">
+        <h2 class="text-2xl font-black text-pluxeeBlue uppercase mb-6 flex items-center">
+          <span class="mr-3">🏆</span>
+          Benchmark: Competidores
+        </h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6 items-end">
+          <div>
+            <label class="text-xs font-bold text-gray-400 uppercase">Marca</label>
+            <input v-model="nuevoComp.brand_name" type="text" class="w-full border p-2 rounded-lg" placeholder="Nombre" />
+          </div>
+          <div>
+            <label class="text-xs font-bold text-gray-400 uppercase">Descripcion</label>
+            <input v-model="nuevoComp.description" type="text" class="w-full border p-2 rounded-lg" placeholder="Descripcion" />
+          </div>
+          <div>
+            <label class="text-xs font-bold text-gray-400 uppercase">Seguidores</label>
+            <input v-model="nuevoComp.followers" type="number" class="w-full border p-2 rounded-lg" />
+          </div>
+          <div>
+            <label class="text-xs font-bold text-gray-400 uppercase">Posts</label>
+            <input v-model="nuevoComp.posts_count" type="number" class="w-full border p-2 rounded-lg" />
+          </div>
+          <div>
+            <label class="text-xs font-bold text-gray-400 uppercase">Engagement</label>
+            <input v-model="nuevoComp.engagement_rate" type="number" step="0.01" class="w-full border p-2 rounded-lg" />
+          </div>
+          <button @click="agregarCompetidor" class="bg-pluxeeBlue text-white p-2 rounded-lg font-bold">Añadir</button>
+        </div>
+
+        <table class="w-full text-left">
+          <thead>
+            <tr class="text-gray-400 text-xs uppercase border-b">
+              <th class="pb-2">Marca</th>
+              <th class="pb-2">Seguidores</th>
+              <th class="pb-2">Posts</th>
+              <th class="pb-2">Eng %</th>
+              <th class="pb-2">Acción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="comp in listaCompetidores" :key="comp.id" class="border-b hover:bg-gray-50">
+              <td class="py-3 font-bold">
+                {{ comp.brand_name }}
+                <br />
+                <span class="text-sm">
+                  {{ comp.description }}
+                </span>
+              </td>
+              <td class="py-3">{{ comp.followers }}</td>
+              <td class="py-3">{{ comp.posts_count }}</td>
+              <td class="py-3">{{ comp.engagement_rate }}%</td>
+              <td class="py-3">
+                <button @click="borrarCompetidor(comp.id)" class="text-red-400">🗑️</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm mb-10">
+        <h2 class="text-2xl font-black text-pluxeeBlue uppercase mb-6 flex items-center">
+          <span class="mr-3">💡</span>
+          Editar Insights de Benchmark
+        </h2>
+
+        <div class="flex gap-4 mb-8">
+          <input
+            v-model="nuevoBenchmarkInsight"
+            type="text"
+            placeholder="Escribe una conclusión del análisis de competencia..."
+            class="flex-1 border-2 border-gray-200 rounded-xl px-4 py-2 focus:border-pluxeeBlue outline-none transition"
+            @keyup.enter="agregarBenchmarkInsight" />
+          <button @click="agregarBenchmarkInsight" class="bg-pluxeeBlue text-white px-6 py-2 rounded-xl font-bold hover:scale-105 transition active:scale-95">Agregar +</button>
+        </div>
+
+        <div class="space-y-3">
+          <div v-for="item in listaBenchmarkInsights" :key="item.id" class="flex items-center justify-between bg-gray-50 p-4 rounded-xl border border-gray-100 group">
+            <div class="flex-1">
+              <input v-model="item.insight" class="bg-transparent w-full font-medium text-gray-700 outline-none focus:text-pluxeeBlue" @change="actualizarBenchmarkInsight(item)" />
+            </div>
+            <button @click="borrarBenchmarkInsight(item.id)" class="text-red-400 hover:text-red-600 ml-4 opacity-0 group-hover:opacity-100 transition">🗑️ Borrar</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm mb-10">
         <h2 class="text-2xl font-black text-red-500 uppercase mb-6 flex items-center">
           <span class="mr-3">⚠️</span>
           Editar Principales Quejas (CS)
@@ -110,45 +196,108 @@
         </div>
       </section>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div v-for="file in fileCategories" :key="file.id" class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition">
-          <div class="flex items-center mb-4">
-            <span class="text-2xl mr-3">{{ file.icon }}</span>
-            <h3 class="text-lg font-bold text-pluxeeBlue">{{ file.title }}</h3>
-          </div>
+      <section class="mb-10">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div v-for="file in fileCategories" :key="file.id" class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition">
+            <div class="flex items-center mb-4">
+              <span class="text-2xl mr-3">{{ file.icon }}</span>
+              <h3 class="text-lg font-bold text-pluxeeBlue">{{ file.title }}</h3>
+            </div>
 
-          <div
-            class="relative flex items-center justify-center w-full"
-            @dragover.prevent="dragState[file.id] = true"
-            @dragenter.prevent="dragState[file.id] = true"
-            @dragleave.prevent="dragState[file.id] = false"
-            @drop.prevent="onDrop(file.id, $event)">
-            <label
-              :for="'dropzone-' + file.id"
-              :class="[
-                'flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer transition-colors duration-200',
-                dragState[file.id] ? 'bg-blue-50 border-pluxeeBlue scale-[1.02]' : 'bg-gray-50 border-gray-300 hover:bg-gray-100 hover:border-pluxeeBlue',
-              ]">
-              <div class="flex flex-col items-center justify-center pt-5 pb-6 pointer-events-none">
-                <svg :class="dragState[file.id] ? 'text-pluxeeBlue' : 'text-gray-400'" class="w-8 h-8 mb-2 transition-colors" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
-                  <path
-                    stroke="currentColor"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2" />
-                </svg>
-                <p class="mb-2 text-sm text-gray-500 text-center">
-                  <span class="font-semibold text-pluxeeBlue">Arrastra tu archivo aquí</span>
-                  <br />
-                  o haz clic para explorar
-                </p>
-              </div>
-              <input :id="'dropzone-' + file.id" type="file" class="hidden" accept=".csv" @change="onFileSelect(file.id, $event)" />
-            </label>
+            <div
+              class="relative flex items-center justify-center w-full"
+              @dragover.prevent="dragState[file.id] = true"
+              @dragenter.prevent="dragState[file.id] = true"
+              @dragleave.prevent="dragState[file.id] = false"
+              @drop.prevent="onDrop(file.id, $event)">
+              <label
+                :for="'dropzone-' + file.id"
+                :class="[
+                  'flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer transition-colors duration-200',
+                  dragState[file.id] ? 'bg-blue-50 border-pluxeeBlue scale-[1.02]' : 'bg-gray-50 border-gray-300 hover:bg-gray-100 hover:border-pluxeeBlue',
+                ]">
+                <div class="flex flex-col items-center justify-center pt-5 pb-6 pointer-events-none">
+                  <svg :class="dragState[file.id] ? 'text-pluxeeBlue' : 'text-gray-400'" class="w-8 h-8 mb-2 transition-colors" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                    <path
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2" />
+                  </svg>
+                  <p class="mb-2 text-sm text-gray-500 text-center">
+                    <span class="font-semibold text-pluxeeBlue">Arrastra tu archivo aquí</span>
+                    <br />
+                    o haz clic para explorar
+                  </p>
+                </div>
+                <input :id="'dropzone-' + file.id" type="file" class="hidden" accept=".csv" @change="onFileSelect(file.id, $event)" />
+              </label>
+            </div>
           </div>
         </div>
-      </div>
+      </section>
+
+      <section class="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm mb-10">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-2xl font-black text-pluxeeBlue uppercase flex items-center">
+            <span class="mr-3">📊</span>
+            Métricas de Customer Service
+          </h2>
+          <button @click="guardarMetricas" class="bg-pluxeeBlue text-white px-6 py-2 rounded-xl font-bold hover:scale-105 transition active:scale-95">💾 Guardar Métricas</button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
+            <label class="block text-sm font-bold text-gray-500 mb-2">Total de Casos (CS)</label>
+            <input v-model="metricas.cs_total" type="number" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-pluxeeBlue font-bold text-lg text-gray-800" />
+          </div>
+          <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
+            <label class="block text-sm font-bold text-gray-500 mb-2">Casos Escalados</label>
+            <input v-model="metricas.cs_escalated" type="number" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-pluxeeBlue font-bold text-lg text-gray-800" />
+          </div>
+          <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
+            <label class="block text-sm font-bold text-gray-500 mb-2">Mensajes Facebook</label>
+            <input v-model="metricas.msj_fb" type="number" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-pluxeeBlue font-bold text-lg text-gray-800" />
+          </div>
+          <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
+            <label class="block text-sm font-bold text-gray-500 mb-2">Mensajes Instagram</label>
+            <input v-model="metricas.msj_ig" type="number" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-pluxeeBlue font-bold text-lg text-gray-800" />
+          </div>
+          <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
+            <label class="block text-sm font-bold text-gray-500 mb-2">Sentimiento (+) FB %</label>
+            <input v-model="metricas.percentage_fb" type="number" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-pluxeeBlue font-bold text-lg text-gray-800" />
+          </div>
+          <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
+            <label class="block text-sm font-bold text-gray-500 mb-2">Sentimiento (+) IG %</label>
+            <input v-model="metricas.percentage_ig" type="number" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-pluxeeBlue font-bold text-lg text-gray-800" />
+          </div>
+        </div>
+      </section>
+
+      <section class="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm mb-10">
+        <h2 class="text-2xl font-black text-orange-500 uppercase mb-6 flex items-center">
+          <span class="mr-3">🎧</span>
+          Editar Casos de Atención (Tipos)
+        </h2>
+
+        <div class="flex gap-4 mb-8">
+          <input v-model="nuevoMotivo" type="text" placeholder="Ej: Actualización de datos" class="flex-1 border-2 border-gray-200 rounded-xl px-4 py-2 focus:border-orange-500 outline-none transition" />
+          <input v-model="nuevaCantidad" type="number" placeholder="Cantidad" class="w-32 border-2 border-gray-200 rounded-xl px-4 py-2 focus:border-orange-500 outline-none transition" @keyup.enter="agregarCasoCS" />
+          <button @click="agregarCasoCS" class="bg-orange-500 text-white px-6 py-2 rounded-xl font-bold hover:scale-105 transition active:scale-95">Agregar +</button>
+        </div>
+
+        <div class="space-y-3">
+          <div v-for="item in listaCasosCS" :key="item.id" class="flex items-center justify-between bg-gray-50 p-4 rounded-xl border border-gray-100 group">
+            <div class="flex-1 flex gap-4">
+              <input v-model="item.motivo" class="bg-transparent flex-1 font-medium text-gray-700 outline-none focus:text-orange-500 border-b border-transparent focus:border-orange-300" @change="actualizarCasoCS(item)" />
+              <input v-model="item.cantidad" type="number" class="bg-transparent w-20 text-center font-black text-gray-700 outline-none focus:text-orange-500 border-b border-transparent focus:border-orange-300" @change="actualizarCasoCS(item)" />
+            </div>
+            <button @click="borrarCasoCS(item.id)" class="text-red-400 hover:text-red-600 ml-4 opacity-0 group-hover:opacity-100 transition">🗑️ Borrar</button>
+          </div>
+          <div v-if="listaCasosCS.length === 0" class="text-center text-gray-400 py-4 italic">No hay casos registrados.</div>
+        </div>
+      </section>
     </div>
   </div>
 </template>
@@ -166,6 +315,22 @@
   const nuevaPropuesta = ref('')
   const listaCompromisos = ref([])
   const nuevoCompromiso = ref('')
+  const listaBenchmarkInsights = ref([])
+  const nuevoBenchmarkInsight = ref('')
+  const listaCasosCS = ref([])
+  const nuevoMotivo = ref('')
+  const nuevaCantidad = ref('')
+  const metricas = ref({
+    cs_total: 0,
+    cs_escalated: 0,
+    msj_fb: 0,
+    msj_ig: 0,
+    percentage_fb: 0,
+    percentage_ig: 0,
+  })
+
+  const listaCompetidores = ref([])
+  const nuevoComp = ref({ brand_name: '', description: '', followers: 0, posts_count: 0, engagement_rate: 0, is_main_brand: 0 })
 
   // Objeto reactivo para saber qué cajita está recibiendo un "Drag" (Hover de archivo)
   const dragState = ref({})
@@ -235,8 +400,12 @@
   onMounted(async () => {
     fetchContexto()
     fetchQuejas()
+    fetchBenchmarkInsights()
+    fetchCompetidores()
     fetchPropuestas()
     fetchCompromisos()
+    fetchMetricas()
+    fetchCasosCS()
   })
 
   //  LÓGICA PARA CONTEXTO
@@ -377,5 +546,111 @@
     if (!confirm('¿Seguro que quieres eliminar este compromiso?')) return
     await fetch(`${apiUrl}/api/compromisos/${id}`, { method: 'DELETE' })
     fetchCompromisos()
+  }
+
+  // LÓGICA DE MÉTRICAS GLOBALES
+  const fetchMetricas = async () => {
+    const res = await fetch(`${apiUrl}/api/metricas`)
+    const data = await res.json()
+    // Fusionamos los datos de la BD con nuestro objeto reactivo (por si la BD está vacía al inicio)
+    metricas.value = { ...metricas.value, ...data }
+  }
+
+  const guardarMetricas = async () => {
+    const res = await fetch(`${apiUrl}/api/metricas`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(metricas.value),
+    })
+    if (res.ok) showAlert('Métricas globales guardadas con éxito', 'success')
+  }
+
+  // LÓGICA DE CASOS CS (Dinámicos)
+  const fetchCasosCS = async () => {
+    const res = await fetch(`${apiUrl}/api/casos-cs`)
+    listaCasosCS.value = await res.json()
+  }
+
+  const agregarCasoCS = async () => {
+    if (!nuevoMotivo.value.trim() || nuevaCantidad.value === '') return
+    const res = await fetch(`${apiUrl}/api/casos-cs`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ motivo: nuevoMotivo.value, cantidad: nuevaCantidad.value }),
+    })
+    if (res.ok) {
+      nuevoMotivo.value = ''
+      nuevaCantidad.value = ''
+      fetchCasosCS()
+      showAlert('Caso agregado con éxito', 'success')
+    }
+  }
+
+  const actualizarCasoCS = async item => {
+    await fetch(`${apiUrl}/api/casos-cs/${item.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ motivo: item.motivo, cantidad: item.cantidad }),
+    })
+    showAlert('Caso actualizado', 'success')
+  }
+
+  const borrarCasoCS = async id => {
+    if (!confirm('¿Seguro que quieres eliminar este tipo de caso?')) return
+    await fetch(`${apiUrl}/api/casos-cs/${id}`, { method: 'DELETE' })
+    fetchCasosCS()
+  }
+
+  // LÓGICA BENCHMARK INSIGHTS
+  const fetchBenchmarkInsights = async () => {
+    const res = await fetch(`${apiUrl}/api/benchmark-insights`)
+    listaBenchmarkInsights.value = await res.json()
+  }
+  const agregarBenchmarkInsight = async () => {
+    if (!nuevoBenchmarkInsight.value.trim()) return
+    await fetch(`${apiUrl}/api/benchmark-insights`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ insight: nuevoBenchmarkInsight.value }),
+    })
+    nuevoBenchmarkInsight.value = ''
+    fetchBenchmarkInsights()
+  }
+  const actualizarBenchmarkInsight = async item => {
+    await fetch(`${apiUrl}/api/benchmark-insights/${item.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ insight: item.insight }),
+    })
+    showAlert('Insight actualizado', 'success')
+  }
+  const borrarBenchmarkInsight = async id => {
+    if (!confirm('¿Eliminar insight?')) return
+    await fetch(`${apiUrl}/api/benchmark-insights/${id}`, { method: 'DELETE' })
+    fetchBenchmarkInsights()
+  }
+
+  // LÓGICA COMPETIDORES
+  const fetchCompetidores = async () => {
+    const res = await fetch(`${apiUrl}/api/benchmark-competitors`)
+    listaCompetidores.value = await res.json()
+  }
+  const agregarCompetidor = async () => {
+    if (!nuevoComp.value.brand_name.trim()) return
+    await fetch(`${apiUrl}/api/benchmark-competitors`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(nuevoComp.value),
+    })
+    console.log(nuevoComp.value)
+    // nuevoComp.value = { brand_name: '', description: '', followers: 0, posts_count: 0, engagement_rate: 0, is_main_brand: 0 }
+    nuevoComp.value = { brand_name: '', description: '', posts_count: 0, frequency: 0, interaction: 0, followers: 0, gained_followers: 0, engagement_rate: 0, is_main_brand: 0 }
+    fetchCompetidores()
+    showAlert('Competidor agregado', 'success')
+  }
+  const borrarCompetidor = async id => {
+    if (!confirm('¿Eliminar competidor?')) return
+    await fetch(`${apiUrl}/api/benchmark-competitors/${id}`, { method: 'DELETE' })
+    fetchCompetidores()
   }
 </script>

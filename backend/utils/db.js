@@ -63,6 +63,50 @@ async function initDB() {
       )
     `)
 
+    // NUEVA TABLA: Para las Métricas Globales (Números fijos)
+    // Usamos 'clave' como llave primaria para evitar duplicados
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS metricas_globales (
+        clave VARCHAR(50) PRIMARY KEY,
+        valor INT NOT NULL DEFAULT 0
+      )
+    `)
+
+    // NUEVA TABLA: Para los Casos variables de Customer Service
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS casos_cs (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        motivo VARCHAR(255) NOT NULL,
+        cantidad INT NOT NULL DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `)
+
+    // NUEVA TABLA: Insights de Benchmark (Puntos estratégicos)
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS benchmark_insights (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        insight TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `)
+
+    // NUEVA TABLA: Competidores (Tabla comparativa)
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS benchmark_competitors (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        brand_name VARCHAR(100) NOT NULL,
+        description VARCHAR(255),
+        posts_count INT DEFAULT 0,
+        frequency DECIMAL(5,2) DEFAULT 0.00,
+        interaction INT DEFAULT 0,
+        followers INT DEFAULT 0,
+        gained_followers INT DEFAULT 0,
+        is_main_brand TINYINT(1) DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+    `)
+
     connection.release()
     console.log('✅ Base de datos MySQL: Tablas de Tokens y Contexto listas.')
   } catch (error) {
