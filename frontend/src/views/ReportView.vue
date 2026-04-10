@@ -16,54 +16,72 @@
 
   onMounted(async () => {
     try {
-      // Leemos la URL desde el .env (Si no existe, usa localhost por defecto)
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000'
 
+      // 1. Calculamos automáticamente el periodo (Mes Anterior)
       const hoy = new Date()
-      hoy.setMonth(hoy.getMonth() - 1) // Restamos 1 mes
-
+      hoy.setMonth(hoy.getMonth() - 1)
       const año = hoy.getFullYear()
-      // getMonth() devuelve 0-11, así que sumamos 1. padStart asegura que "2" sea "02"
       const mesAnterior = String(hoy.getMonth() + 1).padStart(2, '0')
+      const periodId = `${año}-${mesAnterior}`
 
-      const periodId = `${año}-${mesAnterior}` // Resultado: "2026-03" (si estamos en abril)
-
-      // Le pasamos la variable dinámica a la URL
+      // 2. Cargamos los datos principales del reporte
       const res = await fetch(`${apiUrl}/api/reports/${periodId}`)
 
-      if (!res.ok) throw new Error('Error al cargar el reporte')
+      if (res.ok) {
+        reportData.value = await res.json()
+        console.log('Datos del reporte cargados con éxito:', reportData.value)
 
-      reportData.value = await res.json()
-      // ✨ INTERCEPTOR DE IMÁGENES ROTAS ✨
-      try {
-        const resImages = await fetch(`${apiUrl}/api/post-images`)
-        if (resImages.ok) {
-          const overrides = await resImages.json()
-          const dict = {}
-          overrides.forEach(img => (dict[img.post_id] = img.image_url))
+        // 3. ✨ INTERCEPTOR DE IMÁGENES ROTAS ✨
+        // Buscamos en MySQL si hay reemplazos manuales para las imágenes de los posts
+        try {
+          const resImages = await fetch(`${apiUrl}/api/post-images`)
+          if (resImages.ok) {
+            const overrides = await resImages.json()
+            const dict = {}
 
-          // Corregimos la búsqueda en Facebook (usando topPosts)
-          const fbPosts = reportData.value.facebook?.topPosts || reportData.value.facebook?.realPosts || reportData.value.facebook?.posts
-          if (fbPosts) {
-            fbPosts.forEach(post => {
-              if (dict[post.id]) post.picture = apiUrl + dict[post.id]
+            // Creamos un diccionario rápido [ID_POST]: URL_IMAGEN
+            overrides.forEach(img => {
+              dict[img.post_id] = img.image_url
             })
-          }
 
-          // Corregimos la búsqueda en Instagram (usando topPosts)
-          const igPosts = reportData.value.instagram?.topPosts || reportData.value.instagram?.realPosts || reportData.value.instagram?.posts
-          if (igPosts) {
-            igPosts.forEach(post => {
-              if (dict[post.id]) post.picture = apiUrl + dict[post.id]
-            })
+            // Función interna para parchar los posts buscando llaves inteligentes (topPosts, realPosts, etc.)
+            const fixPosts = posts => {
+              if (!posts) return
+              posts.forEach(post => {
+                // Identificamos el ID único del post
+                const id = post.id || post.post_id || post.Post_ID
+
+                // Si este ID existe en nuestra tabla de "imágenes arregladas"
+                if (dict[id]) {
+                  // Reemplazamos la URL original por la de nuestro servidor
+                  post.picture = apiUrl + dict[id]
+                  console.log(`Imagen corregida para el post: ${id}`)
+                }
+              })
+            }
+
+            // Aplicamos el parche a las secciones de Facebook e Instagram
+            const fbData = reportData.value.facebook
+            if (fbData) {
+              fixPosts(fbData.topPosts || fbData.realPosts || fbData.posts)
+            }
+
+            const igData = reportData.value.instagram
+            if (igData) {
+              fixPosts(igData.topPosts || igData.realPosts || igData.posts)
+            }
           }
+        } catch (err) {
+          console.error('Error al aplicar el interceptor de imágenes:', err)
         }
-      } catch (err) {
-        console.error('No se pudieron cargar las imágenes personalizadas', err)
+      } else {
+        console.error(`Error: No se encontró el reporte para el periodo ${periodId}`)
       }
-    } catch (err) {
-      error.value = err.message
+    } catch (error) {
+      console.error('Error general al montar ReportView:', error)
     } finally {
+      // Marcamos que la carga terminó para ocultar cualquier spinner o esqueleto
       loading.value = false
     }
   })

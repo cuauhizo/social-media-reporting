@@ -806,48 +806,64 @@
   // LÓGICA DE POSTS (Trae el reporte, saca los posts y te deja editarlos)
   const cargarPostsParaEditar = async () => {
     try {
+      // 1. Calculamos el periodo (mes anterior, igual que en ReportView)
       const hoy = new Date()
       hoy.setMonth(hoy.getMonth() - 1)
       const año = hoy.getFullYear()
       const mesAnterior = String(hoy.getMonth() + 1).padStart(2, '0')
       const periodId = `${año}-${mesAnterior}`
 
+      // 2. Traemos los datos crudos del reporte
       const resReporte = await fetch(`${apiUrl}/api/reports/${periodId}`)
       if (!resReporte.ok) return showAlert('Error cargando el reporte mensual', 'error')
-
       const data = await resReporte.json()
 
-      // TRUCO DE DEBUGGING: Si aún no ves nada, presiona F12 en tu navegador y revisa la consola
-      // para ver la estructura real de tus datos.
-      console.log('Datos del reporte cargados:', data)
+      // (Opcional) Ver en consola F12 exactamente qué está llegando
+      console.log('Datos del reporte crudos:', data)
 
+      // 3. Traemos las imágenes que ya arreglaste desde MySQL
       const resImages = await fetch(`${apiUrl}/api/post-images`)
       const imagesData = await resImages.json()
-      imagesData.forEach(img => (customPostImages.value[img.post_id] = img.image_url))
 
-      // ✨ LA CORRECCIÓN: Buscamos inteligentemente la llave correcta de los posts ✨
-      const fbPosts = data.facebook?.topPosts || data.facebook?.realPosts || data.facebook?.posts || []
-      const igPosts = data.instagram?.topPosts || data.instagram?.realPosts || data.instagram?.posts || []
+      // Limpiamos y llenamos el diccionario de imágenes arregladas
+      customPostImages.value = {}
+      imagesData.forEach(img => {
+        customPostImages.value[img.post_id] = img.image_url
+      })
+
+      // 4. Buscamos los posts usando TODAS las posibles combinaciones de nombres
+      const fbPosts = data.facebook?.topPosts || data.facebook?.realPosts || data.facebook?.posts || data.facebook?.top_posts || []
+      const igPosts = data.instagram?.topPosts || data.instagram?.realPosts || data.instagram?.posts || data.instagram?.top_posts || []
 
       const todosLosPosts = [...fbPosts, ...igPosts]
 
-      postsParaEditar.value = todosLosPosts.map(p => ({
-        id: p.id,
-        text: p.text || p.message || 'Sin texto',
-        picture: p.picture || p.thumbnail || '',
-        link: p.permalink || p.url || p.link || null,
-        custom_image: customPostImages.value[p.id] || null,
-      }))
-      // ✨ FILTRO: Hacemos que desaparezcan los que ya arreglamos ✨
-      // postsParaEditar.value = mappedPosts.filter(p => !p.custom_image)
+      // 5. Mapeamos cada post sacando los datos de las llaves correctas de Hootsuite
+      const mappedPosts = todosLosPosts.map(p => {
+        // Sacamos el ID (fundamental para guardar la imagen)
+        const id = p.id || p.post_id || p.Post_ID
 
+        return {
+          id: id,
+          text: p.text || p.message || p.Post_Caption || p.Post_Message || 'Sin texto',
+          picture: p.picture || p.thumbnail || p.image_url || p.Post_Image_URL || '',
+          // 🔥 Aquí buscamos la URL original del post para tu enlace
+          link: p.permalink || p.url || p.link || p.post_link || p.Post_URL || null,
+          custom_image: customPostImages.value[id] || null,
+        }
+      })
+
+      // 6. FILTRO: Solo dejamos los posts que NO tienen imagen personalizada (los pendientes)
+      postsParaEditar.value = mappedPosts.filter(p => !p.custom_image)
+
+      // 7. Notificaciones visuales para el usuario
       if (postsParaEditar.value.length === 0) {
-        showAlert('No se encontraron posts en el reporte. Revisa la consola (F12).', 'error')
+        showAlert('✨ ¡Todos los posts están listos o no hay posts en este mes!', 'success')
       } else {
-        showAlert('Posts cargados. Sube la imagen a los que se vean rotos.', 'success')
+        showAlert(`🔍 Se encontraron ${postsParaEditar.value.length} posts para revisión.`, 'success')
       }
     } catch (error) {
-      console.error(error)
+      console.error('Error al cargar posts para editar:', error)
+      showAlert('Hubo un error al procesar los posts. Revisa la consola.', 'error')
     }
   }
 
