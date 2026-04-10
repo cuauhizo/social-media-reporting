@@ -46,32 +46,33 @@
 
         <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3 mb-6 bg-blue-50 p-4 rounded-xl border border-blue-100 items-end">
           <div class="col-span-2 lg:col-span-2">
+            <!-- class="flex-1 border-2 border-gray-200 rounded-xl px-4 py-2 focus:border-pluxeeBlue outline-none transition" -->
             <label class="text-[10px] font-bold text-gray-500 uppercase">Marca</label>
-            <input v-model="nuevoComp.brand_name" type="text" class="w-full border p-2 rounded-lg text-sm" />
+            <input v-model="nuevoComp.brand_name" type="text" class="w-full border-2 border-gray-200 p-2 rounded-lg text-sm" />
           </div>
           <div class="col-span-2 lg:col-span-2">
             <label class="text-[10px] font-bold text-gray-500 uppercase">Descripción</label>
-            <input v-model="nuevoComp.description" type="text" class="w-full border p-2 rounded-lg text-sm" placeholder="Ej: Supermercado" />
+            <input v-model="nuevoComp.description" type="text" class="w-full border-2 border-gray-200 p-2 rounded-lg text-sm" placeholder="Ej: Supermercado" />
           </div>
           <div>
             <label class="text-[10px] font-bold text-gray-500 uppercase">Posts</label>
-            <input v-model="nuevoComp.posts_count" type="number" class="w-full border p-2 rounded-lg text-sm" />
+            <input v-model="nuevoComp.posts_count" type="number" class="w-full border-2 border-gray-200 p-2 rounded-lg text-sm" />
           </div>
           <div>
             <label class="text-[10px] font-bold text-gray-500 uppercase">Frecuencia</label>
-            <input v-model="nuevoComp.frequency" type="number" class="w-full border p-2 rounded-lg text-sm" />
+            <input v-model="nuevoComp.frequency" type="number" class="w-full border-2 border-gray-200 p-2 rounded-lg text-sm" />
           </div>
           <div>
             <label class="text-[10px] font-bold text-gray-500 uppercase">Interacción</label>
-            <input v-model="nuevoComp.interaction" type="number" step="0.1" class="w-full border p-2 rounded-lg text-sm" />
+            <input v-model="nuevoComp.interaction" type="number" step="0.1" class="w-full border-2 border-gray-200 p-2 rounded-lg text-sm" />
           </div>
           <div>
             <label class="text-[10px] font-bold text-gray-500 uppercase">Seguidores</label>
-            <input v-model="nuevoComp.followers" type="number" step="0.1" class="w-full border p-2 rounded-lg text-sm" />
+            <input v-model="nuevoComp.followers" type="number" step="0.1" class="w-full border-2 border-gray-200 p-2 rounded-lg text-sm" />
           </div>
           <div>
             <label class="text-[10px] font-bold text-gray-500 uppercase">Aumento Seg.</label>
-            <input v-model="nuevoComp.gained_followers" type="number" step="0.1" class="w-full border p-2 rounded-lg text-sm" />
+            <input v-model="nuevoComp.gained_followers" type="number" step="0.1" class="w-full border-2 border-gray-200 p-2 rounded-lg text-sm" />
           </div>
 
           <div class="flex items-center justify-center bg-white border p-2 rounded-lg">
@@ -145,7 +146,7 @@
         <div class="mb-8">
           <h3 class="font-bold text-gray-500 mb-2 text-sm uppercase">Insights de la competencia</h3>
           <div class="flex gap-2 mb-4">
-            <input v-model="nuevoBenchmarkInsight" type="text" placeholder="Nuevo insight..." class="flex-1 border p-2 rounded-lg text-sm" @keyup.enter="agregarBenchmarkInsight" />
+            <input v-model="nuevoBenchmarkInsight" type="text" placeholder="Nuevo insight..." class="flex-1 border-2 border-gray-200 rounded-xl px-4 py-2 focus:border-pluxeeBlue outline-none transition" @keyup.enter="agregarBenchmarkInsight" />
             <button @click="agregarBenchmarkInsight" class="bg-pluxeeBlue text-white px-4 py-2 rounded-lg font-bold text-sm">Agregar Insight</button>
           </div>
           <div class="space-y-2">
@@ -347,6 +348,22 @@
           <div v-if="listaCasosCS.length === 0" class="text-center text-gray-400 py-4 italic">No hay casos registrados.</div>
         </div>
       </section>
+
+      <section class="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm mb-10">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-2xl font-black text-pluxeeBlue uppercase flex items-center">
+            <span class="mr-3">📌</span>
+            Editar Conclusión Final
+          </h2>
+          <button @click="guardarConclusion" class="bg-pluxeeBlue text-white px-6 py-2 rounded-xl font-bold hover:scale-105 transition active:scale-95">💾 Guardar Conclusión</button>
+        </div>
+
+        <textarea
+          v-model="conclusionData.texto"
+          rows="5"
+          placeholder="Escribe el resumen o la conclusión final del reporte mensual aquí..."
+          class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-pluxeeBlue outline-none transition resize-none text-gray-700 font-medium leading-relaxed"></textarea>
+      </section>
     </div>
   </div>
 </template>
@@ -382,6 +399,7 @@
     gained_followers: 0,
     is_main_brand: false,
   })
+  const conclusionData = ref({ id: null, texto: '' })
 
   // Objeto reactivo para saber qué cajita está recibiendo un "Drag" (Hover de archivo)
   const dragState = ref({})
@@ -457,6 +475,7 @@
     fetchCompromisos()
     fetchMetricas()
     fetchCasosCS()
+    fetchConclusiones()
   })
 
   //  LÓGICA PARA CONTEXTO
@@ -718,5 +737,42 @@
     if (!confirm('¿Eliminar competidor?')) return
     await fetch(`${apiUrl}/api/benchmark-competitors/${id}`, { method: 'DELETE' })
     fetchCompetidores()
+  }
+
+  // LÓGICA DE CONCLUSIÓN
+  const fetchConclusiones = async () => {
+    const res = await fetch(`${apiUrl}/api/conclusiones`)
+    const data = await res.json()
+    // Si ya hay una conclusión guardada en BD, tomamos la primera
+    if (data.length > 0) {
+      conclusionData.value.id = data[0].id
+      conclusionData.value.texto = data[0].conclusion
+    }
+  }
+
+  const guardarConclusion = async () => {
+    if (!conclusionData.value.texto.trim()) return
+
+    if (conclusionData.value.id) {
+      // Si ya tiene ID, significa que existe en la BD y hacemos un UPDATE (PUT)
+      await fetch(`${apiUrl}/api/conclusiones/${conclusionData.value.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ conclusion: conclusionData.value.texto }),
+      })
+      showAlert('Conclusión actualizada', 'success')
+    } else {
+      // Si no tiene ID, es la primera vez que se guarda y hacemos un CREATE (POST)
+      const res = await fetch(`${apiUrl}/api/conclusiones`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ conclusion: conclusionData.value.texto }),
+      })
+      if (res.ok) {
+        const result = await res.json()
+        conclusionData.value.id = result.id // Guardamos el ID que nos devolvió MySQL
+        showAlert('Conclusión guardada', 'success')
+      }
+    }
   }
 </script>

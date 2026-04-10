@@ -7,6 +7,8 @@
   import BenchmarkSection from '@/components/BenchmarkSection.vue'
   import CustomerServiceSection from '@/components/CustomerServiceSection.vue'
   import NextStepsSection from '@/components/NextStepsSection.vue'
+  import ConclusionsSection from '@/components/ConclusionsSection.vue'
+  import ThankYouSection from '@/components/ThankYouSection.vue'
 
   const reportData = ref(null)
   const loading = ref(true)
@@ -58,6 +60,8 @@
       <InstagramSection :data="reportData.instagram" />
       <CustomerServiceSection :data="reportData.customerService" />
       <NextStepsSection :data="reportData.nextSteps" />
+      <ConclusionsSection />
+      <ThankYouSection />
     </div>
   </div>
 </template>

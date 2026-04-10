@@ -107,6 +107,15 @@ async function initDB() {
     )
     `)
 
+    // NUEVA TABLA: Conclusiones Finales
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS conclusiones (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        conclusion TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `)
+
     connection.release()
     console.log('✅ Base de datos MySQL: Tablas de Tokens y Contexto listas.')
   } catch (error) {
