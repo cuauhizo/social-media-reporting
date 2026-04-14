@@ -98,7 +98,7 @@
     try {
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000'
 
-      // ✨ MAGIA: Disparamos las 3 peticiones al mismo tiempo para que cargue ultra rápido
+      // MAGIA: Disparamos las 3 peticiones al mismo tiempo para que cargue ultra rápido
       const [resQuejas, resMetricas, resCasos] = await Promise.all([fetch(`${apiUrl}/api/quejas`), fetch(`${apiUrl}/api/metricas`), fetch(`${apiUrl}/api/casos-cs`)])
 
       // 1. Llenamos las Quejas
@@ -108,7 +108,7 @@
       if (resMetricas.ok) {
         const dataMetricas = await resMetricas.json()
 
-        // ✨ CÁLCULO AUTOMÁTICO ✨
+        // CÁLCULO AUTOMÁTICO
         const fb = parseInt(dataMetricas.msj_fb) || 0
         const ig = parseInt(dataMetricas.msj_ig) || 0
         const total = fb + ig // Sumamos ambos para obtener el total de casos

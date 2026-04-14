@@ -20,7 +20,6 @@
               <div>
                 <p class="text-gray-500 text-sm font-bold">Total Stories</p>
                 <h2 class="text-3xl font-black text-pluxeeBlue">{{ formatNumber(data.kpis.stories_metrics.total) }}</h2>
-                <!-- <h2 class="text-3xl font-black text-pluxeeBlue">{{ formatNumber(data.kpis.posts_total) }}</h2> -->
               </div>
               <div class="text-sm text-gray-700 space-y-1 text-right">
                 <p>
@@ -59,7 +58,6 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <!-- <tr v-for="(city, index) in data.topCities.slice(0, 5)" :key="index" class="border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors"> -->
                   <tr v-for="(city, index) in data.topCities" :key="index" class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
                     <td class="py-2 text-gray-400 font-medium text-center text-sm">{{ index + 1 }}</td>
                     <td class="py-2 pr-2">

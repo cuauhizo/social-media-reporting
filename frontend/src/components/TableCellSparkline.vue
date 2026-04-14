@@ -34,15 +34,15 @@
     color: { type: String, default: '#002d72' },
   })
 
-  // ✨ 1. Convertimos el valor a número para poder hacer matemáticas con él
+  // 1. Convertimos el valor a número para poder hacer matemáticas con él
   const numericValue = computed(() => {
     return typeof props.value === 'string' ? parseFloat(props.value) : props.value || 0
   })
 
-  // ✨ 2. Evaluamos si el número es negativo (< 0)
+  // 2. Evaluamos si el número es negativo (< 0)
   const isNegative = computed(() => numericValue.value < 0)
 
-  // ✨ 3. Si el número es negativo, pintamos la gráfica roja. Si es positivo, usamos el color corporativo.
+  // 3. Si el número es negativo, pintamos la gráfica roja. Si es positivo, usamos el color corporativo.
   const dynamicGraphColor = computed(() => {
     // if (isNegative.value) return '#ef4444' // Rojo Tailwind (red-500)
     return props.color // El color corporativo que le pasamos desde la tabla

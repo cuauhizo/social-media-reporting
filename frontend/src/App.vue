@@ -3,5 +3,5 @@
   <!-- <Responsive /> -->
 </template>
 <script setup>
-  // import Responsive from '@/components/responsive.vue'
+  // import Responsive from '@/components/Responsive.vue'
 </script>

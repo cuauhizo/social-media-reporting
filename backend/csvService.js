@@ -149,7 +149,7 @@ function leerKpisInstagramHootsuite() {
 
     let kpisMensuales = null
 
-    // ✨ CAJAS FUERTES: Para no perder los datos si la última fila está vacía
+    // CAJAS FUERTES: Para no perder los datos si la última fila está vacía
     let maxCarousel = 0
     let maxPhoto = 0
     let maxReel = 0
@@ -175,7 +175,7 @@ function leerKpisInstagramHootsuite() {
         const keyReachReel = keys.find(k => k.includes('Post reach - Reel'))
         const keyReachStory = keys.find(k => k.includes('Post reach - Story'))
 
-        // ✨ ATRAPAMOS EL VALOR MÁS ALTO DEL MES ✨
+        // ATRAPAMOS EL VALOR MÁS ALTO DEL MES
         if (keyReachCarousel) maxCarousel = Math.max(maxCarousel, parseFloat(row[keyReachCarousel]) || 0)
         if (keyReachPhoto) maxPhoto = Math.max(maxPhoto, parseFloat(row[keyReachPhoto]) || 0)
         if (keyReachReel) maxReel = Math.max(maxReel, parseFloat(row[keyReachReel]) || 0)
@@ -222,7 +222,7 @@ function leerKpisInstagramHootsuite() {
         }
       })
       .on('end', () => {
-        // ✨ INYECTAMOS LOS ALCANCES MÁXIMOS AL FINAL ✨
+        // INYECTAMOS LOS ALCANCES MÁXIMOS AL FINAL
         if (kpisMensuales) {
           kpisMensuales.reach_by_type = {
             carousel: maxCarousel,
@@ -361,7 +361,7 @@ function leerAlcancePorTags(nombreArchivo) {
           const rawTags = row[keyTags]
           const dateVal = keyDate && row[keyDate] ? row[keyDate].split(' ')[0] : 'Desconocida'
 
-          // ✨ LEEMOS AMBAS CELDAS (Vistas y Alcance) DE FORMA INDEPENDIENTE ✨
+          // LEEMOS AMBAS CELDAS (Vistas y Alcance) DE FORMA INDEPENDIENTE
           const vistas = keyViews ? parseInt(row[keyViews]) || 0 : 0
           const alcance = keyReach ? parseInt(row[keyReach]) || 0 : 0
 

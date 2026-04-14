@@ -1,4 +1,3 @@
-// ✨ FUNCIÓN CAZADORA DE IDs (Ignora espacios y mayúsculas/minúsculas) ✨
 const generarIdEstable = (postExcel, prefijo) => {
   // 1. Buscamos cualquier llave que contenga la palabra "ID" o "id"
   const keys = Object.keys(postExcel)
@@ -44,7 +43,7 @@ const formatFacebookPosts = (publicacionesFb, fbHootsuiteData) => {
       }
 
       return {
-        id: postId, // 👈 ID 100% estable, no más Math.random()
+        id: postId,
         link: postPermalink,
         type: tipoPost,
         views: postExcel.visitas,
@@ -100,7 +99,7 @@ const formatInstagramPosts = (publicacionesIg, igHootsuiteData) => {
     }
 
     const postFormateado = {
-      id: postId, // 👈 ID 100% estable
+      id: postId,
       link: postPermalink,
       type: tipoPost.includes('STORY') ? 'STORY' : tipoPost,
       views: postExcel.visitas || 0,

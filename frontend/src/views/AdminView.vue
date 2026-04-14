@@ -155,6 +155,7 @@
               <input v-model="item.insight" class="bg-transparent flex-1 outline-none" @change="actualizarBenchmarkInsight(item)" />
               <button @click="borrarBenchmarkInsight(item.id)" class="text-red-400 opacity-0 group-hover:opacity-100">🗑️</button>
             </div>
+            <div v-if="listaBenchmarkInsights.length === 0" class="text-center text-gray-400 py-4 italic">No hay conclusiones registradas. ¡Excelente trabajo del equipo!</div>
           </div>
         </div>
       </section>
@@ -182,6 +183,7 @@
             </div>
             <button @click="borrarBenchmarkInsight(item.id)" class="text-red-400 hover:text-red-600 ml-4 opacity-0 group-hover:opacity-100 transition">🗑️ Borrar</button>
           </div>
+          <div v-if="listaBenchmarkInsights.length === 0" class="text-center text-gray-400 py-4 italic">No hay conclusiones registradas. ¡Excelente trabajo del equipo!</div>
         </div>
       </section>
 
@@ -457,7 +459,7 @@
   const customPostImages = ref({})
   const busquedaRealizada = ref(false)
 
-  // ✨ DICCIONARIO DE COLORES PARA TIPOS DE POST ✨
+  // DICCIONARIO DE COLORES PARA TIPOS DE POST
   const getBadgeColor = type => {
     const t = String(type).toUpperCase()
     if (t.includes('STORY')) return 'bg-orange-500 text-white' // Naranja para historias
@@ -479,7 +481,7 @@
     { id: 'ig_sentiment', title: 'Instagram: Sentimientos', icon: '❤️' },
   ]
 
-  // ✨ GENERADOR DE ID ESTABLE ✨
+  // GENERADOR DE ID ESTABLE
   const getStableId = p => {
     // 1. Si trae un ID original de Hootsuite, lo usamos
     if (p.Post_ID) return String(p.Post_ID)
@@ -897,7 +899,7 @@
       busquedaRealizada.value = true
 
       if (postsParaEditar.value.length === 0) {
-        showAlert('✨ ¡Excelente! No quedan posts por arreglar.', 'success')
+        showAlert('¡Excelente! No quedan posts por arreglar.', 'success')
       } else {
         showAlert(`Se cargaron ${postsParaEditar.value.length} posts pendientes.`, 'success')
       }
@@ -911,7 +913,7 @@
     if (!file) return
 
     const formData = new FormData()
-    // ✨ CORRECCIÓN: Primero enviamos el texto (ID), luego el archivo (Imagen) ✨
+    // CORRECCIÓN: Primero enviamos el texto (ID), luego el archivo (Imagen)
     formData.append('post_id', postId)
     formData.append('image', file)
 

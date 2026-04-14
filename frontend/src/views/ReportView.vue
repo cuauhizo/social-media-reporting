@@ -32,7 +32,7 @@
         reportData.value = await res.json()
         console.log('Datos del reporte cargados con éxito:', reportData.value)
 
-        // 3. ✨ INTERCEPTOR DE IMÁGENES ROTAS ✨
+        // 3. INTERCEPTOR DE IMÁGENES ROTAS
         const resCustomImages = await fetch(`${apiUrl}/api/post-images`, { cache: 'no-store' })
         if (resCustomImages.ok) {
           const customImages = await resCustomImages.json()
@@ -83,8 +83,6 @@
       <CoverSection :metadata="reportData.metadata" />
       <ContextSection :data="reportData.context" />
       <FacebookSection :data="reportData.facebook" />
-      <!-- <BenchmarkSection :data="reportData.benchmarking" />
-        -->
       <BenchmarkSection :data="reportData.benchmarking" :insights="reportData.benchmarkInsights" />
       <InstagramSection :data="reportData.instagram" />
       <CustomerServiceSection :data="reportData.customerService" />
