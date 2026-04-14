@@ -33,28 +33,26 @@
         console.log('Datos del reporte cargados con éxito:', reportData.value)
 
         // 3. ✨ INTERCEPTOR DE IMÁGENES ROTAS ✨
-        // Después de cargar el reporte...
-        const resCustomImages = await fetch(`${apiUrl}/api/post-images`)
+        const resCustomImages = await fetch(`${apiUrl}/api/post-images`, { cache: 'no-store' })
         if (resCustomImages.ok) {
           const customImages = await resCustomImages.json()
           const dict = {}
           customImages.forEach(img => (dict[img.post_id] = img.image_url))
 
-          // Función para reemplazar URLs rotas por las locales
           const patchImages = posts => {
-            if (!posts) return
+            if (!posts || !Array.isArray(posts)) return
             posts.forEach(post => {
-              const id = post.id || post.post_id
-              if (dict[id]) {
-                // Forzamos la URL de nuestro servidor
-                post.picture = apiUrl + dict[id]
-                post.thumbnail = apiUrl + dict[id]
+              if (dict[post.id]) {
+                const finalUrl = apiUrl + dict[post.id]
+                post.picture = finalUrl
+                post.img = finalUrl // Reemplazamos también 'img'
               }
             })
           }
 
-          patchImages(reportData.value.facebook?.topPosts)
-          patchImages(reportData.value.instagram?.topPosts)
+          // Aplica el parche dependiendo de cómo llamaste a tus arreglos
+          patchImages(Array.isArray(reportData.value.facebook) ? reportData.value.facebook : reportData.value.facebook?.topPosts)
+          patchImages(reportData.value.instagram?.topPostsIg || reportData.value.instagram?.topPosts)
         }
       } else {
         console.error(`Error: No se encontró el reporte para el periodo ${periodId}`)

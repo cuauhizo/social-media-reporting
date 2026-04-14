@@ -9,7 +9,8 @@
         <router-link to="/" class="bg-pluxeeBlue text-white px-6 py-2 rounded-lg font-bold hover:bg-opacity-90 transition">Ver Reporte 👉</router-link>
       </div>
 
-      <div v-if="alert.show" :class="alert.type === 'success' ? 'bg-green-100 text-green-800 border-green-300' : 'bg-red-100 text-red-800 border-red-300'" class="p-4 rounded-lg border mb-8 font-bold text-center transition-all">
+      <div v-if="alert.show" :class="alert.type === 'success' ? 'bg-green-600' : 'bg-red-600'" class="fixed bottom-10 right-10 z-50 text-white px-6 py-4 rounded-xl shadow-2xl font-bold flex items-center gap-3 transition-all">
+        <span class="text-2xl">{{ alert.type === 'success' ? '✅' : '❌' }}</span>
         {{ alert.message }}
       </div>
 
@@ -373,6 +374,7 @@
 
         <button @click="cargarPostsParaEditar" class="bg-pluxeeBlue text-white px-4 py-2 rounded-xl font-bold hover:scale-105 transition mb-6">🔍 Cargar Posts de este Mes</button>
 
+        <!-- <pre>{{ postsParaEditar }}</pre> -->
         <div v-if="postsParaEditar.length > 0" class="grid grid-cols-2 md:grid-cols-4 gap-6">
           <div v-for="post in postsParaEditar" :key="post.id" class="bg-white border border-gray-200 p-4 rounded-2xl shadow-sm flex flex-col items-center text-center hover:shadow-md transition">
             <div class="w-full h-40 bg-gray-100 rounded-xl mb-4 overflow-hidden flex items-center justify-center border border-gray-100">
@@ -391,6 +393,12 @@
               <span v-else class="text-[10px] text-gray-400 font-bold uppercase italic">Enlace no disponible</span>
             </div>
 
+            <div class="mb-3 w-full text-end">
+              <span class="border px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-blue-500 truncate transition-colors text-white">
+                {{ post.type }}
+              </span>
+            </div>
+
             <p class="text-xs text-gray-600 mb-4 line-clamp-3 h-12 overflow-hidden italic" :title="post.text">"{{ post.text }}"</p>
 
             <label class="w-full bg-gray-800 text-white text-[11px] font-bold py-2 rounded-xl cursor-pointer hover:bg-black transition flex items-center justify-center">
@@ -400,7 +408,7 @@
             </label>
           </div>
         </div>
-        <div v-else-if="postsParaEditar.length === 0" class="text-center text-gray-400 py-8 italic border-2 border-dashed rounded-xl mt-4">🎉 ¡Todos los posts están perfectos! No hay imágenes rotas que arreglar.</div>
+        <div v-else-if="busquedaRealizada && postsParaEditar.length === 0" class="text-center text-gray-400 py-8 italic border-2 border-dashed rounded-xl mt-4">🎉 ¡Todos los posts están perfectos! No hay imágenes rotas que arreglar.</div>
       </section>
     </div>
   </div>
@@ -440,6 +448,7 @@
   const conclusionData = ref({ id: null, texto: '' })
   const postsParaEditar = ref([])
   const customPostImages = ref({})
+  const busquedaRealizada = ref(false)
 
   // Objeto reactivo para saber qué cajita está recibiendo un "Drag" (Hover de archivo)
   const dragState = ref({})
@@ -453,6 +462,19 @@
     { id: 'ig_posts', title: 'Instagram: Métricas de Posts', icon: '📱' },
     { id: 'ig_sentiment', title: 'Instagram: Sentimientos', icon: '❤️' },
   ]
+
+  // ✨ GENERADOR DE ID ESTABLE ✨
+  const getStableId = p => {
+    // 1. Si trae un ID original de Hootsuite, lo usamos
+    if (p.Post_ID) return String(p.Post_ID)
+    if (p.post_id) return String(p.post_id)
+    // 2. Si no trae ID, creamos uno usando las primeras 30 letras de su texto. ¡Esto nunca cambia!
+    const txt = p.text || p.message || p.Post_Caption || p.Post_Message || 'sintexto'
+    return txt
+      .substring(0, 30)
+      .replace(/[^a-zA-Z0-9]/g, '')
+      .toLowerCase()
+  }
 
   const showAlert = (msg, type) => {
     alert.value = { show: true, message: msg, type }
@@ -819,55 +841,48 @@
   // LÓGICA DE POSTS (Trae el reporte, saca los posts y te deja editarlos)
   const cargarPostsParaEditar = async () => {
     try {
-      // 1. Calculamos el periodo del mes pasado automáticamente
       const hoy = new Date()
       hoy.setMonth(hoy.getMonth() - 1)
       const periodId = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}`
 
-      // 2. Obtenemos el reporte y el historial de imágenes parchadas en paralelo
-      const [resReporte, resImages] = await Promise.all([fetch(`${apiUrl}/api/reports/${periodId}`), fetch(`${apiUrl}/api/post-images`)])
+      const [resReporte, resImages] = await Promise.all([fetch(`${apiUrl}/api/reports/${periodId}`, { cache: 'no-store' }), fetch(`${apiUrl}/api/post-images`, { cache: 'no-store' })])
 
       const data = await resReporte.json()
       const imagesData = await resImages.json()
 
-      // 3. Diccionario de imágenes en MySQL para búsqueda instantánea
       const dictImages = {}
       imagesData.forEach(img => (dictImages[img.post_id] = img.image_url))
 
-      // 4. Extraemos los posts buscando todas las variantes de nombres (topPosts, realPosts, etc.)
-      const fbPosts = data.facebook?.topPosts || data.facebook?.realPosts || data.facebook?.posts || []
-      const igPosts = data.instagram?.topPosts || data.instagram?.realPosts || data.instagram?.posts || []
+      // NOTA: Según tu formatters.js, tus posts ahora se llaman 'topPostsIg' o simplemente vienen en el array principal
+      // Asegúrate de usar la ruta correcta según tu JSON final. Por lo que veo, tú devuelves un array directo o topPostsIg
+      const fbPosts = Array.isArray(data.facebook) ? data.facebook : data.facebook?.posts || data.facebook?.topPosts || []
+      const igPosts = data.instagram?.topPostsIg || data.instagram?.topPosts || []
+
       const todos = [...fbPosts, ...igPosts]
 
-      // 5. Mapeamos los datos normalizando las columnas de Hootsuite
-      const mappedPosts = todos.map(p => {
-        const id = p.id || p.post_id || p.Post_ID
+      postsParaEditar.value = todos
+        .map(p => {
+          return {
+            id: p.id,
+            text: p.text,
+            type: p.type,
+            link: p.link || p.postPermalink,
+            // Si hay foto en BD la usamos, si no, usamos 'picture' o 'img' del backend
+            picture: dictImages[p.id] ? apiUrl + dictImages[p.id] : p.picture || p.img || '',
+            is_fixed: !!dictImages[p.id],
+          }
+        })
+        .filter(p => !p.is_fixed)
 
-        return {
-          id: id,
-          text: p.text || p.message || p.Post_Caption || p.Post_Message || 'Sin descripción',
-          // Si ya tiene imagen en BD la usamos (con la URL del servidor), si no, la de Hootsuite
-          picture: dictImages[id] ? apiUrl + dictImages[id] : p.picture || p.thumbnail || p.Post_Image_URL || '',
-          // ✨ Sugerencia adicional: Extraemos el link directo al post
-          link: p.permalink || p.Post_URL || p.url || p.link || p.post_link || null,
-          is_fixed: !!dictImages[id],
-        }
-      })
+      busquedaRealizada.value = true
 
-      // ✨ 6. FILTRO DE TAREAS PENDIENTES ✨
-      // Solo mostramos en el Admin los posts que NO han sido arreglados aún.
-      // Una vez subas la captura, el post desaparecerá de esta lista.
-      postsParaEditar.value = mappedPosts.filter(p => !p.is_fixed)
-
-      // 7. Notificaciones visuales
       if (postsParaEditar.value.length === 0) {
-        showAlert('✨ ¡Excelente! No quedan posts por arreglar este mes.', 'success')
+        showAlert('✨ ¡Excelente! No quedan posts por arreglar.', 'success')
       } else {
-        showAlert(`Se cargaron ${postsParaEditar.value.length} posts pendientes de imagen.`, 'success')
+        showAlert(`Se cargaron ${postsParaEditar.value.length} posts pendientes.`, 'success')
       }
     } catch (error) {
-      console.error('Error cargando posts:', error)
-      showAlert('No se pudieron cargar los posts para editar', 'error')
+      showAlert('Error al cargar posts.', 'error')
     }
   }
 

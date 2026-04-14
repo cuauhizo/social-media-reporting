@@ -1,11 +1,37 @@
+// ✨ FUNCIÓN CAZADORA DE IDs (Ignora espacios y mayúsculas/minúsculas) ✨
+const generarIdEstable = (postExcel, prefijo) => {
+  // 1. Buscamos cualquier llave que contenga la palabra "ID" o "id"
+  const keys = Object.keys(postExcel)
+  const idKey = keys.find(k => k.toLowerCase().includes('post id') || k.toLowerCase().trim() === 'id')
+
+  if (idKey && postExcel[idKey]) {
+    return String(postExcel[idKey]).trim() // Lo devolvemos limpiecito
+  }
+
+  // 2. Si Hootsuite no mandó ID, usamos su Link como ID (El link es único y no cambia al recargar)
+  const link = postExcel['Post URL'] || postExcel.postPermalink || postExcel.permalink || ''
+  if (link) {
+    // Tomamos los últimos 15 caracteres del link para hacerlo un ID válido
+    return prefijo + '_' + link.replace(/[^a-zA-Z0-9]/g, '').slice(-15)
+  }
+
+  // 3. Último recurso absoluto: usamos un pedacito de su texto
+  const texto = postExcel.mensaje || postExcel['Message'] || 'sin_texto'
+  return prefijo + '_' + texto.replace(/[^a-zA-Z0-9]/g, '').substring(0, 20)
+}
+
 const formatFacebookPosts = (publicacionesFb, fbHootsuiteData) => {
   return (publicacionesFb || [])
     .map(postExcel => {
+      // Usamos nuestro cazador de IDs
+      const postId = generarIdEstable(postExcel, 'fb')
+      const postPermalink = postExcel['Post URL'] || postExcel.postPermalink || postExcel.permalink || ''
+
       let imagenMapeada = 'https://placehold.co/300x400/00eb5d/ffffff?text=Post+Sin+Imagen'
       let tipoPost = postExcel.tipoPost || 'POST'
 
       if (fbHootsuiteData && fbHootsuiteData.realPosts) {
-        const textoCortoExcel = postExcel.mensaje.substring(0, 20).trim()
+        const textoCortoExcel = (postExcel.mensaje || '').substring(0, 20).trim()
         const postCoincidente = fbHootsuiteData.realPosts.find(p => p.text && p.text.includes(textoCortoExcel))
 
         if (postCoincidente) {
@@ -18,15 +44,17 @@ const formatFacebookPosts = (publicacionesFb, fbHootsuiteData) => {
       }
 
       return {
-        id: Math.random().toString(36).substr(2, 9),
+        id: postId, // 👈 ID 100% estable, no más Math.random()
+        link: postPermalink,
         type: tipoPost,
         views: postExcel.visitas,
         reach: postExcel.alcance,
         interactions: postExcel.interacciones,
         saved: postExcel.shares,
+        picture: imagenMapeada,
         img: imagenMapeada,
-        postPermalink: postExcel.postPermalink,
-        text: postExcel.mensaje.substring(0, 60) + '...',
+        postPermalink: postPermalink,
+        text: postExcel.mensaje ? postExcel.mensaje.substring(0, 60) + '...' : 'Sin texto',
         date: postExcel.fecha ? postExcel.fecha.split(' ')[0] : 'Sin fecha',
         tags: postExcel.tags || 'Sin etiqueta',
       }
@@ -39,18 +67,22 @@ const formatInstagramPosts = (publicacionesIg, igHootsuiteData) => {
   const igStoriesList = []
 
   ;(publicacionesIg || []).forEach(postExcel => {
+    // Usamos nuestro cazador de IDs
+    const postId = generarIdEstable(postExcel, 'ig')
+    const postPermalink = postExcel['Post URL'] || postExcel.postPermalink || postExcel.permalink || ''
+
     let imagenMapeada = 'https://placehold.co/300x400/ff7375/ffffff?text=IG+Sin+Imagen'
     let tipoPost = (postExcel.tipoPost || 'POST').toUpperCase()
 
     if (tipoPost.includes('STORY')) {
       imagenMapeada = 'https://placehold.co/300x533/00eb5d/ffffff?text=IG+Story'
-      if (postExcel.postPermalink && postExcel.postPermalink.includes('scontent')) {
-        imagenMapeada = postExcel.postPermalink
+      if (postPermalink && postPermalink.includes('scontent')) {
+        imagenMapeada = postPermalink
       }
     }
 
     if (igHootsuiteData && igHootsuiteData.realPosts) {
-      const urlLimpiaExcel = (postExcel.postPermalink || '').split('?')[0].replace(/\/$/, '')
+      const urlLimpiaExcel = (postPermalink || '').split('?')[0].replace(/\/$/, '')
       const postCoincidente = igHootsuiteData.realPosts.find(p => {
         const urlLimpiaApi = (p.postUrl || '').split('?')[0].replace(/\/$/, '')
         return urlLimpiaApi === urlLimpiaExcel || (urlLimpiaApi !== '' && urlLimpiaExcel.includes(urlLimpiaApi))
@@ -68,7 +100,8 @@ const formatInstagramPosts = (publicacionesIg, igHootsuiteData) => {
     }
 
     const postFormateado = {
-      id: Math.random().toString(36).substr(2, 9),
+      id: postId, // 👈 ID 100% estable
+      link: postPermalink,
       type: tipoPost.includes('STORY') ? 'STORY' : tipoPost,
       views: postExcel.visitas || 0,
       reach: postExcel.alcance || 0,
@@ -76,8 +109,9 @@ const formatInstagramPosts = (publicacionesIg, igHootsuiteData) => {
       saved: postExcel.saves || 0,
       likes: postExcel.likes || 0,
       shares: postExcel.shares || 0,
+      picture: imagenMapeada,
       img: imagenMapeada,
-      postPermalink: postExcel.postPermalink,
+      postPermalink: postPermalink,
       text: postExcel.mensaje ? postExcel.mensaje.substring(0, 60) + '...' : 'Historia sin texto',
       date: postExcel.fecha ? postExcel.fecha.split(' ')[0] : 'Sin fecha',
       tags: postExcel.tags || 'Sin etiqueta',
