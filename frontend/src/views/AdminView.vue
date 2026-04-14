@@ -393,8 +393,15 @@
               <span v-else class="text-[10px] text-gray-400 font-bold uppercase italic">Enlace no disponible</span>
             </div>
 
-            <div class="mb-3 w-full text-end">
-              <span class="border px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-blue-500 truncate transition-colors text-white">
+            <div class="mb-3 w-full flex justify-between items-center">
+              <span
+                :class="post.red_social === 'facebook' ? 'text-blue-700 bg-blue-50 border-blue-200' : 'text-pink-700 bg-pink-50 border-pink-200'"
+                class="border px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider flex items-center gap-1 shadow-sm">
+                <span v-if="post.red_social === 'facebook'">📘 FB</span>
+                <span v-else>📸 IG</span>
+              </span>
+
+              <span :class="getBadgeColor(post.type)" class="px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider shadow-sm transition-colors">
                 {{ post.type }}
               </span>
             </div>
@@ -449,6 +456,15 @@
   const postsParaEditar = ref([])
   const customPostImages = ref({})
   const busquedaRealizada = ref(false)
+
+  // ✨ DICCIONARIO DE COLORES PARA TIPOS DE POST ✨
+  const getBadgeColor = type => {
+    const t = String(type).toUpperCase()
+    if (t.includes('STORY')) return 'bg-orange-500 text-white' // Naranja para historias
+    if (t.includes('REEL') || t.includes('VIDEO')) return 'bg-purple-600 text-white' // Morado para videos
+    if (t.includes('CAROUSEL') || t.includes('ALBUM')) return 'bg-teal-500 text-white' // Verde/Teal para galerías
+    return 'bg-blue-500 text-white' // Azul por defecto para fotos o posts normales
+  }
 
   // Objeto reactivo para saber qué cajita está recibiendo un "Drag" (Hover de archivo)
   const dragState = ref({})
@@ -853,26 +869,30 @@
       const dictImages = {}
       imagesData.forEach(img => (dictImages[img.post_id] = img.image_url))
 
-      // NOTA: Según tu formatters.js, tus posts ahora se llaman 'topPostsIg' o simplemente vienen en el array principal
-      // Asegúrate de usar la ruta correcta según tu JSON final. Por lo que veo, tú devuelves un array directo o topPostsIg
-      const fbPosts = Array.isArray(data.facebook) ? data.facebook : data.facebook?.posts || data.facebook?.topPosts || []
-      const igPosts = data.instagram?.topPostsIg || data.instagram?.topPosts || []
+      // Extraemos los posts, pero les inyectamos una etiqueta oculta de su 'red_social'
+      const rawFb = Array.isArray(data.facebook) ? data.facebook : data.facebook?.posts || data.facebook?.topPosts || []
+      const rawIg = data.instagram?.topPostsIg || data.instagram?.topPosts || []
+
+      const fbPosts = rawFb.map(p => ({ ...p, red_social: 'facebook' }))
+      const igPostsBase = data.instagram?.topPostsIg || data.instagram?.topPosts || []
+      const igStoriesBase = data.instagram?.topStoriesIg || data.instagram?.topStories || []
+
+      const igPosts = [...igPostsBase, ...igStoriesBase]
 
       const todos = [...fbPosts, ...igPosts]
 
-      postsParaEditar.value = todos
-        .map(p => {
-          return {
-            id: p.id,
-            text: p.text,
-            type: p.type,
-            link: p.link || p.postPermalink,
-            // Si hay foto en BD la usamos, si no, usamos 'picture' o 'img' del backend
-            picture: dictImages[p.id] ? apiUrl + dictImages[p.id] : p.picture || p.img || '',
-            is_fixed: !!dictImages[p.id],
-          }
-        })
-        .filter(p => !p.is_fixed)
+      postsParaEditar.value = todos.map(p => {
+        return {
+          id: p.id,
+          text: p.text,
+          type: p.type,
+          red_social: p.red_social, // 👈 Pasamos la red social al nuevo objeto
+          link: p.link || p.postPermalink,
+          picture: dictImages[p.id] ? apiUrl + dictImages[p.id] : p.picture || p.img || '',
+          is_fixed: !!dictImages[p.id],
+        }
+      })
+      // .filter(p => !p.is_fixed)
 
       busquedaRealizada.value = true
 

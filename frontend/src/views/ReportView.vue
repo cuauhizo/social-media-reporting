@@ -52,7 +52,12 @@
 
           // Aplica el parche dependiendo de cómo llamaste a tus arreglos
           patchImages(Array.isArray(reportData.value.facebook) ? reportData.value.facebook : reportData.value.facebook?.topPosts)
+
+          // Parchamos los posts normales de IG
           patchImages(reportData.value.instagram?.topPostsIg || reportData.value.instagram?.topPosts)
+
+          // NUEVO: Parchamos también las Historias de IG
+          patchImages(reportData.value.instagram?.topStoriesIg || reportData.value.instagram?.topStories)
         }
       } else {
         console.error(`Error: No se encontró el reporte para el periodo ${periodId}`)
