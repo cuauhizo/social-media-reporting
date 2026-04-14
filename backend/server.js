@@ -16,7 +16,7 @@ const casosCSRoutes = require('./routes/casosCSRoutes')
 const benchmarkInsightsRoutes = require('./routes/benchmarkInsightsRoutes')
 const benchmarkCompetitorsRoutes = require('./routes/benchmarkCompetitorsRoutes')
 const conclusionesRoutes = require('./routes/conclusionesRoutes')
-const postImagesRoutes = require('./routes/postImagesRoutes')
+// const postImagesRoutes = require('./routes/postImagesRoutes')
 
 const app = express()
 
@@ -41,7 +41,8 @@ app.use('/api/casos-cs', casosCSRoutes)
 app.use('/api/benchmark-insights', benchmarkInsightsRoutes)
 app.use('/api/benchmark-competitors', benchmarkCompetitorsRoutes)
 app.use('/api/conclusiones', conclusionesRoutes)
-app.use('/api/post-images', postImagesRoutes)
+// app.use('/api/post-images', postImagesRoutes)
+app.use('/api/post-images', require('./routes/postImagesRoutes'))
 
 // Iniciamos el servidor con puerto dinámico (Mejor práctica para Producción)
 const PORT = process.env.PORT || 3000

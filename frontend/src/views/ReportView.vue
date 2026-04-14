@@ -33,47 +33,28 @@
         console.log('Datos del reporte cargados con éxito:', reportData.value)
 
         // 3. ✨ INTERCEPTOR DE IMÁGENES ROTAS ✨
-        // Buscamos en MySQL si hay reemplazos manuales para las imágenes de los posts
-        try {
-          const resImages = await fetch(`${apiUrl}/api/post-images`)
-          if (resImages.ok) {
-            const overrides = await resImages.json()
-            const dict = {}
+        // Después de cargar el reporte...
+        const resCustomImages = await fetch(`${apiUrl}/api/post-images`)
+        if (resCustomImages.ok) {
+          const customImages = await resCustomImages.json()
+          const dict = {}
+          customImages.forEach(img => (dict[img.post_id] = img.image_url))
 
-            // Creamos un diccionario rápido [ID_POST]: URL_IMAGEN
-            overrides.forEach(img => {
-              dict[img.post_id] = img.image_url
+          // Función para reemplazar URLs rotas por las locales
+          const patchImages = posts => {
+            if (!posts) return
+            posts.forEach(post => {
+              const id = post.id || post.post_id
+              if (dict[id]) {
+                // Forzamos la URL de nuestro servidor
+                post.picture = apiUrl + dict[id]
+                post.thumbnail = apiUrl + dict[id]
+              }
             })
-
-            // Función interna para parchar los posts buscando llaves inteligentes (topPosts, realPosts, etc.)
-            const fixPosts = posts => {
-              if (!posts) return
-              posts.forEach(post => {
-                // Identificamos el ID único del post
-                const id = post.id || post.post_id || post.Post_ID
-
-                // Si este ID existe en nuestra tabla de "imágenes arregladas"
-                if (dict[id]) {
-                  // Reemplazamos la URL original por la de nuestro servidor
-                  post.picture = apiUrl + dict[id]
-                  console.log(`Imagen corregida para el post: ${id}`)
-                }
-              })
-            }
-
-            // Aplicamos el parche a las secciones de Facebook e Instagram
-            const fbData = reportData.value.facebook
-            if (fbData) {
-              fixPosts(fbData.topPosts || fbData.realPosts || fbData.posts)
-            }
-
-            const igData = reportData.value.instagram
-            if (igData) {
-              fixPosts(igData.topPosts || igData.realPosts || igData.posts)
-            }
           }
-        } catch (err) {
-          console.error('Error al aplicar el interceptor de imágenes:', err)
+
+          patchImages(reportData.value.facebook?.topPosts)
+          patchImages(reportData.value.instagram?.topPosts)
         }
       } else {
         console.error(`Error: No se encontró el reporte para el periodo ${periodId}`)

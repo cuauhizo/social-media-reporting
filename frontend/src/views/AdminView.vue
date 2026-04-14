@@ -373,16 +373,29 @@
 
         <button @click="cargarPostsParaEditar" class="bg-pluxeeBlue text-white px-4 py-2 rounded-xl font-bold hover:scale-105 transition mb-6">🔍 Cargar Posts de este Mes</button>
 
-        <div v-if="postsParaEditar.length > 0" class="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div v-for="post in postsParaEditar" :key="post.id" class="border border-gray-200 p-4 rounded-xl flex flex-col items-center text-center bg-gray-50 relative">
-            <img :src="post.picture" class="h-24 w-24 object-cover mb-3 rounded-lg shadow-sm bg-gray-200 border" />
+        <div v-if="postsParaEditar.length > 0" class="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div v-for="post in postsParaEditar" :key="post.id" class="bg-white border border-gray-200 p-4 rounded-2xl shadow-sm flex flex-col items-center text-center hover:shadow-md transition">
+            <div class="w-full h-40 bg-gray-100 rounded-xl mb-4 overflow-hidden flex items-center justify-center border border-gray-100">
+              <img v-if="post.picture" :src="post.picture" class="w-full h-full object-cover" />
+              <div v-else class="flex flex-col items-center text-gray-400">
+                <span class="text-3xl mb-1">🖼️</span>
+                <p class="text-[10px] font-bold uppercase">Sin imagen</p>
+              </div>
+            </div>
 
-            <a v-if="post.link" :href="post.link" target="_blank" class="text-xs text-pluxeeBlue font-black underline mb-2 hover:text-blue-800 transition">🔗 Ver Post Original</a>
+            <div class="mb-3 w-full">
+              <a v-if="post.link" :href="post.link" target="_blank" class="inline-flex items-center text-pluxeeBlue text-xs font-black bg-blue-50 px-3 py-1.5 rounded-full hover:bg-pluxeeBlue hover:text-white transition w-full justify-center">
+                <span class="mr-1.5">🔗</span>
+                Ver Post Original
+              </a>
+              <span v-else class="text-[10px] text-gray-400 font-bold uppercase italic">Enlace no disponible</span>
+            </div>
 
-            <p class="text-xs text-gray-500 mb-3 line-clamp-2 w-full h-8" :title="post.text">{{ post.text }}</p>
+            <p class="text-xs text-gray-600 mb-4 line-clamp-3 h-12 overflow-hidden italic" :title="post.text">"{{ post.text }}"</p>
 
-            <label class="bg-blue-100 text-pluxeeBlue text-xs font-bold px-3 py-1 rounded cursor-pointer hover:bg-blue-200 transition w-full">
-              Subir Imagen
+            <label class="w-full bg-gray-800 text-white text-[11px] font-bold py-2 rounded-xl cursor-pointer hover:bg-black transition flex items-center justify-center">
+              <span class="mr-2">📸</span>
+              Subir Captura
               <input type="file" class="hidden" accept="image/*" @change="subirImagenPost(post.id, $event)" />
             </label>
           </div>
@@ -806,64 +819,55 @@
   // LÓGICA DE POSTS (Trae el reporte, saca los posts y te deja editarlos)
   const cargarPostsParaEditar = async () => {
     try {
-      // 1. Calculamos el periodo (mes anterior, igual que en ReportView)
+      // 1. Calculamos el periodo del mes pasado automáticamente
       const hoy = new Date()
       hoy.setMonth(hoy.getMonth() - 1)
-      const año = hoy.getFullYear()
-      const mesAnterior = String(hoy.getMonth() + 1).padStart(2, '0')
-      const periodId = `${año}-${mesAnterior}`
+      const periodId = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}`
 
-      // 2. Traemos los datos crudos del reporte
-      const resReporte = await fetch(`${apiUrl}/api/reports/${periodId}`)
-      if (!resReporte.ok) return showAlert('Error cargando el reporte mensual', 'error')
+      // 2. Obtenemos el reporte y el historial de imágenes parchadas en paralelo
+      const [resReporte, resImages] = await Promise.all([fetch(`${apiUrl}/api/reports/${periodId}`), fetch(`${apiUrl}/api/post-images`)])
+
       const data = await resReporte.json()
-
-      // (Opcional) Ver en consola F12 exactamente qué está llegando
-      console.log('Datos del reporte crudos:', data)
-
-      // 3. Traemos las imágenes que ya arreglaste desde MySQL
-      const resImages = await fetch(`${apiUrl}/api/post-images`)
       const imagesData = await resImages.json()
 
-      // Limpiamos y llenamos el diccionario de imágenes arregladas
-      customPostImages.value = {}
-      imagesData.forEach(img => {
-        customPostImages.value[img.post_id] = img.image_url
-      })
+      // 3. Diccionario de imágenes en MySQL para búsqueda instantánea
+      const dictImages = {}
+      imagesData.forEach(img => (dictImages[img.post_id] = img.image_url))
 
-      // 4. Buscamos los posts usando TODAS las posibles combinaciones de nombres
-      const fbPosts = data.facebook?.topPosts || data.facebook?.realPosts || data.facebook?.posts || data.facebook?.top_posts || []
-      const igPosts = data.instagram?.topPosts || data.instagram?.realPosts || data.instagram?.posts || data.instagram?.top_posts || []
+      // 4. Extraemos los posts buscando todas las variantes de nombres (topPosts, realPosts, etc.)
+      const fbPosts = data.facebook?.topPosts || data.facebook?.realPosts || data.facebook?.posts || []
+      const igPosts = data.instagram?.topPosts || data.instagram?.realPosts || data.instagram?.posts || []
+      const todos = [...fbPosts, ...igPosts]
 
-      const todosLosPosts = [...fbPosts, ...igPosts]
-
-      // 5. Mapeamos cada post sacando los datos de las llaves correctas de Hootsuite
-      const mappedPosts = todosLosPosts.map(p => {
-        // Sacamos el ID (fundamental para guardar la imagen)
+      // 5. Mapeamos los datos normalizando las columnas de Hootsuite
+      const mappedPosts = todos.map(p => {
         const id = p.id || p.post_id || p.Post_ID
 
         return {
           id: id,
-          text: p.text || p.message || p.Post_Caption || p.Post_Message || 'Sin texto',
-          picture: p.picture || p.thumbnail || p.image_url || p.Post_Image_URL || '',
-          // 🔥 Aquí buscamos la URL original del post para tu enlace
-          link: p.permalink || p.url || p.link || p.post_link || p.Post_URL || null,
-          custom_image: customPostImages.value[id] || null,
+          text: p.text || p.message || p.Post_Caption || p.Post_Message || 'Sin descripción',
+          // Si ya tiene imagen en BD la usamos (con la URL del servidor), si no, la de Hootsuite
+          picture: dictImages[id] ? apiUrl + dictImages[id] : p.picture || p.thumbnail || p.Post_Image_URL || '',
+          // ✨ Sugerencia adicional: Extraemos el link directo al post
+          link: p.permalink || p.Post_URL || p.url || p.link || p.post_link || null,
+          is_fixed: !!dictImages[id],
         }
       })
 
-      // 6. FILTRO: Solo dejamos los posts que NO tienen imagen personalizada (los pendientes)
-      postsParaEditar.value = mappedPosts.filter(p => !p.custom_image)
+      // ✨ 6. FILTRO DE TAREAS PENDIENTES ✨
+      // Solo mostramos en el Admin los posts que NO han sido arreglados aún.
+      // Una vez subas la captura, el post desaparecerá de esta lista.
+      postsParaEditar.value = mappedPosts.filter(p => !p.is_fixed)
 
-      // 7. Notificaciones visuales para el usuario
+      // 7. Notificaciones visuales
       if (postsParaEditar.value.length === 0) {
-        showAlert('✨ ¡Todos los posts están listos o no hay posts en este mes!', 'success')
+        showAlert('✨ ¡Excelente! No quedan posts por arreglar este mes.', 'success')
       } else {
-        showAlert(`🔍 Se encontraron ${postsParaEditar.value.length} posts para revisión.`, 'success')
+        showAlert(`Se cargaron ${postsParaEditar.value.length} posts pendientes de imagen.`, 'success')
       }
     } catch (error) {
-      console.error('Error al cargar posts para editar:', error)
-      showAlert('Hubo un error al procesar los posts. Revisa la consola.', 'error')
+      console.error('Error cargando posts:', error)
+      showAlert('No se pudieron cargar los posts para editar', 'error')
     }
   }
 
