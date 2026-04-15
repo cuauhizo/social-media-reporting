@@ -1,54 +1,56 @@
 <template>
-  <div class="py-12 px-8 bg-gray-50">
-    <div class="max-w-7xl mx-auto min-h-screen">
-      <h2 class="text-3xl font-black text-pluxeeBlue mb-8 uppercase">Customer Service & Complains</h2>
-      <!-- <pre>{{ metricas }}</pre> -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div class="bg-white p-6 rounded-xl shadow-md border-t-4 border-pluxeeBlue">
-          <h3 class="text-xl font-bold text-gray-800 mb-4">Tipos de Casos (CAS)</h3>
-          <div class="flex items-center justify-center mb-6 h-96">
-            <Pie v-if="chartDataCasos" :data="chartDataCasos" :options="chartOptions" :plugins="[ChartDataLabels]" />
-            <p v-else class="text-gray-400 animate-pulse">Cargando datos...</p>
+  <section class="pdf-page">
+    <div class="py-12 px-8 bg-gray-50">
+      <div class="max-w-7xl mx-auto min-h-screen">
+        <h2 class="text-3xl font-black text-pluxeeBlue mb-8 uppercase">Customer Service & Complains</h2>
+        <!-- <pre>{{ metricas }}</pre> -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div class="bg-white p-6 rounded-xl shadow-md border-t-4 border-pluxeeBlue">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">Tipos de Casos (CAS)</h3>
+            <div class="flex items-center justify-center mb-6 h-96">
+              <Pie v-if="chartDataCasos" :data="chartDataCasos" :options="chartOptions" :plugins="[ChartDataLabels]" />
+              <p v-else class="text-gray-400 animate-pulse">Cargando datos...</p>
+            </div>
           </div>
-        </div>
 
-        <div class="bg-white p-6 rounded-xl shadow-md border-t-4 border-pluxeeBlue">
-          <h3 class="text-xl font-bold text-gray-800 mb-4">Origen de Mensajes</h3>
-          <div class="flex items-center justify-center mb-6 h-80">
-            <Pie v-if="chartDataOrigen" :data="chartDataOrigen" :options="chartOptions" :plugins="[ChartDataLabels]" />
-            <p v-else class="text-gray-400 animate-pulse">Cargando datos...</p>
+          <div class="bg-white p-6 rounded-xl shadow-md border-t-4 border-pluxeeBlue">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">Origen de Mensajes</h3>
+            <div class="flex items-center justify-center mb-6 h-80">
+              <Pie v-if="chartDataOrigen" :data="chartDataOrigen" :options="chartOptions" :plugins="[ChartDataLabels]" />
+              <p v-else class="text-gray-400 animate-pulse">Cargando datos...</p>
+            </div>
+            <div class="bg-blue-50 p-4 rounded-lg text-pluxeeBlue font-medium space-y-2">
+              <p>
+                📩 Se recibieron
+                <strong>{{ metricas.total_calculado }} mensajes</strong>
+                (Facebook y Instagram)
+              </p>
+              <p>
+                ⚠️
+                <strong>{{ metricas.cs_escalated }} casos</strong>
+                pasaron a escalamiento.
+              </p>
+            </div>
           </div>
-          <div class="bg-blue-50 p-4 rounded-lg text-pluxeeBlue font-medium space-y-2">
-            <p>
-              📩 Se recibieron
-              <strong>{{ metricas.total_calculado }} mensajes</strong>
-              (Facebook y Instagram)
-            </p>
-            <p>
-              ⚠️
-              <strong>{{ metricas.cs_escalated }} casos</strong>
-              pasaron a escalamiento.
-            </p>
+
+          <div class="bg-white p-6 rounded-xl shadow-md border-t-4 border-yellow-400">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">Frequent Complains</h3>
+            <p class="text-sm text-gray-500 mb-4">Temas recurrentes escalados durante el mes</p>
+
+            <ul class="space-y-3">
+              <li v-for="(item, index) in listaQuejas" :key="item.id" class="flex items-start bg-gray-50 p-3 rounded-lg border border-gray-100">
+                <div class="w-8 h-8 rounded-full bg-pluxeeBlue text-white flex justify-center items-center font-bold mr-4 shrink-0">
+                  {{ index + 1 }}
+                </div>
+                <span class="text-gray-700 font-medium text-lg w-full">{{ item.queja }}</span>
+              </li>
+              <li v-if="listaQuejas.length === 0" class="text-gray-400 italic">No hay quejas registradas.</li>
+            </ul>
           </div>
-        </div>
-
-        <div class="bg-white p-6 rounded-xl shadow-md border-t-4 border-yellow-400">
-          <h3 class="text-xl font-bold text-gray-800 mb-4">Frequent Complains</h3>
-          <p class="text-sm text-gray-500 mb-4">Temas recurrentes escalados durante el mes</p>
-
-          <ul class="space-y-3">
-            <li v-for="(item, index) in listaQuejas" :key="item.id" class="flex items-start bg-gray-50 p-3 rounded-lg border border-gray-100">
-              <div class="w-8 h-8 rounded-full bg-pluxeeBlue text-white flex justify-center items-center font-bold mr-4 shrink-0">
-                {{ index + 1 }}
-              </div>
-              <span class="text-gray-700 font-medium text-lg w-full">{{ item.queja }}</span>
-            </li>
-            <li v-if="listaQuejas.length === 0" class="text-gray-400 italic">No hay quejas registradas.</li>
-          </ul>
         </div>
       </div>
     </div>
-  </div>
+  </section>
 </template>
 
 <script setup>

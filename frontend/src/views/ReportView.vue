@@ -1,5 +1,6 @@
 <script setup>
   import { ref, onMounted } from 'vue'
+  import html2pdf from 'html2pdf.js'
   import CoverSection from '@/components/CoverSection.vue'
   import ContextSection from '@/components/ContextSection.vue'
   import FacebookSection from '@/components/FacebookSection.vue'
@@ -13,6 +14,87 @@
   const reportData = ref(null)
   const loading = ref(true)
   const error = ref(null)
+  const isExporting = ref(false)
+
+  // const exportToPDF = () => {
+  //   isExporting.value = true
+
+  //   const element = document.getElementById('report-container')
+  //   const originalWidth = element.style.width
+  //   const originalMaxWidth = element.style.maxWidth
+  //   const originalMargin = element.style.margin
+
+  //   element.style.width = '1280px'
+  //   element.style.maxWidth = '1280px'
+  //   element.style.margin = '0 auto'
+
+  //   const opt = {
+  //     margin: [0, 0], // Dale un poquito de margen (10mm) arriba y abajo
+  //     filename: `Reporte_Pluxee_${reportData.value?.metadata?.period || 'Mensual'}.pdf`,
+  //     image: { type: 'jpeg', quality: 0.98 },
+  //     html2canvas: {
+  //       scale: 2,
+  //       useCORS: true,
+  //       letterRendering: true,
+  //       windowWidth: 1280,
+  //     },
+  //     // Landscape es perfecto para formato "Presentación"
+  //     jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
+  //     // jsPDF: { unit: 'cm', format: [33.867, 19.05], orientation: 'landscape' },
+  //     // jsPDF: { unit: 'cm', format: [33.867, 19.05], orientation: 'landscape'},
+  //     // Solo usamos 'css' para respetar nuestras clases manuales
+  //     pagebreak: { mode: ['css'] },
+  //   }
+
+  //   // ✨ EL TRUCO DE LAS GRÁFICAS: Esperamos 600ms antes de tomar la foto
+  //   setTimeout(() => {
+  //     html2pdf()
+  //       .set(opt)
+  //       .from(element)
+  //       .save()
+  //       .then(() => {
+  //         // Restauramos a la normalidad
+  //         element.style.width = originalWidth
+  //         element.style.maxWidth = originalMaxWidth
+  //         element.style.margin = originalMargin
+  //         isExporting.value = false
+  //       })
+  //   }, 600) // 600 milisegundos de espera
+  // }
+
+  const exportToPDF = () => {
+    isExporting.value = true
+
+    const element = document.getElementById('report-container')
+
+    const opt = {
+      margin: [0, 0], // Dale un poquito de margen (10mm) arriba y abajo
+      filename: `Reporte_Pluxee_${reportData.value?.metadata?.period || 'Mensual'}.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: {
+        scale: 2,
+        useCORS: true,
+        letterRendering: true,
+      },
+      // Landscape es perfecto para formato "Presentación"
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
+      // jsPDF: { unit: 'cm', format: [33.867, 19.05], orientation: 'landscape' },
+      // jsPDF: { unit: 'cm', format: [33.867, 19.05], orientation: 'landscape'},
+      // Solo usamos 'css' para respetar nuestras clases manuales
+      pagebreak: { mode: ['css'] },
+    }
+
+    // ✨ EL TRUCO DE LAS GRÁFICAS: Esperamos 600ms antes de tomar la foto
+    setTimeout(() => {
+      html2pdf()
+        .set(opt)
+        .from(element)
+        .save()
+        .then(() => {
+          isExporting.value = false
+        })
+    }, 600) // 600 milisegundos de espera
+  }
 
   onMounted(async () => {
     try {
@@ -30,7 +112,6 @@
 
       if (res.ok) {
         reportData.value = await res.json()
-        console.log('Datos del reporte cargados con éxito:', reportData.value)
 
         // 3. INTERCEPTOR DE IMÁGENES ROTAS
         const resCustomImages = await fetch(`${apiUrl}/api/post-images`, { cache: 'no-store' })
@@ -72,14 +153,18 @@
 </script>
 
 <template>
-  <div class="font-sans text-gray-800 bg-gray-50 min-h-screen">
+  <div class="font-sans text-gray-800 bg-gray-50">
+    <button v-if="!loading && !isExporting" @click="exportToPDF" class="fixed bottom-8 right-8 z-50 bg-pluxeeBlue text-white p-4 rounded-full shadow-2xl hover:scale-110 transition-transform flex items-center gap-2 group print:hidden">
+      <span class="font-bold hidden group-hover:inline ml-2">Descargar PDF</span>
+      <span class="text-2xl">📄</span>
+    </button>
     <div v-if="loading" class="flex h-screen items-center justify-center bg-pluxeeGreen text-white">
       <div class="text-2xl font-black animate-pulse uppercase tracking-widest">Generando Reporte Pluxee...</div>
     </div>
 
     <div v-else-if="error" class="p-10 text-red-600 font-bold text-center">Error: {{ error }}</div>
 
-    <div v-else>
+    <div v-else id="report-container">
       <CoverSection :metadata="reportData.metadata" />
       <ContextSection :data="reportData.context" />
       <FacebookSection :data="reportData.facebook" />
@@ -93,4 +178,22 @@
   </div>
 </template>
 
-<style scoped></style>
+<style>
+  /* Fuerza un salto de página DESPUÉS de cualquier elemento con esta clase */
+  .pdf-page {
+    page-break-after: always;
+    break-after: page;
+  }
+
+  /* Evita que una tarjeta o gráfica se parta a la mitad entre dos páginas */
+  .no-break {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  @media print {
+    .print\:hidden {
+      display: none !important;
+    }
+  }
+</style>

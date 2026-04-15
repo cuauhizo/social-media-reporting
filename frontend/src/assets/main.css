@@ -1,16 +1,10 @@
-@import 'tailwindcss'; /* Para Tailwind v4 */
-/* Si usas v3, usa: 
+/* Importaciones de Tailwind v3 */
 @tailwind base;
 @tailwind components;
-@tailwind utilities; 
-*/
+@tailwind utilities;
 
-/* Configuración de Tailwind v4 */
-@theme {
-  --color-pluxeeBlue: #221c46;
-  --color-pluxeeBlueLight: #17ccf9;
-  --color-pluxeeGreen: #00eb5d;
-  --color-pluxeeYellow: #ffdc37;
-  --color-pluxeePink: #ff7375;
-  --color-tolkoRed: #cc0032;
+/* Clase para evitar cortes en impresión */
+.no-break {
+  page-break-inside: avoid !important; /* Para navegadores antiguos */
+  break-inside: avoid !important; /* Estándar moderno */
 }

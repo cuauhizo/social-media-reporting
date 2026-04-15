@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col items-center justify-center h-10 w-16 lg:justify-end md:flex-row lg:gap-3">
-    <div class="flex-1 h-full w-full relative">
+    <div class="flex shrink-0 h-full w-full relative">
       <Line :data="chartData" :options="chartOptions" />
     </div>
     <div :class="isNegative ? 'text-red-500' : 'text-green-500'">
