@@ -7,6 +7,8 @@
   import InstagramSection from '@/components/InstagramSection.vue'
   import BenchmarkSection from '@/components/BenchmarkSection.vue'
   import CustomerServiceSection from '@/components/CustomerServiceSection.vue'
+  import FrequentComplainsSection from '@/components/FrequentComplainsSection.vue'
+
   import NextStepsSection from '@/components/NextStepsSection.vue'
   import ConclusionsSection from '@/components/ConclusionsSection.vue'
   import ThankYouSection from '@/components/ThankYouSection.vue'
@@ -15,52 +17,6 @@
   const loading = ref(true)
   const error = ref(null)
   const isExporting = ref(false)
-
-  // const exportToPDF = () => {
-  //   isExporting.value = true
-
-  //   const element = document.getElementById('report-container')
-  //   const originalWidth = element.style.width
-  //   const originalMaxWidth = element.style.maxWidth
-  //   const originalMargin = element.style.margin
-
-  //   element.style.width = '1280px'
-  //   element.style.maxWidth = '1280px'
-  //   element.style.margin = '0 auto'
-
-  //   const opt = {
-  //     margin: [0, 0], // Dale un poquito de margen (10mm) arriba y abajo
-  //     filename: `Reporte_Pluxee_${reportData.value?.metadata?.period || 'Mensual'}.pdf`,
-  //     image: { type: 'jpeg', quality: 0.98 },
-  //     html2canvas: {
-  //       scale: 2,
-  //       useCORS: true,
-  //       letterRendering: true,
-  //       windowWidth: 1280,
-  //     },
-  //     // Landscape es perfecto para formato "Presentación"
-  //     jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
-  //     // jsPDF: { unit: 'cm', format: [33.867, 19.05], orientation: 'landscape' },
-  //     // jsPDF: { unit: 'cm', format: [33.867, 19.05], orientation: 'landscape'},
-  //     // Solo usamos 'css' para respetar nuestras clases manuales
-  //     pagebreak: { mode: ['css'] },
-  //   }
-
-  //   // ✨ EL TRUCO DE LAS GRÁFICAS: Esperamos 600ms antes de tomar la foto
-  //   setTimeout(() => {
-  //     html2pdf()
-  //       .set(opt)
-  //       .from(element)
-  //       .save()
-  //       .then(() => {
-  //         // Restauramos a la normalidad
-  //         element.style.width = originalWidth
-  //         element.style.maxWidth = originalMaxWidth
-  //         element.style.margin = originalMargin
-  //         isExporting.value = false
-  //       })
-  //   }, 600) // 600 milisegundos de espera
-  // }
 
   const exportToPDF = () => {
     isExporting.value = true
@@ -79,7 +35,6 @@
       // Landscape es perfecto para formato "Presentación"
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
       // jsPDF: { unit: 'cm', format: [33.867, 19.05], orientation: 'landscape' },
-      // jsPDF: { unit: 'cm', format: [33.867, 19.05], orientation: 'landscape'},
       // Solo usamos 'css' para respetar nuestras clases manuales
       pagebreak: {
         mode: ['css', 'legacy'],
@@ -174,6 +129,7 @@
       <BenchmarkSection :data="reportData.benchmarking" :insights="reportData.benchmarkInsights" />
       <InstagramSection :data="reportData.instagram" />
       <CustomerServiceSection :data="reportData.customerService" />
+      <FrequentComplainsSection :data="reportData.customerService" />
       <NextStepsSection :data="reportData.nextSteps" />
       <ConclusionsSection />
       <ThankYouSection />
@@ -184,14 +140,14 @@
 <style>
   /* Fuerza un salto de página DESPUÉS de cualquier elemento con esta clase */
   .pdf-page {
-    page-break-after: always !important;
-    break-after: page !important;
+    page-break-after: always;
+    break-after: page;
   }
 
   /* Evita que una tarjeta o gráfica se parta a la mitad entre dos páginas */
   .no-break {
-    page-break-inside: avoid !important;
-    break-inside: avoid !important;
+    page-break-inside: avoid;
+    break-inside: avoid;
   }
 
   /* Fuerza un salto de página ANTES de que empiece este elemento */

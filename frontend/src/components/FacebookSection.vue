@@ -1,11 +1,11 @@
 <template>
-  <section class="pdf-page">
-    <div class="w-full h-32 bg-[#1877F2] flex items-center justify-center shadow-inner px-4">
+  <section class="pdf-page flex flex-col min-h-screen bg-gray-100">
+    <div class="w-full h-32 bg-[#1877F2] shrink-0 flex items-center justify-center shadow-inner px-4">
       <h2 class="text-4xl text-center font-black text-white tracking-widest uppercase">Facebook Metrics {{ data.username }}</h2>
     </div>
-    <div class="p-8 bg-gray-100">
-      <div class="max-w-7xl mx-auto">
-        <!-- <pre>{{ data }}</pre> -->
+
+    <div class="flex-1 flex flex-col justify-center p-8 w-full">
+      <div class="max-w-7xl mx-auto w-full">
         <h1 class="text-2xl font-bold text-pluxeeBlue mb-6">Social Media Report - {{ data.kpis.month }}</h1>
 
         <div class="grid grid-cols-12 gap-4">
@@ -23,28 +23,6 @@
               <KpiCard title="Views from non-followers" :value="formatNumber(data.kpis.page_no_followers_views)" />
               <KpiCard title="Views from followers" :value="formatNumber(data.kpis.page_followers_views)" />
             </div>
-            <div class="grid grid-cols-1 gap-8 mt-4">
-              <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-pluxeeGreen">
-                <table class="w-full text-left">
-                  <thead>
-                    <tr class="text-gray-400 text-sm border-b border-gray-100">
-                      <th class="pb-1.5 font-medium w-8 text-center">#</th>
-                      <th class="pb-1.5 font-medium">City</th>
-                      <th class="pb-1.5 font-medium text-right">Followers</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-for="(city, index) in data.topCities" :key="index" class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                      <td class="py-2 text-gray-400 font-medium text-center text-sm">{{ index + 1 }}</td>
-                      <td class="py-2 pr-2">
-                        <div class="text-sm text-gray-700">{{ city.name }}</div>
-                      </td>
-                      <td class="py-2 text-right text-pluxeeBlue">{{ formatNumber(city.followers) }}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
           </div>
           <div class="col-span-12 xl:col-span-3">
             <SentimentChart :sentimentData="data.kpis.sentiment" />
@@ -53,28 +31,52 @@
       </div>
     </div>
   </section>
-  <section class="pdf-page">
-    <div class="p-8 min-h-screen bg-gray-50">
-      <div class="max-w-7xl mx-auto">
-        <h2 class="text-2xl font-black text-pluxeeBlue mb-2 uppercase keep-with-next">Post Metrics</h2>
-        <p class="text-sm text-gray-600 mb-8 font-bold">Ordenados de mayor a menor alcance en Facebook</p>
-        <!-- <pre>{{ data.topPosts }}</pre> -->
-        <div v-if="data.topPosts && data.topPosts.length > 0" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-          <PostCard v-for="post in data.topPosts" :key="post.id" :post="post" />
-        </div>
 
-        <div v-else class="bg-gray-50 rounded-2xl p-8 text-center border border-gray-100 mt-6">
-          <p class="text-gray-500 font-medium">No se encontraron publicaciones en Facebook para este periodo.</p>
-        </div>
+  <section class="pdf-page flex flex-col justify-center min-h-screen bg-gray-100 p-8">
+    <div class="max-w-3xl mx-auto w-full">
+      <h2 class="text-2xl font-black text-pluxeeBlue mb-6 uppercase keep-with-next">Top Cities by Followers</h2>
+      <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-pluxeeGreen">
+        <table class="w-full text-left">
+          <thead>
+            <tr class="text-gray-400 text-sm border-b border-gray-100">
+              <th class="pb-1.5 font-medium w-8 text-center">#</th>
+              <th class="pb-1.5 font-medium">City</th>
+              <th class="pb-1.5 font-medium text-right">Followers</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(city, index) in data.topCities" :key="index" class="no-break border-b border-gray-100 hover:bg-gray-50 transition-colors">
+              <td class="py-2 text-gray-400 font-medium text-center text-sm">{{ index + 1 }}</td>
+              <td class="py-2 pr-2">
+                <div class="text-sm text-gray-700">{{ city.name }}</div>
+              </td>
+              <td class="py-2 text-right text-pluxeeBlue font-bold">{{ formatNumber(city.followers) }}</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </section>
-  <section class="pdf-page">
-    <div class="p-8 bg-gray-100 min-h-screen">
-      <div class="max-w-7xl mx-auto">
-        <h2 class="text-2xl font-black text-pluxeeBlue mb-2 uppercase keep-with-next">Post metrics Tolko - Pluxee</h2>
-        <TagsTable :tags="data.reachByTags" :topPosts="data.topPosts" />
+
+  <section class="pdf-page flex flex-col justify-center min-h-screen bg-gray-50 p-8">
+    <div class="max-w-7xl mx-auto w-full">
+      <h2 class="text-2xl font-black text-pluxeeBlue mb-2 uppercase keep-with-next">Post Metrics</h2>
+      <p class="text-sm text-gray-600 mb-8 font-bold">Ordenados de mayor a menor alcance en Facebook</p>
+
+      <div v-if="data.topPosts && data.topPosts.length > 0" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">
+        <PostCard v-for="post in data.topPosts" :key="post.id" :post="post" class="no-break" />
       </div>
+
+      <div v-else class="bg-gray-50 rounded-2xl p-8 text-center border border-gray-100 mt-6">
+        <p class="text-gray-500 font-medium">No se encontraron publicaciones en Facebook para este periodo.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="pdf-page flex flex-col justify-center min-h-screen bg-gray-100 p-8">
+    <div class="max-w-7xl mx-auto w-full">
+      <h2 class="text-2xl font-black text-pluxeeBlue mb-2 uppercase keep-with-next">Post metrics Tolko - Pluxee</h2>
+      <TagsTable :tags="data.reachByTags" :topPosts="data.topPosts" />
     </div>
   </section>
 </template>

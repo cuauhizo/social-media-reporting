@@ -2,9 +2,3 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* Clase para evitar cortes en impresión */
-.no-break {
-  page-break-inside: avoid !important; /* Para navegadores antiguos */
-  break-inside: avoid !important; /* Estándar moderno */
-}

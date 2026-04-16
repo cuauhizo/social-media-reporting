@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col w-full max-w-60 shadow-lg rounded-lg overflow-hidden mx-auto">
-    <div class="bg-pluxeeBlue p-4 flex justify-center items-center h-64">
+    <div class="bg-pluxeeBlue p-4 flex justify-center items-center h-48">
       <img :src="post.img" class="object-contain h-full w-full" />
     </div>
     <!-- <pre>{{ post }}</pre> -->
@@ -8,7 +8,7 @@
       <div class="font-bold text-xs mb-2 uppercase tracking-widest text-center">
         {{ post.type }}
       </div>
-      <div class="text-sm space-y-1">
+      <div class="text-sm space-y-0.5">
         <p>
           <strong>Visualizaciones:</strong>
           {{ formatNumber(post.views) }}
