@@ -4,7 +4,7 @@
       <h2 class="text-4xl text-center font-black text-white tracking-widest uppercase">Facebook Metrics {{ data.username }}</h2>
     </div>
     <div class="p-8 bg-gray-100">
-      <div class="max-w-7xl mx-auto min-h-screen">
+      <div class="max-w-7xl mx-auto">
         <!-- <pre>{{ data }}</pre> -->
         <h1 class="text-2xl font-bold text-pluxeeBlue mb-6">Social Media Report - {{ data.kpis.month }}</h1>
 
@@ -54,13 +54,13 @@
     </div>
   </section>
   <section class="pdf-page">
-    <div class="bg-gray-50">
-      <div class="max-w-7xl mx-auto min-h-screen px-4">
-        <h2 class="text-2xl font-black text-pluxeeBlue mb-2 uppercase">Post Metrics</h2>
+    <div class="p-8 min-h-screen bg-gray-50">
+      <div class="max-w-7xl mx-auto">
+        <h2 class="text-2xl font-black text-pluxeeBlue mb-2 uppercase keep-with-next">Post Metrics</h2>
         <p class="text-sm text-gray-600 mb-8 font-bold">Ordenados de mayor a menor alcance en Facebook</p>
         <!-- <pre>{{ data.topPosts }}</pre> -->
         <div v-if="data.topPosts && data.topPosts.length > 0" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-          <PostCard v-for="post in data.topPosts" :key="post.id" :post="post" class="no-break" />
+          <PostCard v-for="post in data.topPosts" :key="post.id" :post="post" />
         </div>
 
         <div v-else class="bg-gray-50 rounded-2xl p-8 text-center border border-gray-100 mt-6">
@@ -70,9 +70,9 @@
     </div>
   </section>
   <section class="pdf-page">
-    <div class="bg-gray-100 min-h-screen">
-      <div class="max-w-7xl mx-auto px-4">
-        <h2 class="text-2xl font-black text-pluxeeBlue mb-2 uppercase">Post metrics Tolko - Pluxee</h2>
+    <div class="p-8 bg-gray-100 min-h-screen">
+      <div class="max-w-7xl mx-auto">
+        <h2 class="text-2xl font-black text-pluxeeBlue mb-2 uppercase keep-with-next">Post metrics Tolko - Pluxee</h2>
         <TagsTable :tags="data.reachByTags" :topPosts="data.topPosts" />
       </div>
     </div>

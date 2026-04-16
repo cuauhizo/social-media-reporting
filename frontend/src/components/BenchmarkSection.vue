@@ -1,8 +1,8 @@
 <template>
   <section class="pdf-page">
     <div class="py-12 px-8 bg-white font-sans text-gray-800 min-h-screen">
-      <div class="max-w-7xl mx-auto min-h-screen">
-        <h2 class="text-3xl font-black text-pluxeeBlue mb-8 uppercase">Benchmark: Pluxee vs. Competitors</h2>
+      <div class="max-w-7xl mx-auto">
+        <h2 class="text-3xl font-black text-pluxeeBlue mb-8 uppercase keep-with-next">Benchmark: Pluxee vs. Competitors</h2>
 
         <div class="overflow-x-auto shadow-lg rounded-lg border border-gray-200">
           <table class="w-full text-left border-collapse">
@@ -20,7 +20,7 @@
               <tr v-for="comp in listaCompetidores" :key="comp.id" :class="['border-b border-gray-200 hover:bg-gray-50 transition-colors', comp.is_main_brand ? 'bg-pluxeeYellow bg-opacity-20 font-bold' : 'bg-white']">
                 <td class="p-4">
                   <div class="text-pluxeeBlue text-lg">{{ comp.brand_name }}</div>
-                  <div class="text-xs text-gray-500 font-normal truncate max-w-xs">{{ comp.description }}</div>
+                  <div class="text-xs text-gray-500 font-normal truncate max-w-xs py-1">{{ comp.description }}</div>
                 </td>
 
                 <td class="p-4 text-center text-xl text-pluxeeBlue font-black">{{ comp.posts_count }}</td>

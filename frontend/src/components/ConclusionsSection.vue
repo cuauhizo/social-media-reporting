@@ -1,9 +1,9 @@
 <template>
   <section class="pdf-page">
-    <div class="py-24 px-8 bg-gray-50 flex flex-col justify-center border-t border-gray-200">
+    <div class="p-8 min-h-screen bg-gray-50 flex flex-col justify-center border-t border-gray-200">
       <div class="max-w-4xl mx-auto w-full">
         <div class="text-center mb-10">
-          <h2 class="text-4xl font-black text-pluxeeBlue uppercase tracking-wide">Conclusión del Mes</h2>
+          <h2 class="text-4xl font-black text-pluxeeBlue uppercase tracking-wide keep-with-next">Conclusión del Mes</h2>
           <div class="h-1 w-24 bg-pluxeeYellow mx-auto mt-6"></div>
         </div>
 

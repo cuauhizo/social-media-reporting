@@ -3,8 +3,8 @@
     <div class="w-full h-32 bg-gradient-to-r from-[#833ab4] via-[#fd1d1d] to-[#fcb045] flex items-center justify-center shadow-inner px-4">
       <h2 class="text-4xl text-center font-black text-white tracking-widest uppercase">Instagram Metrics {{ data.username }}</h2>
     </div>
-    <div class="p-8 bg-white">
-      <div class="max-w-7xl mx-auto min-h-screen">
+    <div class="p-8 bg-white min-h-screen">
+      <div class="max-w-7xl mx-auto">
         <!-- <pre>{{ data }}</pre> -->
         <div class="grid grid-cols-12 gap-4">
           <div class="col-span-12">
@@ -86,13 +86,13 @@
     </div>
   </section>
   <section class="pdf-page">
-    <div class="max-w-7xl mx-auto min-h-screen px-4">
+    <div class="max-w-7xl mx-auto min-h-screen p-8">
       <div class="grid grid-cols-12 gap-4">
         <div class="col-span-12">
           <!-- <pre>{{ data.topPosts }}</pre> -->
-          <h3 class="text-2xl font-black text-pluxeeBlue mb-6 uppercase border-b-2 border-gray-100 py-10">Top Posts (Instagram)</h3>
+          <h3 class="text-2xl font-black text-pluxeeBlue mb-6 uppercase border-b-2 border-gray-100 py-10 keep-with-next">Top Posts (Instagram)</h3>
           <div v-if="data.topPosts && data.topPosts.length > 0" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-8">
-            <div v-for="post in data.topPosts" :key="post.id" class="flex flex-col shadow-md rounded-lg overflow-hidden no-break">
+            <div v-for="post in data.topPosts" :key="post.id" class="flex flex-col shadow-md rounded-lg overflow-hidden">
               <div class="bg-pluxeeBlue h-48 flex justify-center items-center p-2">
                 <img :src="post.img" class="object-cover h-full w-full" />
               </div>
@@ -124,11 +124,11 @@
     </div>
   </section>
   <section class="pdf-page top-story">
-    <div class="max-w-7xl mx-auto min-h-screen px-4">
+    <div class="max-w-7xl mx-auto min-h-screen p-8">
       <div class="grid grid-cols-12 gap-4">
         <div class="col-span-12">
           <!-- <pre>{{ data.topStories }}</pre> -->
-          <h3 class="text-2xl font-black text-pluxeeBlue mb-6 uppercase border-b-2 border-gray-100 py-10">Top Stories</h3>
+          <h3 class="text-2xl font-black text-pluxeeBlue mb-6 uppercase border-b-2 border-gray-100 py-10 keep-with-next">Top Stories</h3>
 
           <div v-if="data.topStories && data.topStories.length > 0" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-8">
             <div v-for="story in data.topStories" :key="story.id" class="flex flex-col shadow-sm border border-orange-100 rounded-2xl overflow-hidden hover:shadow-md transition-shadow bg-white">
@@ -166,9 +166,9 @@
     </div>
   </section>
   <section class="pdf-page">
-    <div class="bg-gray-100">
-      <div class="max-w-7xl mx-auto min-h-screen px-4">
-        <h2 class="text-2xl font-black text-pluxeeBlue mb-2 uppercase">Post metrics Tolko - Pluxee</h2>
+    <div class="p-8 min-h-screen bg-gray-100">
+      <div class="max-w-7xl mx-auto">
+        <h2 class="text-2xl font-black text-pluxeeBlue mb-2 uppercase keep-with-next">Post metrics Tolko - Pluxee</h2>
         <TagsTable :tags="data.reachByTags" :topPosts="data.topPosts" />
       </div>
     </div>

@@ -1,8 +1,8 @@
 <template>
   <section class="pdf-page">
-    <div class="py-12 px-8 bg-gray-50">
-      <div class="max-w-7xl mx-auto min-h-screen">
-        <h2 class="text-3xl font-black text-pluxeeBlue mb-8 uppercase">Customer Service & Complains</h2>
+    <div class="p-8 bg-gray-50">
+      <div class="max-w-7xl mx-auto">
+        <h2 class="text-3xl font-black text-pluxeeBlue mb-8 uppercase keep-with-next">Customer Service & Complains</h2>
         <!-- <pre>{{ metricas }}</pre> -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div class="bg-white p-6 rounded-xl shadow-md border-t-4 border-pluxeeBlue">

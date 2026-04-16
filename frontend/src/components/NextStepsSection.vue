@@ -1,8 +1,8 @@
 <template>
   <section class="pdf-page">
-    <div class="py-16 px-8 bg-white border-t border-gray-200">
-      <div class="max-w-7xl mx-auto min-h-screen">
-        <h2 class="text-4xl font-black text-pluxeeBlue mb-12 text-center uppercase tracking-widest">Next Steps</h2>
+    <div class="p-8 min-h-screen bg-white border-t border-gray-200">
+      <div class="max-w-7xl mx-auto">
+        <h2 class="text-4xl font-black text-pluxeeBlue mb-12 text-center uppercase tracking-widest keep-with-next">Next Steps</h2>
         <!-- <pre>{{ data }}</pre> -->
         <!-- <pre>{{ listaPropuestas }}</pre> -->
         <!-- <pre>{{ listaCompromisos }}</pre> -->

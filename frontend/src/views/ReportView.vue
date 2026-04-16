@@ -81,7 +81,10 @@
       // jsPDF: { unit: 'cm', format: [33.867, 19.05], orientation: 'landscape' },
       // jsPDF: { unit: 'cm', format: [33.867, 19.05], orientation: 'landscape'},
       // Solo usamos 'css' para respetar nuestras clases manuales
-      pagebreak: { mode: ['css'] },
+      pagebreak: {
+        mode: ['css', 'legacy'],
+        avoid: ['.no-break', 'tr'], // Evita cortar elementos con la clase no-break y también las filas de las tablas (tr)
+      },
     }
 
     // ✨ EL TRUCO DE LAS GRÁFICAS: Esperamos 600ms antes de tomar la foto
@@ -181,14 +184,26 @@
 <style>
   /* Fuerza un salto de página DESPUÉS de cualquier elemento con esta clase */
   .pdf-page {
-    page-break-after: always;
-    break-after: page;
+    page-break-after: always !important;
+    break-after: page !important;
   }
 
   /* Evita que una tarjeta o gráfica se parta a la mitad entre dos páginas */
   .no-break {
-    page-break-inside: avoid;
-    break-inside: avoid;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  /* Fuerza un salto de página ANTES de que empiece este elemento */
+  .force-new-page {
+    page-break-before: always !important;
+    break-before: page !important;
+  }
+
+  /* Evita que se corte la hoja justo DESPUÉS de este elemento (Ideal para Títulos) */
+  .keep-with-next {
+    page-break-after: avoid !important;
+    break-after: avoid !important;
   }
 
   @media print {
