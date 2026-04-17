@@ -47,38 +47,33 @@
             </div>
           </div>
           <div class="col-span-12 lg:col-span-6">
-            <div class="grid grid-cols-1 gap-6">
-              <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-pluxeeGreen">
-                <table class="w-full text-left">
-                  <thead>
-                    <tr class="text-gray-400 text-sm border-b border-gray-100">
-                      <th class="pb-1.5 font-medium w-8 text-center">#</th>
-                      <th class="pb-1.5 font-medium">City</th>
-                      <th class="pb-1.5 font-medium text-right">Followers</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-for="(city, index) in data.topCities" :key="index" class="no-break border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                      <td class="py-1 text-gray-400 font-medium text-center text-sm">{{ index + 1 }}</td>
-                      <td class="py-1 pr-1">
-                        <div class="text-sm text-gray-700">{{ city.name }}</div>
-                      </td>
-                      <td class="py-1 text-right text-pluxeeBlue font-bold">{{ formatNumber(city.followers) }}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
+            <div class="h-full flex flex-col bg-white p-6 rounded-xl shadow-sm border-l-4 border-pluxeeGreen">
+              <table class="w-full h-full text-left">
+                <thead>
+                  <tr class="text-gray-400 text-sm border-b border-gray-100">
+                    <th class="pb-1.5 font-medium w-8 text-center">#</th>
+                    <th class="pb-1.5 font-medium">City</th>
+                    <th class="pb-1.5 font-medium text-right">Followers</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(city, index) in data.topCities" :key="index" class="no-break border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                    <td class="py-1 text-gray-400 font-medium text-center text-sm">{{ index + 1 }}</td>
+                    <td class="py-1 pr-1">
+                      <div class="text-sm text-gray-700">{{ city.name }}</div>
+                    </td>
+                    <td class="py-1 text-right text-pluxeeBlue font-bold">{{ formatNumber(city.followers) }}</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
+
           <div class="col-span-12 md:col-span-6 lg:col-span-3">
-            <div class="grid grid-cols-1 md:col-3 gap-4">
-              <ReachChart :reachData="data.kpis.reach_by_type" />
-            </div>
+            <ReachChart class="h-full" :reachData="data.kpis.reach_by_type" />
           </div>
           <div class="col-span-12 md:col-span-6 lg:col-span-3">
-            <div class="grid grid-cols-1 md:col-3 gap-4">
-              <SentimentChart :sentimentData="data.kpis.sentiment" />
-            </div>
+            <SentimentChart class="h-full" :sentimentData="data.kpis.sentiment" />
           </div>
         </div>
       </div>

@@ -82,9 +82,9 @@ const getReportData = async (req, res) => {
             positive: fbSentiment?.positive || 0,
             negative: fbSentiment?.negative || 0,
           },
+          historicalFollowers: fbRealKpis?.historicalFollowers || [],
         },
         topCities: fbRealKpis?.topCities || [],
-        tableFollowers: fbRealKpis?.tableFollowers || [], // Nueva métrica para la tabla de benchmarking
         topPosts: topPostsFb,
         reachByTags: fbTags || [],
       },

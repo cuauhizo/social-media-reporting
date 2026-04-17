@@ -305,8 +305,8 @@ function leerKpisFacebookHootsuite() {
         // 1. CAPTURAR EL HISTÓRICO DIARIO
         if (keyDate && row[keyDate]) {
           if (!row[keyDate].toLowerCase().includes('total')) {
-            // Hootsuite es tramposo: buscamos el dato en la columna principal, y si no, en la secundaria
-            let dailyFollowers = parseInt(row[keyTotalFollowers]) || parseInt(row[keyFollowersForTable]) || 0
+            // Extraemos directamente de la columna que tú identificaste
+            let dailyFollowers = parseInt(row[keyFollowersForTable]) || parseInt(row[keyTotalFollowers]) || 0
 
             if (dailyFollowers > 0) {
               historicalFollowers.push({

@@ -1,7 +1,9 @@
 <template>
-  <div class="bg-white p-6 rounded-xl shadow-md w-full max-w-md mx-auto">
+  <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-tuColor h-full flex flex-col">
     <h3 class="text-pluxeeBlue font-bold mb-4 text-center">Sentiment Analysis</h3>
-    <Doughnut :data="chartData" :options="chartOptions" :plugins="[ChartDataLabels]" />
+    <div class="relative w-full flex-1 min-h-[230px]">
+      <Doughnut :data="chartData" :options="chartOptions" :plugins="[ChartDataLabels]" />
+    </div>
   </div>
 </template>
 

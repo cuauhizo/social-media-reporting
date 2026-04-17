@@ -1,8 +1,8 @@
 <template>
-  <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-[#1877F2]">
+  <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-[#1877F2] h-full flex flex-col">
     <h3 class="text-xl font-bold text-gray-800 mb-4">Follower Growth</h3>
 
-    <div class="relative w-full h-80">
+    <div class="relative w-full flex-1 min-h-[320px]">
       <Line v-if="chartDataObj" :data="chartDataObj" :options="chartOptions" />
       <div v-else class="flex h-full items-center justify-center text-gray-400 font-medium">No hay datos históricos para graficar en este periodo.</div>
     </div>
@@ -13,6 +13,7 @@
   import { computed } from 'vue'
   import { Line } from 'vue-chartjs'
   import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Filler, Legend } from 'chart.js'
+  import { formatDate } from '@/utils/formatters'
 
   ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Filler, Legend)
 
@@ -29,7 +30,7 @@
     }
 
     return {
-      labels: props.chartData.map(item => item.date || ''),
+      labels: props.chartData.map(item => formatDate(item.date) || ''),
       datasets: [
         {
           label: 'Total Followers',
