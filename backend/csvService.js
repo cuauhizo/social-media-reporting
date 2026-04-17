@@ -37,7 +37,7 @@ function leerKpisGenerales() {
 }
 
 // Lee 01_fb_overview_kpis.csv para obtener KPIs generales de Facebook (seguidores, clics, shares, etc.) y también las ciudades top
-function leerKpisFacebookHootsuite() {
+function leerKpisFacebookHootsuite_old() {
   return new Promise((resolve, reject) => {
     // Asegúrate de que el archivo se llame así en tu carpeta data/
     const rutaArchivo = path.join(__dirname, 'data', '01_fb_overview_kpis.csv')
@@ -138,6 +138,239 @@ function leerKpisFacebookHootsuite() {
       })
       .on('end', () => {
         console.log('✅ KPIs Generales de Facebook leídos directamente del reporte de Hootsuite!')
+        resolve(kpisMensuales)
+      })
+      .on('error', error => reject(error))
+  })
+}
+
+// Lee 01_fb_overview_kpis.csv para obtener KPIs generales de Facebook y también las ciudades top
+function leerKpisFacebookHootsuite_old2() {
+  let kpisMensuales = null
+  const historicalFollowers = [] // Se inicializa como arreglo vacío
+
+  return new Promise((resolve, reject) => {
+    // Asegúrate de que el archivo se llame así en tu carpeta data/
+    const rutaArchivo = path.join(__dirname, 'data', '01_fb_overview_kpis.csv')
+
+    if (!fs.existsSync(rutaArchivo)) {
+      console.log('⚠️ No se encontró 01_fb_overview_kpis.csv. Usando respaldo.')
+      return resolve(null)
+    }
+
+    let kpisMensuales = null
+    // ✨ NUEVO: Arreglo para guardar el crecimiento día por día
+    const historicalFollowers = []
+
+    fs.createReadStream(rutaArchivo)
+      .pipe(csv())
+      .on('data', row => {
+        const keys = Object.keys(row)
+
+        const keyDate = keys.find(k => k.toLowerCase().includes('Date (GMT)'))
+        const keyInteractions = keys.find(k => k.includes('Interacciones de la página'))
+        const keyTotalFollowers = keys.find(k => k.includes('Total followers'))
+        const keyNewFollowers = keys.find(k => k.includes('Nuevos seguidores'))
+        const keyReach = keys.find(k => k.includes('Alcance orgánico'))
+        const keyEngagement = keys.find(k => k.includes('Post engagement rate'))
+        const keyClics = keys.find(k => k.includes('Post link clicks'))
+        const keyShares = keys.find(k => k.includes('Post shares'))
+        const keyComments = keys.find(k => k.includes('Comentarios y respuestas'))
+        const keyImpressions = keys.find(k => k.includes('Impresiones orgánicas'))
+        const keyTimeVisualization = keys.find(k => k.includes('Tiempo de visualización'))
+        const keyPageOrganicReach = keys.find(k => k.includes('Alcance orgánico de la página'))
+        const keyNoFollowersViews = keys.find(k => k.includes('Vistas de página de no seguidores'))
+        const keyFollowersViews = keys.find(k => k.includes('Visualizaciones de seguidores'))
+        const keyFollowersForTable = keys.find(k => k.includes('Seguidores (This column might contain'))
+        const datoSeguidoresDiarios = row[keyTotalFollowers]
+
+        // ✨ NUEVO: Si hay una fecha y datos de seguidores, lo empujamos al arreglo histórico
+        if (keyDate && row[keyDate] && datoSeguidoresDiarios) {
+          if (!row[keyDate].toLowerCase().includes('total')) {
+            historicalFollowers.push({
+              date: row[keyDate],
+              followers: parseInt(datoSeguidoresDiarios) || 0,
+            })
+          }
+        }
+
+        // Solo guardamos si la fila tiene datos (ignoramos los días vacíos)
+        if (keyTotalFollowers && row[keyTotalFollowers]) {
+          // 1. Extraemos las columnas de las ciudades
+          const cityKeys = keys.filter(k => k.includes('Seguidores de la página > Ciudad'))
+
+          const topCities = cityKeys
+            .map(k => {
+              let cityName = 'Desconocida'
+
+              // 1. Identificamos si es la columna "Other"
+              if (k.includes('Other')) {
+                cityName = 'Other'
+              } else {
+                // Extraemos la parte después de "Ciudad - " y antes del primer "("
+                const rawName = k.split('Ciudad - ')[1]?.split(' (')[0] || ''
+                const parts = rawName.split(',')
+
+                // 2. Tomamos solo la Ciudad y el Estado (las primeras 2 partes separadas por coma)
+                if (parts.length >= 2) {
+                  cityName = `${parts[0].trim()}, ${parts[1].trim()}`
+                } else {
+                  // Respaldo por si viene sin comas
+                  cityName = rawName.trim()
+                }
+              }
+
+              return {
+                name: cityName,
+                followers: parseFloat(row[k]) || 0,
+              }
+            })
+            .filter(c => c.followers > 0)
+            // 3. ORDENAMIENTO INTELIGENTE
+            .sort((a, b) => {
+              if (a.name === 'Other') return 1
+              if (b.name === 'Other') return -1
+              return b.followers - a.followers
+            })
+
+          // Asignamos las métricas generales (Esto se sobrescribirá fila por fila,
+          // quedando con los datos de la última fila válida, que en Hootsuite suele ser el resumen total del mes)
+          kpisMensuales = {
+            interactions: parseFloat(row[keyInteractions]),
+            total_followers: parseFloat(row[keyTotalFollowers]),
+            new_followers: parseFloat(row[keyNewFollowers]),
+            reach: parseFloat(row[keyReach]),
+            post_impressions: parseFloat(row[keyImpressions]),
+            post_engagement_rate: parseFloat(row[keyEngagement]),
+            clics: parseFloat(row[keyClics]),
+            shares: parseFloat(row[keyShares]),
+            comments: parseFloat(row[keyComments]),
+            time_visualization: row[keyTimeVisualization],
+            page_organic_reach: parseFloat(row[keyPageOrganicReach]),
+            page_no_followers_views: parseFloat(row[keyNoFollowersViews]),
+            page_followers_views: parseFloat(row[keyFollowersViews]),
+            topCities: topCities,
+            tableFollowers: followers,
+          }
+        }
+      })
+      .on('end', () => {
+        console.log('✅ KPIs Generales de Facebook leídos directamente del reporte de Hootsuite!')
+
+        if (kpisMensuales) {
+          // Si no se encontró nada en el CSV, historicalFollowers seguirá siendo []
+          kpisMensuales.historicalFollowers = historicalFollowers
+        }
+        resolve(kpisMensuales)
+      })
+      .on('error', error => reject(error))
+  })
+}
+
+// Lee 01_fb_overview_kpis.csv para obtener KPIs generales de Facebook y también las ciudades top
+function leerKpisFacebookHootsuite() {
+  return new Promise((resolve, reject) => {
+    const rutaArchivo = path.join(__dirname, 'data', '01_fb_overview_kpis.csv')
+
+    if (!fs.existsSync(rutaArchivo)) {
+      console.log('⚠️ No se encontró 01_fb_overview_kpis.csv. Usando respaldo.')
+      return resolve(null)
+    }
+
+    let kpisMensuales = null
+    const historicalFollowers = []
+
+    fs.createReadStream(rutaArchivo)
+      .pipe(csv())
+      .on('data', row => {
+        const keys = Object.keys(row)
+
+        const keyDate = keys.find(k => k.toLowerCase().includes('date') || k.toLowerCase().includes('fecha') || k.toLowerCase().includes('día'))
+
+        const keyInteractions = keys.find(k => k.includes('Interacciones de la página'))
+        const keyTotalFollowers = keys.find(k => k.includes('Total followers'))
+        const keyFollowersForTable = keys.find(k => k.includes('Seguidores (This column might contain'))
+        const keyNewFollowers = keys.find(k => k.includes('Nuevos seguidores'))
+        const keyReach = keys.find(k => k.includes('Alcance orgánico'))
+        const keyEngagement = keys.find(k => k.includes('Post engagement rate'))
+        const keyClics = keys.find(k => k.includes('Post link clicks'))
+        const keyShares = keys.find(k => k.includes('Post shares'))
+        const keyComments = keys.find(k => k.includes('Comentarios y respuestas'))
+        const keyImpressions = keys.find(k => k.includes('Impresiones orgánicas'))
+        const keyTimeVisualization = keys.find(k => k.includes('Tiempo de visualización'))
+        const keyPageOrganicReach = keys.find(k => k.includes('Alcance orgánico de la página'))
+        const keyNoFollowersViews = keys.find(k => k.includes('Vistas de página de no seguidores'))
+        const keyFollowersViews = keys.find(k => k.includes('Visualizaciones de seguidores'))
+
+        // 1. CAPTURAR EL HISTÓRICO DIARIO
+        if (keyDate && row[keyDate]) {
+          if (!row[keyDate].toLowerCase().includes('total')) {
+            // Hootsuite es tramposo: buscamos el dato en la columna principal, y si no, en la secundaria
+            let dailyFollowers = parseInt(row[keyTotalFollowers]) || parseInt(row[keyFollowersForTable]) || 0
+
+            if (dailyFollowers > 0) {
+              historicalFollowers.push({
+                date: row[keyDate],
+                followers: dailyFollowers,
+              })
+            }
+          }
+        }
+
+        // 2. CAPTURAR EL RESUMEN TOTAL Y CIUDADES
+        // Hootsuite pone los totales en la última fila válida o donde vienen las interacciones
+        if (keyInteractions && row[keyInteractions] && keyTotalFollowers && row[keyTotalFollowers]) {
+          const cityKeys = keys.filter(k => k.includes('Seguidores de la página > Ciudad'))
+          const topCities = cityKeys
+            .map(k => {
+              let cityName = 'Desconocida'
+              if (k.includes('Other')) {
+                cityName = 'Other'
+              } else {
+                const rawName = k.split('Ciudad - ')[1]?.split(' (')[0] || ''
+                const parts = rawName.split(',')
+                if (parts.length >= 2) {
+                  cityName = `${parts[0].trim()}, ${parts[1].trim()}`
+                } else {
+                  cityName = rawName.trim()
+                }
+              }
+              return { name: cityName, followers: parseFloat(row[k]) || 0 }
+            })
+            .filter(c => c.followers > 0)
+            .sort((a, b) => {
+              if (a.name === 'Other') return 1
+              if (b.name === 'Other') return -1
+              return b.followers - a.followers
+            })
+
+          kpisMensuales = {
+            interactions: parseFloat(row[keyInteractions]),
+            total_followers: parseFloat(row[keyTotalFollowers]),
+            new_followers: parseFloat(row[keyNewFollowers]),
+            reach: parseFloat(row[keyReach]),
+            post_impressions: parseFloat(row[keyImpressions]),
+            post_engagement_rate: parseFloat(row[keyEngagement]),
+            clics: parseFloat(row[keyClics]),
+            shares: parseFloat(row[keyShares]),
+            comments: parseFloat(row[keyComments]),
+            time_visualization: row[keyTimeVisualization],
+            page_organic_reach: parseFloat(row[keyPageOrganicReach]),
+            page_no_followers_views: parseFloat(row[keyNoFollowersViews]),
+            page_followers_views: parseFloat(row[keyFollowersViews]),
+            topCities: topCities,
+            tableFollowers: parseFloat(row[keyFollowersForTable]) || 0,
+          }
+        }
+      })
+      .on('end', () => {
+        console.log('✅ KPIs Generales de Facebook leídos directamente del reporte de Hootsuite!')
+
+        // ✨ Le inyectamos el histórico de seguidores a nuestro objeto de KPIs
+        if (kpisMensuales) {
+          kpisMensuales.historicalFollowers = historicalFollowers
+        }
+
         resolve(kpisMensuales)
       })
       .on('error', error => reject(error))

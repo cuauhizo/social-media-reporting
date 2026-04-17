@@ -84,7 +84,7 @@ const getReportData = async (req, res) => {
           },
         },
         topCities: fbRealKpis?.topCities || [],
-        followersForTable: fbRealKpis?.tableFollowers || 0, // Nueva métrica para la tabla de benchmarking
+        tableFollowers: fbRealKpis?.tableFollowers || [], // Nueva métrica para la tabla de benchmarking
         topPosts: topPostsFb,
         reachByTags: fbTags || [],
       },

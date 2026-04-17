@@ -27,7 +27,10 @@
           </div>
           <div class="col-span-12 xl:col-span-3">
             <SentimentChart :sentimentData="data.kpis.sentiment" />
-            <FollowerGrowthChart v-if="data.historicalFollowers" :chartData="data.historicalFollowers" />
+          </div>
+          <pre>{{ data.kpis.historicalFollowers }}</pre>
+          <div class="col-span-12 mt-8 no-break">
+            <FollowerGrowthChart v-if="data.kpis && Array.isArray(data.kpis.historicalFollowers) && data.kpis.historicalFollowers.length > 0" :chartData="data.kpis.historicalFollowers" />
           </div>
         </div>
       </div>
@@ -96,9 +99,9 @@
 <script setup>
   import PostCard from '@/components/PostCard.vue'
   import SentimentChart from '@/components/SentimentChart.vue'
-  import FollowerGrowthChart from '@/components/FollowerGrowthChart.vue'
   import TagsTable from './TagsTable.vue'
   import KpiCard from '@/components/KpiCard.vue'
+  import FollowerGrowthChart from '@/components/FollowerGrowthChart.vue'
   import { formatNumber } from '@/utils/formatters'
 
   // ✨ LA FUNCIÓN MATEMÁTICA QUE DIVIDE EL ARREGLO
