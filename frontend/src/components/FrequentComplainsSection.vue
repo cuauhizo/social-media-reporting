@@ -7,9 +7,9 @@
 
         <div class="grid grid-cols-12">
           <div class="col-span-12 md:col-span-8 md:col-start-3">
-            <div class="bg-white p-6 rounded-xl shadow-md border-t-4 border-yellow-400">
+            <div class="bg-gray-50 p-6 rounded-xl shadow-md border-t-4 border-yellow-400">
               <ul class="space-y-3">
-                <li v-for="(item, index) in listaQuejas" :key="item.id" class="flex items-start bg-gray-50 p-3 rounded-lg border border-gray-100 no-break">
+                <li v-for="(item, index) in listaQuejas" :key="item.id" class="flex items-start bg-gray-50 p-3 rounded-lg border border-gray-200 no-break">
                   <div class="w-8 h-8 rounded-full bg-pluxeeBlue text-white flex justify-center items-center font-bold mr-4 shrink-0">
                     {{ index + 1 }}
                   </div>

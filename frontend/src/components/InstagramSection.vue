@@ -88,10 +88,10 @@
   <template v-if="data.topPosts && data.topPosts.length > 0">
     <section v-for="(grupoPosts, index) in agruparPorFilas(data.topPosts, 10)" :key="'pagina-post-ig-' + index" class="pdf-page flex flex-col justify-start min-h-screen bg-gray-50 p-8">
       <div class="max-w-7xl mx-auto w-full">
-        <div v-if="index === 0">
-          <h3 class="text-2xl font-black text-pluxeeBlue mb-6 uppercase border-b-2 border-gray-100 py-4 keep-with-next">Top Posts (Instagram)</h3>
-        </div>
-        <div v-else class="mt-12"></div>
+        <!-- <div v-if="index === 0"> -->
+        <h3 class="text-2xl font-black text-pluxeeBlue mb-6 uppercase border-b-2 border-gray-100 py-4 keep-with-next">Top Posts (Instagram)</h3>
+        <!-- </div>
+        <div v-else class="mt-12"></div> -->
 
         <div v-for="(fila, indiceFila) in agruparPorFilas(grupoPosts, 5)" :key="'fila-post-ig-' + index + '-' + indiceFila" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-4">
           <div v-for="post in fila" :key="post.id" class="flex flex-col shadow-md rounded-lg overflow-hidden">
@@ -134,10 +134,10 @@
   <template v-if="data.topStories && data.topStories.length > 0">
     <section v-for="(grupoStories, index) in agruparPorFilas(data.topStories, 10)" :key="'pagina-story-' + index" class="pdf-page flex flex-col justify-start min-h-screen bg-white p-8">
       <div class="max-w-7xl mx-auto w-full">
-        <div v-if="index === 0" class="no-break">
-          <h3 class="text-2xl font-black text-pluxeeBlue mb-6 uppercase border-b-2 border-gray-100 py-4 keep-with-next">Top Stories</h3>
-        </div>
-        <div v-else class="mt-12"></div>
+        <!-- <div v-if="index === 0" class="no-break"> -->
+        <h3 class="text-2xl font-black text-pluxeeBlue mb-6 uppercase border-b-2 border-gray-100 py-4 keep-with-next">Top Stories</h3>
+        <!-- </div>
+        <div v-else class="mt-12"></div> -->
 
         <div v-for="(fila, indiceFila) in agruparPorFilas(grupoStories, 5)" :key="'fila-story-' + index + '-' + indiceFila" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-4">
           <div v-for="story in fila" :key="story.id" class="flex flex-col shadow-sm border border-orange-100 rounded-2xl overflow-hidden hover:shadow-md transition-shadow bg-white">
