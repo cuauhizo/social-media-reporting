@@ -37,10 +37,26 @@
       // jsPDF: { unit: 'cm', format: [33.867, 19.05], orientation: 'landscape' },
       // Solo usamos 'css' para respetar nuestras clases manuales
       pagebreak: {
-        mode: ['css', 'legacy'],
+        mode: ['css'],
         avoid: ['.no-break', 'tr'], // Evita cortar elementos con la clase no-break y también las filas de las tablas (tr)
       },
     }
+
+    // const opt = {
+    //   margin: [0, 0],
+    //   filename: `Reporte_Pluxee_${reportData.value?.metadata?.period || 'Mensual'}.pdf`,
+    //   image: { type: 'jpeg', quality: 0.98 },
+    //   html2canvas: {
+    //     scale: 2,
+    //     useCORS: true,
+    //     letterRendering: true,
+    //   },
+    //   jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
+    //   // ✨ CAMBIO AQUÍ: Solo usamos el modo CSS para respetar nuestras clases manuales. Quitamos 'legacy' y 'avoid'
+    //   pagebreak: {
+    //     mode: ['css'],
+    //   },
+    // }
 
     // ✨ EL TRUCO DE LAS GRÁFICAS: Esperamos 600ms antes de tomar la foto
     setTimeout(() => {

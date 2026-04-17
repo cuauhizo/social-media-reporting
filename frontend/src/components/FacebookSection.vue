@@ -58,16 +58,26 @@
     </div>
   </section>
 
-  <section class="pdf-page flex flex-col justify-center min-h-screen bg-gray-50 p-8">
-    <div class="max-w-7xl mx-auto w-full">
-      <h2 class="text-2xl font-black text-pluxeeBlue mb-2 uppercase keep-with-next">Post Metrics</h2>
-      <p class="text-sm text-gray-600 mb-8 font-bold">Ordenados de mayor a menor alcance en Facebook</p>
+  <template v-if="data.topPosts && data.topPosts.length > 0">
+    <section v-for="(grupo, index) in agruparPorFilas(data.topPosts, 10)" :key="'pagina-post-' + index" class="pdf-page flex flex-col justify-start min-h-screen bg-gray-50 p-8 bg-green-600-old">
+      <div class="max-w-7xl mx-auto w-full">
+        <div v-if="index === 0">
+          <h2 class="text-2xl font-black text-pluxeeBlue mb-2 uppercase keep-with-next">Post Metrics</h2>
+          <p class="text-sm text-gray-600 mb-4 font-bold">Ordenados de mayor a menor alcance en Facebook</p>
+        </div>
+        <div v-else class="mt-12"></div>
 
-      <div v-if="data.topPosts && data.topPosts.length > 0" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">
-        <PostCard v-for="post in data.topPosts" :key="post.id" :post="post" class="no-break" />
+        <div v-for="(fila, indiceFila) in agruparPorFilas(grupo, 5)" :key="'fila-' + index + '-' + indiceFila" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-4">
+          <PostCard v-for="post in fila" :key="post.id" :post="post" />
+        </div>
       </div>
+    </section>
+  </template>
 
-      <div v-else class="bg-gray-50 rounded-2xl p-8 text-center border border-gray-100 mt-6">
+  <section v-else class="pdf-page flex flex-col justify-center min-h-screen bg-gray-50 p-8">
+    <div class="max-w-7xl mx-auto w-full">
+      <h2 class="text-2xl font-black text-pluxeeBlue mb-2 uppercase">Post Metrics</h2>
+      <div class="bg-gray-50 rounded-2xl p-8 text-center border border-gray-100 mt-6">
         <p class="text-gray-500 font-medium">No se encontraron publicaciones en Facebook para este periodo.</p>
       </div>
     </div>
@@ -87,6 +97,12 @@
   import TagsTable from './TagsTable.vue'
   import KpiCard from '@/components/KpiCard.vue'
   import { formatNumber } from '@/utils/formatters'
+
+  // ✨ LA FUNCIÓN MATEMÁTICA QUE DIVIDE EL ARREGLO
+  const agruparPorFilas = (arreglo, tamañoFila) => {
+    if (!arreglo || !arreglo.length) return []
+    return Array.from({ length: Math.ceil(arreglo.length / tamañoFila) }, (v, i) => arreglo.slice(i * tamañoFila, i * tamañoFila + tamañoFila))
+  }
 
   defineProps({
     data: Object,
