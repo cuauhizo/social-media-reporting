@@ -56,7 +56,9 @@ function leerKpisFacebookHootsuite() {
 
         // Buscamos los nombres de las columnas reales usando palabras clave
         const keyInteractions = keys.find(k => k.includes('Interacciones de la página'))
-        const keyFollowers = keys.find(k => k.includes('Total followers'))
+        const keyTotalFollowers = keys.find(k => k.includes('Total followers'))
+        const keyNewFollowers = keys.find(k => k.includes('Nuevos seguidores'))
+        // const keyPublications = keys.find(k => k.includes('Publications'))
         const keyReach = keys.find(k => k.includes('Alcance orgánico'))
         const keyEngagement = keys.find(k => k.includes('Post engagement rate'))
         const keyClics = keys.find(k => k.includes('Post link clicks'))
@@ -67,9 +69,11 @@ function leerKpisFacebookHootsuite() {
         const keyPageOrganicReach = keys.find(k => k.includes('Alcance orgánico de la página'))
         const keyNoFollowersViews = keys.find(k => k.includes('Vistas de página de no seguidores'))
         const keyFollowersViews = keys.find(k => k.includes('Visualizaciones de seguidores'))
+        const keyFollowersForTable = keys.find(k => k.includes('Seguidores (This column might contain'))
+        // Seguidores (This column might contain
 
         // Solo guardamos si la fila tiene datos (ignoramos los días vacíos)
-        if (keyFollowers && row[keyFollowers]) {
+        if (keyTotalFollowers && row[keyTotalFollowers]) {
           // 1. Extraemos las columnas de las ciudades
           const cityKeys = keys.filter(k => k.includes('Seguidores de la página > Ciudad'))
 
@@ -114,7 +118,9 @@ function leerKpisFacebookHootsuite() {
 
           kpisMensuales = {
             interactions: parseFloat(row[keyInteractions]),
-            followers: parseFloat(row[keyFollowers]),
+            total_followers: parseFloat(row[keyTotalFollowers]),
+            new_followers: parseFloat(row[keyNewFollowers]),
+            // publications: parseFloat(row[keyPublications]),
             reach: parseFloat(row[keyReach]),
             post_impressions: parseFloat(row[keyImpressions]),
             post_engagement_rate: parseFloat(row[keyEngagement]),
@@ -126,6 +132,7 @@ function leerKpisFacebookHootsuite() {
             page_no_followers_views: parseFloat(row[keyNoFollowersViews]),
             page_followers_views: parseFloat(row[keyFollowersViews]),
             topCities: topCities,
+            tableFollowers: parseFloat(row[keyFollowersForTable]) || 0,
           }
         }
       })

@@ -64,7 +64,9 @@ const getReportData = async (req, res) => {
         kpis: {
           month: manualKpis?.month || 'Periodo Actual',
           interactions: fbRealKpis?.interactions || 0,
-          followers: fbRealKpis?.followers || 0,
+          total_followers: fbRealKpis?.total_followers || 0,
+          new_followers: fbRealKpis?.new_followers || 0,
+          // publications: fbRealKpis?.publications || 0,
           clics: fbRealKpis?.clics || 0,
           shares: fbRealKpis?.shares || 0,
           responding: fbRealKpis?.comments || 0,
@@ -82,6 +84,7 @@ const getReportData = async (req, res) => {
           },
         },
         topCities: fbRealKpis?.topCities || [],
+        followersForTable: fbRealKpis?.tableFollowers || 0, // Nueva métrica para la tabla de benchmarking
         topPosts: topPostsFb,
         reachByTags: fbTags || [],
       },

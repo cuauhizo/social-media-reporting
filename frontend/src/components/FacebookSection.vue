@@ -3,7 +3,7 @@
     <div class="w-full h-32 bg-[#1877F2] shrink-0 flex items-center justify-center shadow-inner px-4">
       <h2 class="text-4xl text-center font-black text-white tracking-widest uppercase">Facebook Metrics {{ data.username }}</h2>
     </div>
-
+    <!-- <pre>{{ data }}</pre> -->
     <div class="flex-1 flex flex-col justify-center p-8 w-full">
       <div class="max-w-7xl mx-auto w-full">
         <h1 class="text-2xl font-bold text-pluxeeBlue mb-6">Social Media Report - {{ data.kpis.month }}</h1>
@@ -12,7 +12,7 @@
           <div class="col-span-12 xl:col-span-9">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-center">
               <KpiCard title="Page Engagement" :value="formatNumber(data.kpis.interactions)" />
-              <KpiCard title="Total followers" :value="formatNumber(data.kpis.followers)" />
+              <KpiCard title="Total followers" :value="formatNumber(data.kpis.total_followers)" />
               <KpiCard title="Clicks organic Link" :value="formatNumber(data.kpis.clics)" />
               <KpiCard title="Post shares" :value="data.kpis.shares" />
               <KpiCard title="Responding" :value="data.kpis.responding" />
@@ -22,10 +22,12 @@
               <KpiCard title="Page organic reach" :value="formatNumber(data.kpis.page_organic_reach)" />
               <KpiCard title="Views from non-followers" :value="formatNumber(data.kpis.page_no_followers_views)" />
               <KpiCard title="Views from followers" :value="formatNumber(data.kpis.page_followers_views)" />
+              <KpiCard title="New followers" :value="formatNumber(data.kpis.new_followers)" />
             </div>
           </div>
           <div class="col-span-12 xl:col-span-3">
             <SentimentChart :sentimentData="data.kpis.sentiment" />
+            <FollowerGrowthChart v-if="data.historicalFollowers" :chartData="data.historicalFollowers" />
           </div>
         </div>
       </div>
@@ -94,6 +96,7 @@
 <script setup>
   import PostCard from '@/components/PostCard.vue'
   import SentimentChart from '@/components/SentimentChart.vue'
+  import FollowerGrowthChart from '@/components/FollowerGrowthChart.vue'
   import TagsTable from './TagsTable.vue'
   import KpiCard from '@/components/KpiCard.vue'
   import { formatNumber } from '@/utils/formatters'
