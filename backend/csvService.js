@@ -135,7 +135,7 @@ function leerKpisFacebookHootsuite() {
       .on('end', () => {
         console.log('✅ KPIs Generales de Facebook leídos directamente del reporte de Hootsuite!')
 
-        // ✨ Le inyectamos el histórico de seguidores a nuestro objeto de KPIs
+        //  Le inyectamos el histórico de seguidores a nuestro objeto de KPIs
         if (kpisMensuales) {
           kpisMensuales.historicalFollowers = historicalFollowers
         }
@@ -194,7 +194,7 @@ function leerKpisInstagramHootsuite() {
             // Extraemos directamente de la columna que tú identificaste
             let dailyFollowers = parseInt(row[keyHistoryFollowers]) || 0
 
-            if (dailyFollowers > 0) {
+            if (dailyFollowers >= 0) {
               historicalFollowers.push({
                 date: row[keyDate],
                 followers: dailyFollowers,

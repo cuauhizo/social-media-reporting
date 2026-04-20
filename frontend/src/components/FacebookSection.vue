@@ -61,7 +61,7 @@
         </div>
 
         <div class="col-span-12 xl:col-span-7">
-          <FollowerGrowthChart class="h-full" v-if="data.kpis && Array.isArray(data.kpis.historicalFollowers) && data.kpis.historicalFollowers.length > 0" :chartData="data.kpis.historicalFollowers" />
+          <FollowerGrowthChart color="#1877F2" class="h-full" v-if="data.kpis && Array.isArray(data.kpis.historicalFollowers) && data.kpis.historicalFollowers.length > 0" :chartData="data.kpis.historicalFollowers" />
         </div>
       </div>
     </div>
@@ -108,7 +108,7 @@
   import FollowerGrowthChart from '@/components/FollowerGrowthChart.vue'
   import { formatNumber } from '@/utils/formatters'
 
-  // ✨ LA FUNCIÓN MATEMÁTICA QUE DIVIDE EL ARREGLO
+  //  LA FUNCIÓN MATEMÁTICA QUE DIVIDE EL ARREGLO
   const agruparPorFilas = (arreglo, tamañoFila) => {
     if (!arreglo || !arreglo.length) return []
     return Array.from({ length: Math.ceil(arreglo.length / tamañoFila) }, (v, i) => arreglo.slice(i * tamañoFila, i * tamañoFila + tamañoFila))

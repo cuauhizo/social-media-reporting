@@ -75,9 +75,19 @@
           <div class="col-span-12 md:col-span-6 lg:col-span-3">
             <SentimentChart class="h-full" :sentimentData="data.kpis.sentiment" />
           </div>
-          <pre>{{ data }}</pre>
-          <div class="col-span-12">
-            <FollowerGrowthChart class="" v-if="data.kpis && Array.isArray(data.kpis.historicalFollowers) && data.kpis.historicalFollowers.length > 0" :chartData="data.kpis.historicalFollowers" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="pdf-page flex flex-col justify-center min-h-screen bg-gray-100 p-8">
+    <div class="max-w-7xl mx-auto w-full">
+      <h2 class="text-2xl font-black text-pluxeeBlue mb-6 uppercase keep-with-next">Followers</h2>
+      <div class="grid grid-cols-12 gap-4">
+        <div class="col-span-12 xl:col-span-7 xl:col-start-4">
+          <!-- <pre>{{ data }}</pre> -->
+          <div class="col-span-12 no-break">
+            <FollowerGrowthChart color="#e1306c" class="" v-if="data.kpis && Array.isArray(data.kpis.historicalFollowers) && data.kpis.historicalFollowers.length > 0" :chartData="data.kpis.historicalFollowers" />
           </div>
         </div>
       </div>
@@ -193,7 +203,7 @@
   import ReachChart from './ReachChart.vue'
   import FollowerGrowthChart from '@/components/FollowerGrowthChart.vue'
 
-  // ✨ FUNCIÓN PARA AGRUPAR EN PÁGINAS Y FILAS
+  //  FUNCIÓN PARA AGRUPAR EN PÁGINAS Y FILAS
   const agruparPorFilas = (arreglo, tamañoFila) => {
     if (!arreglo || !arreglo.length) return []
     return Array.from({ length: Math.ceil(arreglo.length / tamañoFila) }, (v, i) => arreglo.slice(i * tamañoFila, i * tamañoFila + tamañoFila))

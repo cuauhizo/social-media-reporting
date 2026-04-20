@@ -1,7 +1,7 @@
 const { getSocialMetrics } = require('../hootsuiteService')
 const { leerPublicacionesCSV, leerKpisGenerales, leerKpisFacebookHootsuite, leerKpisInstagramHootsuite, leerSentimientos, leerAlcancePorTags } = require('../csvService')
 const { formatFacebookPosts, formatInstagramPosts, formatCasData } = require('../utils/formatters')
-const { pool } = require('../utils/db') // ✨ IMPORTANTE: Traemos la BD para el Benchmark
+const { pool } = require('../utils/db') //  IMPORTANTE: Traemos la BD para el Benchmark
 
 const getReportData = async (req, res) => {
   try {
@@ -116,7 +116,7 @@ const getReportData = async (req, res) => {
         reachByTags: igTags || [],
       },
 
-      // ✨ Benchmarking ahora es dinámico y real ✨
+      //  Benchmarking ahora es dinámico y real
       benchmarking: competitorsList,
       benchmarkInsights: manualKpis.benchmark_insight || [],
 
