@@ -10,7 +10,7 @@
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-4">
               <div class="bg-gray-50 p-6 rounded-xl border-l-4 border-[#e1306c] shadow-sm">
                 <p class="text-gray-500 text-sm font-bold">Followers</p>
-                <h2 class="text-3xl font-black text-pluxeeBlue">{{ formatNumber(data.kpis.followers) }}</h2>
+                <h2 class="text-3xl font-black text-pluxeeBlue">{{ formatNumber(data.kpis.total_followers) }}</h2>
               </div>
               <div class="bg-gray-50 p-6 rounded-xl border-l-4 border-[#e1306c] shadow-sm">
                 <p class="text-gray-500 text-sm font-bold">Page Engagement</p>
@@ -74,6 +74,10 @@
           </div>
           <div class="col-span-12 md:col-span-6 lg:col-span-3">
             <SentimentChart class="h-full" :sentimentData="data.kpis.sentiment" />
+          </div>
+          <pre>{{ data }}</pre>
+          <div class="col-span-12">
+            <FollowerGrowthChart class="" v-if="data.kpis && Array.isArray(data.kpis.historicalFollowers) && data.kpis.historicalFollowers.length > 0" :chartData="data.kpis.historicalFollowers" />
           </div>
         </div>
       </div>
@@ -187,6 +191,7 @@
   import SentimentChart from './SentimentChart.vue'
   import TagsTable from './TagsTable.vue'
   import ReachChart from './ReachChart.vue'
+  import FollowerGrowthChart from '@/components/FollowerGrowthChart.vue'
 
   // ✨ FUNCIÓN PARA AGRUPAR EN PÁGINAS Y FILAS
   const agruparPorFilas = (arreglo, tamañoFila) => {

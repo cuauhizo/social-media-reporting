@@ -92,7 +92,7 @@ const getReportData = async (req, res) => {
       instagram: {
         username: hootsuiteData?.instagram?.username || 'Pluxee IG',
         kpis: {
-          followers: igRealKpis?.followers || 0,
+          total_followers: igRealKpis?.total_followers || 0,
           page_engagement_rate: `${igRealKpis?.page_engagement_rate || 0}%`,
           post_saves: igRealKpis?.post_saves || 0,
           post_likes: igRealKpis?.post_likes || 0,
@@ -108,6 +108,7 @@ const getReportData = async (req, res) => {
             positive: igSentiment?.positive || 0,
             negative: igSentiment?.negative || 0,
           },
+          historicalFollowers: igRealKpis?.historicalFollowers || [],
         },
         topCities: igRealKpis?.topCities || [],
         topPosts: topPostsIg,
