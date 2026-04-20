@@ -1,8 +1,8 @@
 <template>
   <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mt-12 mb-12">
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      <!-- <pre>{{ tags }}</pre> -->
       <div class="lg:col-span-2">
+        <!-- <pre>{{ tags }}</pre> -->
         <div v-if="tags && tags.length > 0" class="w-full h-96 relative">
           <Line :data="chartData" :options="chartOptions" />
         </div>
@@ -13,7 +13,6 @@
 
       <div class="bg-gray-50 rounded-xl p-5 border border-gray-100 flex flex-col">
         <h4 class="font-black text-gray-700 uppercase text-sm mb-4 border-b border-gray-200 pb-2">Top del Periodo</h4>
-        <!-- <pre>{{ topPosts }}</pre> -->
 
         <div v-if="topPosts && topPosts.length > 0" class="space-y-4">
           <div v-for="(post, index) in topPosts.slice(0, 3)" :key="post.id" class="flex flex-col sm:flex-row gap-4 items-center bg-white p-3 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
@@ -42,6 +41,7 @@
         <div v-else class="text-center text-gray-400 text-sm mt-10">No hay posts suficientes.</div>
       </div>
     </div>
+    <!-- <pre>{{ topPosts }}</pre> -->
   </div>
 </template>
 

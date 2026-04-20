@@ -5,6 +5,7 @@
   import ContextSection from '@/components/ContextSection.vue'
   import FacebookSection from '@/components/FacebookSection.vue'
   import InstagramSection from '@/components/InstagramSection.vue'
+  import TrendsSection from '@/components/TrendsSection.vue'
   import BenchmarkSection from '@/components/BenchmarkSection.vue'
   import CustomerServiceSection from '@/components/CustomerServiceSection.vue'
   import FrequentComplainsSection from '@/components/FrequentComplainsSection.vue'
@@ -20,6 +21,7 @@
 
   const exportToPDF = () => {
     isExporting.value = true
+    loading.value = true
 
     const element = document.getElementById('report-container')
 
@@ -47,6 +49,7 @@
         .save()
         .then(() => {
           isExporting.value = false
+          loading.value = false
         })
     }, 600) // 600 milisegundos de espera
   }
@@ -125,6 +128,7 @@
       <FacebookSection :data="reportData.facebook" />
       <BenchmarkSection :data="reportData.benchmarking" :insights="reportData.benchmarkInsights" />
       <InstagramSection :data="reportData.instagram" />
+      <TrendsSection :data="reportData.instagram" />
       <CustomerServiceSection :data="reportData.customerService" />
       <FrequentComplainsSection :data="reportData.customerService" />
       <NextStepsSection :data="reportData.nextSteps" />
