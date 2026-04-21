@@ -6,7 +6,7 @@
       </div>
       <div v-else class="mt-12"></div>
       <div class="flex-1 flex flex-col justify-start p-8 w-full">
-        <!-- <pre>{{ data.trendPosts }}</pre> -->
+        <pre>{{ data.trendPosts }}</pre>
         <div class="max-w-7xl mx-auto w-full">
           <div v-for="(fila, iFila) in agruparPorFilas(grupo, 5)" :key="'fila-trend-fb-' + index + '-' + iFila" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-8 mb-8">
             <PostCard v-for="post in fila" :key="post.id" :post="post" />

@@ -38,33 +38,68 @@ const getReportData = async (req, res) => {
     // 2. DATA FORMATTING & CLEANUP
     // Standardizing raw CSV/API data for the frontend
     const topPostsFb = formatFacebookPosts(fbPostsRaw, hootsuiteData?.facebook)
-    const trendPostsFb = topPostsFb.filter(post => post.tags && post.tags.toLowerCase().includes('#trend'))
     const { topPostsIg, topStoriesIg } = formatInstagramPosts(igPostsRaw, hootsuiteData?.instagram)
-    const trendPostsIg = topPostsIg.filter(post => post.tags && post.tags.toLowerCase().includes('#trend'))
     const dynamicCas = formatCasData(manualKpis)
 
     // Extrayendo los competidores de la respuesta de MySQL
     const competitorsList = dbCompetitors[0] || []
 
+    // ✨ NUEVO: CÁLCULO DE MES DINÁMICO
+    let mesDinamico = 'Periodo Actual'
+    if (fbRealKpis?.historicalFollowers && fbRealKpis.historicalFollowers.length > 0) {
+      const fechaRaw = fbRealKpis.historicalFollowers[0].date // Ej: "2026-03-01"
+      const dateObj = new Date(fechaRaw)
+      console.log(dateObj)
+      if (!isNaN(dateObj)) {
+        // Crea "marzo 2026" y luego capitalizamos la primera letra
+        const formateador = new Intl.DateTimeFormat('es-MX', { month: 'long', year: 'numeric', timeZone: 'UTC' })
+        const fechaFormateada = formateador.format(dateObj)
+        mesDinamico = fechaFormateada.charAt(0).toUpperCase() + fechaFormateada.slice(1) // "Marzo 2026"
+      }
+    }
+
+    // 3. DATABASE MERGE (Images & Videos)
+    const [dbImages] = await pool.query('SELECT post_id, image_url FROM post_images')
+
+    const mergeImages = posts => {
+      return posts.map(post => {
+        const dbImg = dbImages.find(img => img.post_id === post.id)
+        if (dbImg) {
+          return { ...post, img: dbImg.url }
+        }
+        return post
+      })
+    }
+
+    const finalTopPostsFb = mergeImages(topPostsFb)
+    const finalTopPostsIg = mergeImages(topPostsIg)
+
+    // ✨ ¡AQUÍ ES EL LUGAR CORRECTO PARA FILTRAR LOS TRENDS! ✨
+    // Lo hacemos usando "finalTopPosts..." para que ya traigan la URL de la base de datos
+    const trendPostsFb = finalTopPostsFb.filter(post => (post.tags && post.tags.toLowerCase().includes('#trend')) || post.tags.toLowerCase().includes('#treend'))
+    const trendPostsIg = finalTopPostsIg.filter(post => (post.tags && post.tags.toLowerCase().includes('#trend')) || post.tags.toLowerCase().includes('#treend'))
+    // const trendPostsFb = topPostsFb.filter(post => (post.tags && post.tags.toLowerCase().includes('#trend')) || post.tags.toLowerCase().includes('#treend'))
+    // const trendPostsIg = topPostsIg.filter(post => (post.tags && post.tags.toLowerCase().includes('#trend')) || post.tags.toLowerCase().includes('#treend'))
+    console.log(trendPostsFb)
     // 3. REPORT ASSEMBLY
     // Building the final JSON payload
     const fullReport = {
       metadata: {
         client: 'Pluxee',
         title: 'SOCIAL MEDIA REPORT',
-        period: manualKpis?.month || 'Periodo Actual',
+        period: mesDinamico,
         agency: 'TOLKO',
       },
 
       context: {
         title: 'Contexto actual de las RRSS',
-        insights: manualKpis.insight || ['No hay insights registrados en este periodo.'],
+        insights: ['No hay insights registrados en este periodo.'],
       },
 
       facebook: {
         username: hootsuiteData?.facebook?.username || 'Pluxee FB',
         kpis: {
-          month: manualKpis?.month || 'Periodo Actual',
+          month: mesDinamico,
           interactions: fbRealKpis?.interactions || 0,
           total_followers: fbRealKpis?.total_followers || 0,
           new_followers: fbRealKpis?.new_followers || 0,
@@ -122,24 +157,24 @@ const getReportData = async (req, res) => {
 
       //  Benchmarking ahora es dinámico y real
       benchmarking: competitorsList,
-      benchmarkInsights: manualKpis.benchmark_insight || [],
+      benchmarkInsights: ['No hay insights de benchmarking registrados en este periodo.'],
 
       customerService: {
         cas: dynamicCas,
         messages: {
-          total: manualKpis.cs_total || 0,
-          escalated: manualKpis.cs_escalated || 0,
+          total: 0,
+          escalated: 0,
           breakdown: {
-            facebook: { count: manualKpis.msj_fb || 0, percentage: manualKpis.percentage_fb || 0 },
-            instagram: { count: manualKpis.msj_ig || 0, percentage: manualKpis.percentage_ig || 0 },
+            facebook: { count: 0, percentage: 0 },
+            instagram: { count: 0, percentage: 0 },
           },
         },
-        complaints: (manualKpis.complaint || []).map((text, index) => ({ id: index + 1, topic: text })),
+        complaints: ['No hay quejas registradas en este periodo.'],
       },
 
       nextSteps: {
-        proposals: manualKpis.proposal || ['No hay propuestas registradas.'],
-        commitments: manualKpis.commitment || ['No hay compromisos registrados.'],
+        proposals: ['No hay propuestas registradas.'],
+        commitments: ['No hay compromisos registrados.'],
       },
     }
 

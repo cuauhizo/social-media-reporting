@@ -3,7 +3,7 @@
     <div class="bg-pluxeeBlue p-4 flex justify-center items-center h-36">
       <img :src="post.img" class="object-cover h-full w-full" />
     </div>
-    <!-- <pre>{{ post }}</pre> -->
+    <pre>{{ post }}</pre>
     <div class="bg-pluxeeYellow p-4 text-pluxeeBlue font-sans">
       <div class="font-bold text-xs mb-1 uppercase tracking-widest text-center">
         {{ post.type }}
