@@ -161,33 +161,6 @@
       </section>
 
       <section class="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm mb-10">
-        <h2 class="text-2xl font-black text-pluxeeBlue uppercase mb-6 flex items-center">
-          <span class="mr-3">💡</span>
-          Editar Insights de Benchmark
-        </h2>
-
-        <div class="flex gap-4 mb-8">
-          <input
-            v-model="nuevoBenchmarkInsight"
-            type="text"
-            placeholder="Escribe una conclusión del análisis de competencia..."
-            class="flex-1 border-2 border-gray-200 rounded-xl px-4 py-2 focus:border-pluxeeBlue outline-none transition"
-            @keyup.enter="agregarBenchmarkInsight" />
-          <button @click="agregarBenchmarkInsight" class="bg-pluxeeBlue text-white px-6 py-2 rounded-xl font-bold hover:scale-105 transition active:scale-95">Agregar +</button>
-        </div>
-
-        <div class="space-y-3">
-          <div v-for="item in listaBenchmarkInsights" :key="item.id" class="flex items-center justify-between bg-gray-50 p-4 rounded-xl border border-gray-100 group">
-            <div class="flex-1">
-              <input v-model="item.insight" class="bg-transparent w-full font-medium text-gray-700 outline-none focus:text-pluxeeBlue" @change="actualizarBenchmarkInsight(item)" />
-            </div>
-            <button @click="borrarBenchmarkInsight(item.id)" class="text-red-400 hover:text-red-600 ml-4 opacity-0 group-hover:opacity-100 transition">🗑️ Borrar</button>
-          </div>
-          <div v-if="listaBenchmarkInsights.length === 0" class="text-center text-gray-400 py-4 italic">No hay conclusiones registradas. ¡Excelente trabajo del equipo!</div>
-        </div>
-      </section>
-
-      <section class="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm mb-10">
         <h2 class="text-2xl font-black text-red-500 uppercase mb-6 flex items-center">
           <span class="mr-3">⚠️</span>
           Editar Principales Quejas (CS)
@@ -380,7 +353,7 @@
         <div v-if="postsParaEditar.length > 0" class="grid grid-cols-2 md:grid-cols-4 gap-6">
           <div v-for="post in postsParaEditar" :key="post.id" class="bg-white border border-gray-200 p-4 rounded-2xl shadow-sm flex flex-col items-center text-center hover:shadow-md transition">
             <div class="w-full h-40 bg-gray-100 rounded-xl mb-4 overflow-hidden flex items-center justify-center border border-gray-100">
-              <img v-if="post.picture" :src="post.picture" class="w-full h-full object-cover" />
+              <img v-if="post.picture" :src="post.picture" @error="$event.target.src = 'https://placehold.co/300x400/f97316/ffffff?text=Story+Sin+Imagen'" class="w-full h-full object-cover" />
               <div v-else class="flex flex-col items-center text-gray-400">
                 <span class="text-3xl mb-1">🖼️</span>
                 <p class="text-[10px] font-bold uppercase">Sin imagen</p>

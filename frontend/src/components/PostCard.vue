@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col w-full max-w-60 shadow-lg rounded-lg overflow-hidden mx-auto">
     <div class="bg-pluxeeBlue p-4 flex justify-center items-center h-36">
-      <img :src="post.img" class="object-contain h-full w-full" />
+      <img :src="post.img" class="object-cover h-full w-full" />
     </div>
     <!-- <pre>{{ post }}</pre> -->
     <div class="bg-pluxeeYellow p-4 text-pluxeeBlue font-sans">
