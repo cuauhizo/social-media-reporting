@@ -1,10 +1,9 @@
 <template>
   <div class="min-h-screen bg-gray-50 p-10 font-sans text-gray-800">
-    <div class="max-w-5xl mx-auto">
+    <div class="max-w-6xl mx-auto">
       <div class="flex justify-between items-center mb-10">
         <div>
           <h1 class="text-4xl font-black text-pluxeeBlue uppercase">Panel de Administración</h1>
-          <p class="text-gray-500 mt-2">Actualiza los archivos CSV arrastrándolos a su categoría correspondiente.</p>
         </div>
         <router-link to="/" class="bg-pluxeeBlue text-white px-6 py-2 rounded-lg font-bold hover:bg-opacity-90 transition">Ver Reporte 👉</router-link>
       </div>
@@ -207,7 +206,7 @@
             <button @click="borrarPropuesta(item.id)" class="text-red-400 hover:text-red-600 ml-4 opacity-0 group-hover:opacity-100 transition">🗑️ Borrar</button>
           </div>
 
-          <div v-if="listaPropuestas.length === 0" class="text-center text-gray-400 py-4 italic">No hay próximos pasos definidos aún.</div>
+          <div v-if="listaPropuestas.length === 0" class="text-center text-gray-400 py-4 italic">No hay propuestas definidas aún.</div>
         </div>
       </section>
 
@@ -234,7 +233,7 @@
         </div>
       </section>
 
-      <section class="mb-10">
+      <!-- <section class="mb-10">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div v-for="file in fileCategories" :key="file.id" class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition">
             <div class="flex items-center mb-4">
@@ -271,6 +270,108 @@
                 </div>
                 <input :id="'dropzone-' + file.id" type="file" class="hidden" accept=".csv" @change="onFileSelect(file.id, $event)" />
               </label>
+            </div>
+          </div>
+        </div>
+      </section> -->
+
+      <section class="mb-10">
+        <div class="mb-12">
+          <div class="flex items-center gap-3 mb-6 border-b border-gray-200 pb-3">
+            <div class="w-10 h-10 bg-[#1877F2] rounded-full flex items-center justify-center text-white shadow-sm">
+              <i class="fab fa-facebook-f text-lg"></i>
+            </div>
+            <h2 class="text-2xl font-black text-gray-800 uppercase">Archivos de Facebook</h2>
+          </div>
+
+          <p class="text-gray-500 my-2">Actualiza los archivos CSV arrastrándolos a su categoría correspondiente.</p>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div v-for="file in facebookFiles" :key="file.id" class="bg-white p-6 rounded-xl border border-blue-100 shadow-sm hover:shadow-md transition">
+              <div class="flex items-center mb-4">
+                <span class="text-2xl mr-3">{{ file.icon }}</span>
+                <h3 class="text-lg font-bold text-pluxeeBlue">{{ file.title }}</h3>
+              </div>
+
+              <div
+                class="relative flex items-center justify-center w-full"
+                @dragover.prevent="dragState[file.id] = true"
+                @dragenter.prevent="dragState[file.id] = true"
+                @dragleave.prevent="dragState[file.id] = false"
+                @drop.prevent="onDrop(file.id, $event)">
+                <label
+                  :for="'dropzone-' + file.id"
+                  :class="[
+                    'flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer transition-colors duration-200',
+                    dragState[file.id] ? 'bg-blue-50 border-[#1877F2] scale-[1.02]' : 'bg-gray-50 border-gray-300 hover:bg-blue-50 hover:border-[#1877F2]',
+                  ]">
+                  <div class="flex flex-col items-center justify-center pt-5 pb-6 pointer-events-none">
+                    <svg :class="dragState[file.id] ? 'text-[#1877F2]' : 'text-gray-400'" class="w-8 h-8 mb-2 transition-colors" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                      <path
+                        stroke="currentColor"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2" />
+                    </svg>
+                    <p class="mb-2 text-sm text-gray-500 text-center">
+                      <span class="font-semibold text-[#1877F2]">Arrastra tu archivo aquí</span>
+                      <br />
+                      o haz clic para explorar
+                    </p>
+                  </div>
+                  <input :id="'dropzone-' + file.id" type="file" class="hidden" accept=".csv" @change="onFileSelect(file.id, $event)" />
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="flex items-center gap-3 mb-6 border-b border-gray-200 pb-3">
+            <div class="w-10 h-10 bg-gradient-to-tr from-yellow-400 to-fuchsia-600 rounded-full flex items-center justify-center text-white shadow-sm">
+              <i class="fab fa-instagram text-lg"></i>
+            </div>
+            <h2 class="text-2xl font-black text-gray-800 uppercase">Archivos de Instagram</h2>
+          </div>
+          <p class="text-gray-500 my-2">Actualiza los archivos CSV arrastrándolos a su categoría correspondiente.</p>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div v-for="file in instagramFiles" :key="file.id" class="bg-white p-6 rounded-xl border border-pink-100 shadow-sm hover:shadow-md transition">
+              <div class="flex items-center mb-4">
+                <span class="text-2xl mr-3">{{ file.icon }}</span>
+                <h3 class="text-lg font-bold text-pluxeeBlue">{{ file.title }}</h3>
+              </div>
+
+              <div
+                class="relative flex items-center justify-center w-full"
+                @dragover.prevent="dragState[file.id] = true"
+                @dragenter.prevent="dragState[file.id] = true"
+                @dragleave.prevent="dragState[file.id] = false"
+                @drop.prevent="onDrop(file.id, $event)">
+                <label
+                  :for="'dropzone-' + file.id"
+                  :class="[
+                    'flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer transition-colors duration-200',
+                    dragState[file.id] ? 'bg-pink-50 border-[#e1306c] scale-[1.02]' : 'bg-gray-50 border-gray-300 hover:bg-pink-50 hover:border-[#e1306c]',
+                  ]">
+                  <div class="flex flex-col items-center justify-center pt-5 pb-6 pointer-events-none">
+                    <svg :class="dragState[file.id] ? 'text-[#e1306c]' : 'text-gray-400'" class="w-8 h-8 mb-2 transition-colors" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                      <path
+                        stroke="currentColor"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2" />
+                    </svg>
+                    <p class="mb-2 text-sm text-gray-500 text-center">
+                      <span class="font-semibold text-[#e1306c]">Arrastra tu archivo aquí</span>
+                      <br />
+                      o haz clic para explorar
+                    </p>
+                  </div>
+                  <input :id="'dropzone-' + file.id" type="file" class="hidden" accept=".csv" @change="onFileSelect(file.id, $event)" />
+                </label>
+              </div>
             </div>
           </div>
         </div>
@@ -390,14 +491,14 @@
             </label>
           </div>
         </div>
-        <div v-else-if="busquedaRealizada && postsParaEditar.length === 0" class="text-center text-gray-400 py-8 italic border-2 border-dashed rounded-xl mt-4">🎉 ¡Todos los posts están perfectos! No hay imágenes rotas que arreglar.</div>
+        <div v-else-if="busquedaRealizada && postsParaEditar.length === 0" class="text-center text-gray-400 py-8 italic border-2 border-dashed rounded-xl mt-4">No hay imágenes rotas que arreglar.</div>
       </section>
     </div>
   </div>
 </template>
 
 <script setup>
-  import { ref, onMounted } from 'vue'
+  import { ref, onMounted, computed } from 'vue'
 
   const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000'
   const alert = ref({ show: false, message: '', type: '' })
@@ -429,7 +530,7 @@
   })
   const conclusionData = ref({ id: null, texto: '' })
   const postsParaEditar = ref([])
-  const customPostImages = ref({})
+  // const customPostImages = ref({})
   const busquedaRealizada = ref(false)
 
   // DICCIONARIO DE COLORES PARA TIPOS DE POST
@@ -445,7 +546,7 @@
   const dragState = ref({})
 
   const fileCategories = [
-    { id: 'global_manual', title: 'Métricas Globales (Mes, KPIs)', icon: '⚙️' },
+    // { id: 'global_manual', title: 'Métricas Globales (Mes, KPIs)', icon: '⚙️' },
     { id: 'fb_overview', title: 'Facebook: Overview KPIs', icon: '📘' },
     { id: 'fb_posts', title: 'Facebook: Métricas de Posts', icon: '📝' },
     { id: 'fb_sentiment', title: 'Facebook: Sentimientos', icon: '💬' },
@@ -453,6 +554,14 @@
     { id: 'ig_posts', title: 'Instagram: Métricas de Posts', icon: '📱' },
     { id: 'ig_sentiment', title: 'Instagram: Sentimientos', icon: '❤️' },
   ]
+
+  const facebookFiles = computed(() => {
+    return fileCategories.filter(file => file.id.includes('fb') || file.id.includes('facebook'))
+  })
+
+  const instagramFiles = computed(() => {
+    return fileCategories.filter(file => file.id.includes('ig') || file.id.includes('instagram'))
+  })
 
   // GENERADOR DE ID ESTABLE
   const getStableId = p => {

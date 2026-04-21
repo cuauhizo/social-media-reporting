@@ -8,7 +8,7 @@
             <span class="text-3xl mr-3">💡</span>
             Propuestas
           </h3>
-          <ul v-if="listaCompromisos.length > 0" class="space-y-4">
+          <ul v-if="listaCompromisos && listaCompromisos.length > 0" class="space-y-4">
             <li v-for="item in listaPropuestas" :key="item.id" class="flex items-start">
               <span class="text-pluxeeYellow font-black text-xl mr-3">+</span>
               <span class="text-gray-700 font-medium text-lg leading-relaxed">{{ item.propuesta }}</span>
@@ -17,7 +17,7 @@
           <ul v-else>
             <li>
               <span class="text-pluxeeYellow font-black text-xl mr-3">+</span>
-              <span class="text-gray-700 font-medium text-lg leading-relaxed">Sin propuestas aún.</span>
+              <span class="text-gray-700 font-medium text-lg leading-relaxed">No hay propuestas definidas aún.</span>
             </li>
           </ul>
         </div>
@@ -27,7 +27,7 @@
             <span class="text-3xl mr-3">🤝</span>
             Compromisos
           </h3>
-          <ul v-if="listaCompromisos.length > 0" class="space-y-4">
+          <ul v-if="listaCompromisos && listaCompromisos.length > 0" class="space-y-4">
             <li v-for="item in listaCompromisos" :key="item.id" class="flex items-start">
               <span class="text-pluxeeBlue font-black text-xl mr-3">•</span>
               <span class="text-gray-700 font-medium text-lg leading-relaxed">{{ item.compromiso }}</span>
@@ -36,7 +36,7 @@
           <ul v-else>
             <li>
               <span class="text-pluxeeBlue font-black text-xl mr-3">•</span>
-              <span class="text-gray-700 font-medium text-lg leading-relaxed">Sin compromisos aún.</span>
+              <span class="text-gray-700 font-medium text-lg leading-relaxed">No hay compromisos definidos aún.</span>
             </li>
           </ul>
         </div>

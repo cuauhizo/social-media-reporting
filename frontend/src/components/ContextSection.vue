@@ -19,7 +19,7 @@
           </li>
         </ul>
 
-        <p v-if="puntosContexto.length === 0" class="text-gray-400 italic mt-4">Sin contexto actual...</p>
+        <p v-if="puntosContexto.length === 0" class="text-gray-400 italic mt-4">No hay puntos registrados.</p>
       </div>
     </div>
   </section>
