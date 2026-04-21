@@ -38,7 +38,9 @@ const getReportData = async (req, res) => {
     // 2. DATA FORMATTING & CLEANUP
     // Standardizing raw CSV/API data for the frontend
     const topPostsFb = formatFacebookPosts(fbPostsRaw, hootsuiteData?.facebook)
+    const trendPostsFb = topPostsFb.filter(post => post.tags && post.tags.toLowerCase().includes('#trend'))
     const { topPostsIg, topStoriesIg } = formatInstagramPosts(igPostsRaw, hootsuiteData?.instagram)
+    const trendPostsIg = topPostsIg.filter(post => post.tags && post.tags.toLowerCase().includes('#trend'))
     const dynamicCas = formatCasData(manualKpis)
 
     // Extrayendo los competidores de la respuesta de MySQL
@@ -86,6 +88,7 @@ const getReportData = async (req, res) => {
         },
         topCities: fbRealKpis?.topCities || [],
         topPosts: topPostsFb,
+        trendPosts: trendPostsFb,
         reachByTags: fbTags || [],
       },
 
@@ -113,6 +116,7 @@ const getReportData = async (req, res) => {
         topCities: igRealKpis?.topCities || [],
         topPosts: topPostsIg,
         topStories: topStoriesIg,
+        trendPosts: trendPostsIg,
         reachByTags: igTags || [],
       },
 

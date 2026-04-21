@@ -188,6 +188,8 @@
     </div>
   </section>
 
+  <TrendsInstagramSection :data="data" />
+
   <section class="pdf-page flex flex-col justify-center min-h-screen bg-gray-100 p-8">
     <div class="max-w-7xl mx-auto w-full">
       <h2 class="text-2xl font-black text-pluxeeBlue mb-2 uppercase keep-with-next">Post metrics Tolko - Pluxee</h2>
@@ -199,6 +201,7 @@
 <script setup>
   import { formatNumber } from '@/utils/formatters'
   import SentimentChart from './SentimentChart.vue'
+  import TrendsInstagramSection from '@/components/TrendsInstagramSection.vue'
   import TagsTable from './TagsTable.vue'
   import ReachChart from './ReachChart.vue'
   import FollowerGrowthChart from '@/components/FollowerGrowthChart.vue'

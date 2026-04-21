@@ -13,7 +13,6 @@
 
       <div class="bg-gray-50 rounded-xl p-5 border border-gray-100 flex flex-col">
         <h4 class="font-black text-gray-700 uppercase text-sm mb-4 border-b border-gray-200 pb-2">Top del Periodo</h4>
-
         <div v-if="topPosts && topPosts.length > 0" class="space-y-4">
           <div v-for="(post, index) in topPosts.slice(0, 3)" :key="post.id" class="flex flex-col sm:flex-row gap-4 items-center bg-white p-3 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
             <span class="font-black text-xl text-gray-300 w-4">{{ index + 1 }}</span>
@@ -32,7 +31,7 @@
               <div class="grid grid-cols-2 gap-1 text-gray-700 font-medium">
                 <span title="Vistas">👁️ {{ formatNumber(post.views || post.reach) }}</span>
                 <span title="Interacciones">❤️ {{ formatNumber(post.interactions) }}</span>
-                <span title="Guardados/Compartidos" class="col-span-2">↗️ {{ formatNumber(post.shares || post.saved) }}</span>
+                <span title="Guardados/Compartidos" class="col-span-2">↗️ {{ formatNumber(post.shares + post.saved) || post.saved }}</span>
               </div>
             </div>
           </div>
@@ -41,7 +40,7 @@
         <div v-else class="text-center text-gray-400 text-sm mt-10">No hay posts suficientes.</div>
       </div>
     </div>
-    <!-- <pre>{{ topPosts }}</pre> -->
+    <!-- <pre>{{ topPosts.slice(0, 3) }}</pre> -->
   </div>
 </template>
 
@@ -61,8 +60,18 @@
   const chartData = computed(() => {
     if (!props.tags || props.tags.length === 0) return { labels: [], datasets: [] }
 
+    // 1. FILTRAMOS LAS ETIQUETAS: Solo permitimos Tolko y Pluxee
+    const filteredTags = props.tags.filter(tag => {
+      const lowerName = tag.name.toLowerCase()
+      return lowerName.includes('tolko') || lowerName.includes('pluxee')
+    })
+
+    // Si después de filtrar no quedó nada, regresamos la gráfica vacía
+    if (filteredTags.length === 0) return { labels: [], datasets: [] }
+
+    // 2. Extraemos las fechas SOLO de los posts de Tolko y Pluxee
     const allDates = new Set()
-    props.tags.forEach(tag => {
+    filteredTags.forEach(tag => {
       tag.posts.forEach(post => {
         if (post.date !== 'Desconocida') allDates.add(post.date)
       })
@@ -74,14 +83,10 @@
     const defaultColors = ['#ff7375', '#ffdc37', '#17ccf9', '#221c46', '#833ab4', '#fcb045']
     let defaultColorIndex = 0 // Contador para las etiquetas que no sean ni Tolko ni Pluxee
 
-    const datasets = props.tags.map(tag => {
+    // 3. Construimos los datasets usando el arreglo filtrado
+    const datasets = filteredTags.map(tag => {
       const dataPoints = sortedDates.map(date => {
         const postsOnDate = tag.posts.filter(p => p.date === date)
-        // Mantenemos p.reach como respaldo seguro por si hay datos viejos
-        // BORRA ESTA LÍNEA:
-        // return postsOnDate.length > 0 ? postsOnDate.reduce((sum, p) => sum + (p.views || p.reach || 0), 0) : null
-
-        // CÁMBIALA POR ESTA:
         return postsOnDate.length > 0 ? Math.max(...postsOnDate.map(p => p.views || 0)) : null
       })
 

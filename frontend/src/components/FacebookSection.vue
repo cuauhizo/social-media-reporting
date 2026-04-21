@@ -68,7 +68,7 @@
   </section>
 
   <template v-if="data.topPosts && data.topPosts.length > 0">
-    <section v-for="(grupo, index) in agruparPorFilas(data.topPosts, 10)" :key="'pagina-post-' + index" class="pdf-page flex flex-col justify-start min-h-screen bg-gray-50 p-8 bg-green-600-old">
+    <section v-for="(grupo, index) in agruparPorFilas(data.topPosts, 10)" :key="'pagina-post-' + index" class="pdf-page flex flex-col justify-start min-h-screen bg-gray-50 p-8">
       <div class="max-w-7xl mx-auto w-full">
         <!-- <div v-if="index === 0"> -->
         <h2 class="text-2xl font-black text-pluxeeBlue mb-2 uppercase keep-with-next">Post Metrics</h2>
@@ -92,6 +92,8 @@
     </div>
   </section>
 
+  <TrendsFacebookSection :data="data" />
+
   <section class="pdf-page flex flex-col justify-center min-h-screen bg-gray-100 p-8">
     <div class="max-w-7xl mx-auto w-full">
       <h2 class="text-2xl font-black text-pluxeeBlue mb-2 uppercase keep-with-next">Post metrics Tolko - Pluxee</h2>
@@ -103,6 +105,7 @@
 <script setup>
   import PostCard from '@/components/PostCard.vue'
   import SentimentChart from '@/components/SentimentChart.vue'
+  import TrendsFacebookSection from '@/components/TrendsFacebookSection.vue'
   import TagsTable from './TagsTable.vue'
   import KpiCard from '@/components/KpiCard.vue'
   import FollowerGrowthChart from '@/components/FollowerGrowthChart.vue'
