@@ -19,7 +19,7 @@
           </li>
         </ul>
 
-        <p v-if="puntosContexto.length === 0" class="text-gray-400 italic mt-4 animate-pulse">Cargando contexto actual...</p>
+        <p v-if="puntosContexto.length === 0" class="text-gray-400 italic mt-4">Sin contexto actual...</p>
       </div>
     </div>
   </section>

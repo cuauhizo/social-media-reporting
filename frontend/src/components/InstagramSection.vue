@@ -56,13 +56,18 @@
                     <th class="pb-1.5 font-medium text-right">Followers</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody v-if="data.topCities && data.topCities.length > 0">
                   <tr v-for="(city, index) in data.topCities" :key="index" class="no-break border-b border-gray-100 hover:bg-gray-50 transition-colors">
                     <td class="py-1 text-gray-400 font-medium text-center text-sm">{{ index + 1 }}</td>
                     <td class="py-1 pr-1">
                       <div class="text-sm text-gray-700">{{ city.name }}</div>
                     </td>
                     <td class="py-1 text-right text-pluxeeBlue font-bold">{{ formatNumber(city.followers) }}</td>
+                  </tr>
+                </tbody>
+                <tbody v-else>
+                  <tr>
+                    <td colspan="3" class="py-10 text-center text-gray-400 font-medium text-sm">No se encontraron datos de ciudades para este periodo.</td>
                   </tr>
                 </tbody>
               </table>
@@ -88,6 +93,11 @@
           <!-- <pre>{{ data }}</pre> -->
           <div class="col-span-12 no-break">
             <FollowerGrowthChart color="#e1306c" class="" v-if="data.kpis && Array.isArray(data.kpis.historicalFollowers) && data.kpis.historicalFollowers.length > 0" :chartData="data.kpis.historicalFollowers" />
+            <div v-else>
+              <div class="bg-white rounded-2xl p-8 text-center border border-gray-100 mt-6 mb-8">
+                <p class="text-gray-500 font-medium">No se encontraron seguidores en el feed de Instagram para este periodo.</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>

@@ -47,13 +47,20 @@
                   <th class="pb-1.5 font-medium text-right">Followers</th>
                 </tr>
               </thead>
-              <tbody>
+
+              <tbody v-if="data.topCities && data.topCities.length > 0">
                 <tr v-for="(city, index) in data.topCities" :key="index" class="no-break border-b border-gray-100 hover:bg-gray-50 transition-colors">
                   <td class="py-2 text-gray-400 font-medium text-center text-sm">{{ index + 1 }}</td>
                   <td class="py-2 pr-2">
                     <div class="text-sm text-gray-700">{{ city.name }}</div>
                   </td>
                   <td class="py-2 text-right text-pluxeeBlue font-bold">{{ formatNumber(city.followers) }}</td>
+                </tr>
+              </tbody>
+
+              <tbody v-else>
+                <tr>
+                  <td colspan="3" class="py-10 text-center text-gray-400 font-medium text-sm">No se encontraron datos de ciudades para este periodo.</td>
                 </tr>
               </tbody>
             </table>

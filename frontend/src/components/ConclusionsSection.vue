@@ -12,7 +12,7 @@
         <p v-if="textoConclusion" class="text-gray-700 text-xl font-medium leading-relaxed relative z-10">
           {{ textoConclusion }}
         </p>
-        <p v-else class="text-gray-400 italic relative z-10 animate-pulse">Cargando conclusión...</p>
+        <p v-else class="text-gray-400 italic relative z-10">Sin conclusión aún...</p>
 
         <div class="absolute -bottom-16 -right-10 text-9xl text-gray-100 font-serif opacity-50">"</div>
       </div>
