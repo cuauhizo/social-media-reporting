@@ -49,7 +49,6 @@ const getReportData = async (req, res) => {
     if (fbRealKpis?.historicalFollowers && fbRealKpis.historicalFollowers.length > 0) {
       const fechaRaw = fbRealKpis.historicalFollowers[0].date // Ej: "2026-03-01"
       const dateObj = new Date(fechaRaw)
-      console.log(dateObj)
       if (!isNaN(dateObj)) {
         // Crea "marzo 2026" y luego capitalizamos la primera letra
         const formateador = new Intl.DateTimeFormat('es-MX', { month: 'long', year: 'numeric', timeZone: 'UTC' })
@@ -65,8 +64,9 @@ const getReportData = async (req, res) => {
       return posts.map(post => {
         const dbImg = dbImages.find(img => img.post_id === post.id)
         if (dbImg) {
-          return { ...post, img: dbImg.url }
+          return { ...post, img: dbImg.image_url }
         }
+
         return post
       })
     }
@@ -76,11 +76,16 @@ const getReportData = async (req, res) => {
 
     // ✨ ¡AQUÍ ES EL LUGAR CORRECTO PARA FILTRAR LOS TRENDS! ✨
     // Lo hacemos usando "finalTopPosts..." para que ya traigan la URL de la base de datos
-    const trendPostsFb = finalTopPostsFb.filter(post => (post.tags && post.tags.toLowerCase().includes('#trend')) || post.tags.toLowerCase().includes('#treend'))
-    const trendPostsIg = finalTopPostsIg.filter(post => (post.tags && post.tags.toLowerCase().includes('#trend')) || post.tags.toLowerCase().includes('#treend'))
+    // const trendPostsFb = finalTopPostsFb.filter(post => (post.tags && post.tags.toLowerCase().includes('#trend')) || post.tags.toLowerCase().includes('#treend'))
+    // const trendPostsIg = finalTopPostsIg.filter(post => (post.tags && post.tags.toLowerCase().includes('#trend')) || post.tags.toLowerCase().includes('#treend'))
     // const trendPostsFb = topPostsFb.filter(post => (post.tags && post.tags.toLowerCase().includes('#trend')) || post.tags.toLowerCase().includes('#treend'))
     // const trendPostsIg = topPostsIg.filter(post => (post.tags && post.tags.toLowerCase().includes('#trend')) || post.tags.toLowerCase().includes('#treend'))
-    console.log(trendPostsFb)
+
+    // ✨ CORRECCIÓN: Filtramos los Trends DESPUÉS del merge y usando los arreglos FINAL
+    const trendPostsFb = finalTopPostsFb.filter(post => (post.tags && post.tags.toLowerCase().includes('#trend')) || post.tags.toLowerCase().includes('#treend'))
+    const trendPostsIg = finalTopPostsIg.filter(post => (post.tags && post.tags.toLowerCase().includes('#trend')) || post.tags.toLowerCase().includes('#treend'))
+
+    // console.log(trendPostsFb)
     // 3. REPORT ASSEMBLY
     // Building the final JSON payload
     const fullReport = {
