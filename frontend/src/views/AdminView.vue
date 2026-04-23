@@ -450,11 +450,11 @@
 
         <button @click="cargarPostsParaEditar" class="bg-pluxeeBlue text-white px-4 py-2 rounded-xl font-bold hover:scale-105 transition mb-6">🔍 Cargar Posts de este Mes</button>
 
-        <!-- <pre>{{ postsParaEditar }}</pre> -->
+        <!-- <pre>{{ postsParaEditar.slice(0, 3) }}</pre> -->
         <div v-if="postsParaEditar.length > 0" class="grid grid-cols-2 md:grid-cols-4 gap-6">
           <div v-for="post in postsParaEditar" :key="post.id" class="bg-white border border-gray-200 p-4 rounded-2xl shadow-sm flex flex-col items-center text-center hover:shadow-md transition">
             <div class="w-full h-40 bg-gray-100 rounded-xl mb-4 overflow-hidden flex items-center justify-center border border-gray-100">
-              <img v-if="post.picture" :src="post.picture" @error="$event.target.src = 'https://placehold.co/300x400/f97316/ffffff?text=Story+Sin+Imagen'" class="w-full h-full object-cover" />
+              <img v-if="post.picture" :src="post.picture" @error="$event.target.src = 'https://placehold.co/300x400/17ccf9/ffffff?text=Story+Sin+Imagen'" class="w-full h-full object-cover" />
               <div v-else class="flex flex-col items-center text-gray-400">
                 <span class="text-3xl mb-1">🖼️</span>
                 <p class="text-[10px] font-bold uppercase">Sin imagen</p>
@@ -481,6 +481,9 @@
                 {{ post.type }}
               </span>
             </div>
+            <div class="w-full flex justify-end items-center">
+              <p class="text-xs font-black text-gray-600 mb-4">{{ formatDate(post.date) }}</p>
+            </div>
 
             <p class="text-xs text-gray-600 mb-4 line-clamp-3 h-12 overflow-hidden italic" :title="post.text">"{{ post.text }}"</p>
 
@@ -499,6 +502,7 @@
 
 <script setup>
   import { ref, onMounted, computed } from 'vue'
+  import { formatDate } from '@/utils/formatters'
 
   const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000'
   const alert = ref({ show: false, message: '', type: '' })
@@ -970,6 +974,7 @@
           id: p.id,
           text: p.text,
           type: p.type,
+          date: p.date,
           red_social: p.red_social, // 👈 Pasamos la red social al nuevo objeto
           link: p.link || p.postPermalink,
           picture: dictImages[p.id] ? apiUrl + dictImages[p.id] : p.picture || p.img || '',

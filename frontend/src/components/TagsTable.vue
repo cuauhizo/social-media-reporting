@@ -5,6 +5,16 @@
         <!-- <pre>{{ tags }}</pre> -->
         <div v-if="tags && tags.length > 0" class="w-full h-96 relative">
           <Line :data="chartData" :options="chartOptions" />
+          <!-- <pre>{{ tooltipData }}</pre> -->
+          <div v-if="tooltipData.show" class="absolute pointer-events-none bg-black/90 p-3 rounded-lg shadow-xl text-white transform -translate-x-1/2 -translate-y-[110%] z-50 flex flex-col items-center border border-gray-700" :style="{ left: tooltipData.x + 'px', top: tooltipData.y + 'px' }">
+            <img :src="tooltipData.img" class="w-20 h-20 object-cover rounded shadow-sm mb-2 bg-gray-800" />
+            <span class="text-xs font-bold uppercase tracking-wider text-gray-300">{{ tooltipData.title }}</span>
+            <span class="text-sm font-black">{{ tooltipData.body }}</span>
+            <span class="text-[10px] font-medium text-gray-400 mt-1 border-t border-gray-700 pt-1 w-full text-center">
+              {{ tooltipData.date }}
+            </span>
+            <div class="absolute bottom-[-6px] left-1/2 transform -translate-x-1/2 w-3 h-3 bg-black/90 rotate-45 border-b border-r border-gray-700"></div>
+          </div>
         </div>
         <div v-else class="text-center bg-gray-50 rounded-xl p-8 text-gray-500 font-medium border border-gray-100">
           <p>No se encontraron etiquetas (Tags) registradas.</p>
@@ -45,7 +55,7 @@
 </template>
 
 <script setup>
-  import { computed } from 'vue'
+  import { computed, ref } from 'vue'
   import { Line } from 'vue-chartjs'
   import { Chart as ChartJS, Title, Tooltip, Legend, PointElement, LineElement, CategoryScale, LinearScale } from 'chart.js'
   import { formatNumber, formatDate } from '@/utils/formatters'
@@ -57,6 +67,18 @@
     topPosts: { type: Array, default: () => [] },
   })
 
+  // ✨ 1. ESTADO REACTIVO PARA EL TOOLTIP
+  const tooltipData = ref({ show: false, x: 0, y: 0, img: '', title: '', body: '', date: ''})
+
+  // Función auxiliar para garantizar que la imagen se vea
+  const getSafeImageUrl = (url) => {
+    if (!url) return '/favicon.ico';
+    if (url.startsWith('http')) return url;
+    const cleanUrl = url.replace(/\\/g, '/');
+    const backendBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+    return `${backendBaseUrl}${cleanUrl.startsWith('/') ? '' : '/'}${cleanUrl}`;
+  }
+
   const chartData = computed(() => {
     if (!props.tags || props.tags.length === 0) return { labels: [], datasets: [] }
 
@@ -66,7 +88,6 @@
       return lowerName.includes('tolko') || lowerName.includes('pluxee')
     })
 
-    // Si después de filtrar no quedó nada, regresamos la gráfica vacía
     if (filteredTags.length === 0) return { labels: [], datasets: [] }
 
     // 2. Extraemos las fechas SOLO de los posts de Tolko y Pluxee
@@ -79,34 +100,41 @@
 
     const sortedDates = Array.from(allDates).sort((a, b) => new Date(a) - new Date(b))
 
-    // Quitamos el rojo y el verde de la lista por defecto, ya que serán exclusivos
-    const defaultColors = ['#ff7375', '#ffdc37', '#17ccf9', '#221c46', '#833ab4', '#fcb045']
-    let defaultColorIndex = 0 // Contador para las etiquetas que no sean ni Tolko ni Pluxee
-
     // 3. Construimos los datasets usando el arreglo filtrado
     const datasets = filteredTags.map(tag => {
-      const dataPoints = sortedDates.map(date => {
+      const dataPoints = [];
+      const imagesArray = []; // ✨ ARRAY PARALELO PARA LAS IMÁGENES
+
+      sortedDates.forEach(date => {
         const postsOnDate = tag.posts.filter(p => p.date === date)
-        return postsOnDate.length > 0 ? Math.max(...postsOnDate.map(p => p.views || 0)) : null
+        
+        if (postsOnDate.length > 0) {
+          // Buscamos el post con más vistas en el resumen de tags
+          const topPost = postsOnDate.reduce((max, p) => (p.views || 0) > (max.views || 0) ? p : max, postsOnDate[0])
+          dataPoints.push(topPost.views || 0)
+
+          // ✨ AQUÍ ESTÁ LA MAGIA: 
+          // Buscamos el post real completo en el arreglo 'topPosts' que sí trae la imagen
+          const postRealCompleto = props.topPosts.find(p => 
+            p.date && p.date.includes(date) && 
+            p.tags && p.tags.includes(tag.name)
+          )
+
+          // Si lo encuentra, usamos la imagen real. Si no, usamos el fallback.
+          imagesArray.push(getSafeImageUrl(postRealCompleto?.img)) 
+        } else {
+          dataPoints.push(null)
+          imagesArray.push('')
+        }
       })
 
-      //  LÓGICA DE COLOR DINÁMICO PARA LA LÍNEA
-      let lineColor = ''
-      const lowerTagName = tag.name.toLowerCase()
-
-      if (lowerTagName.includes('tolko')) {
-        lineColor = '#cc0032' // Rojo oficial
-      } else if (lowerTagName.includes('pluxee')) {
-        lineColor = '#00eb5d' // Verde oficial
-      } else {
-        // Si es otra etiqueta (ej. "Educativo", "Promociones"), toma un color de la lista de respaldo
-        lineColor = defaultColors[defaultColorIndex % defaultColors.length]
-        defaultColorIndex++
-      }
+      // LÓGICA DE COLOR DINÁMICO
+      let lineColor = tag.name.toLowerCase().includes('tolko') ? '#cc0032' : '#00eb5d'
 
       return {
         label: tag.name,
         data: dataPoints,
+        customImages: imagesArray, // ✨ Inyectamos las imágenes ya cruzadas
         borderColor: lineColor,
         backgroundColor: lineColor,
         tension: 0.3,
@@ -120,17 +148,37 @@
     return { labels: sortedDates.map(date => formatDate(date)), datasets: datasets }
   })
 
+  // ✨ 4. ACTUALIZAMOS LAS OPCIONES PARA USAR EL TOOLTIP DE VUE
   const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
       legend: { position: 'top', labels: { usePointStyle: true, padding: 20, font: { family: 'sans-serif', weight: 'bold' } } },
       tooltip: {
-        mode: 'index',
-        intersect: false,
-        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-        padding: 12,
-        callbacks: { label: context => ` ${context.dataset.label}: ${context.raw ? formatNumber(context.raw) : 0}` },
+        enabled: false, // 🔴 Apagamos el tooltip original
+        external: (context) => { // 🟢 Activamos el tooltip HTML de Vue
+          const { tooltip, chart } = context
+          
+          if (tooltip.opacity === 0) {
+            tooltipData.value.show = false
+            return
+          }
+
+          const dataPoint = tooltip.dataPoints[0]
+          const dataset = chart.data.datasets[dataPoint.datasetIndex]
+          // console.log(dataset);
+          tooltipData.value = {
+            show: true,
+            x: tooltip.caretX,
+            y: tooltip.caretY,
+            img: dataset.customImages[dataPoint.dataIndex], // ✨ Sacamos la imagen del array que creamos
+            title: chart.data.labels[dataPoint.dataIndex],
+            body: `${dataset.label} ${formatNumber(dataPoint.raw)}`,
+            // date: chart.data.labels[dataPoint.dataIndex]
+
+            // `${año}-${mesAnterior}`
+          }
+        }
       },
     },
     scales: {
@@ -139,31 +187,23 @@
     },
   }
 
-  //  NUEVA FUNCIÓN: Calcula las clases de Tailwind según el texto de la etiqueta
+  // FUNCIÓN: Calcula las clases de Tailwind según el texto de la etiqueta
   const getDynamicTagClasses = tagsString => {
-    // Respaldo por si no hay etiquetas
     if (!tagsString || tagsString === 'Sin etiqueta') {
       return 'bg-gray-100 text-gray-500 border-gray-200'
     }
 
-    // Convertimos a minúsculas para una comparación segura
     const lowerTags = tagsString.toLowerCase()
-
-    // Base de clases comunes (borde, padding, redondeado, fuente, etc.)
     const baseClasses = 'border px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider truncate transition-colors'
 
-    // 1. Lógica para TOLKO (#cc0032)
-    // Usamos arbitrary values de Tailwind y opacidad 10% [/10] para fondo suave
     if (lowerTags.includes('tolko')) {
       return `${baseClasses} bg-tolkoRed/10 text-tolkoRed border-tolkoRed/20`
     }
 
-    // 2. Lógica para PLUXEE (#00eb5d)
     if (lowerTags.includes('pluxee')) {
       return `${baseClasses} bg-pluxeeGreen/10 text-pluxeeGreen border-pluxeeGreen/20`
     }
 
-    // 3. Respaldo Genérico (el color azul original que propusiste)
     return `${baseClasses} bg-blue-50 text-pluxeeBlue border-blue-100`
   }
 </script>

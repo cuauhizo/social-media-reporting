@@ -162,7 +162,7 @@
           <div v-for="story in fila" :key="story.id" class="flex flex-col shadow-sm border border-orange-100 rounded-2xl overflow-hidden hover:shadow-md transition-shadow bg-white">
             <div class="bg-gray-100 h-44 flex justify-center items-center relative overflow-hidden p-1">
               <div class="w-full h-full rounded-xl p-1 bg-gradient-to-tr from-yellow-400 via-red-500 to-fuchsia-600">
-                <img :src="story.img" @error="$event.target.src = 'https://placehold.co/300x400/f97316/ffffff?text=Story+Sin+Imagen'" class="object-cover h-full w-full rounded-lg border-2 border-white" />
+                <img :src="story.img" @error="$event.target.src = 'https://placehold.co/300x400/17ccf9/ffffff?text=Story+Sin+Imagen'" class="object-cover h-full w-full rounded-lg border-2 border-white" />
               </div>
               <span class="absolute top-4 right-4 bg-black/70 text-white text-xs font-bold px-2 py-1 rounded-md backdrop-blur-sm">
                 {{ story.type }}
