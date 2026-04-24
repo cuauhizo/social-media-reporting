@@ -1,7 +1,7 @@
 <template>
   <template v-if="data && data.trendPosts && data.trendPosts.length > 0">
     <section v-for="(grupo, index) in agruparPorFilas(data.trendPosts, 10)" :key="'trend-fb-pg-' + index" class="pdf-page flex flex-col min-h-screen bg-white">
-      <div v-if="index === 0" class="w-full h-32 bg-[#fcb045] shrink-0 flex items-center justify-center shadow-inner px-4">
+      <div v-if="index === 0" class="w-full h-32 bg-pluxeePink shrink-0 flex items-center justify-center shadow-inner px-4">
         <h2 class="text-4xl text-center font-black text-white tracking-widest uppercase">Trends</h2>
       </div>
       <div v-else class="mt-12"></div>
