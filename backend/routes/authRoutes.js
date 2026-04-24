@@ -33,35 +33,35 @@ router.get('/callback', async (req, res) => {
 })
 
 // NUEVA RUTA: Para renovar el token caducado sin iniciar sesión
-router.get('/refresh', async (req, res) => {
-  const refreshToken = process.env.HOOTSUITE_REFRESH_TOKEN
-  const credentials = Buffer.from(`${process.env.HOOTSUITE_CLIENT_ID}:${process.env.HOOTSUITE_CLIENT_SECRET}`).toString('base64')
+// router.get('/refresh', async (req, res) => {
+//   const refreshToken = process.env.HOOTSUITE_REFRESH_TOKEN
+//   const credentials = Buffer.from(`${process.env.HOOTSUITE_CLIENT_ID}:${process.env.HOOTSUITE_CLIENT_SECRET}`).toString('base64')
 
-  if (!refreshToken) {
-    return res.status(400).send('No hay REFRESH_TOKEN en el archivo .env')
-  }
+//   if (!refreshToken) {
+//     return res.status(400).send('No hay REFRESH_TOKEN en el archivo .env')
+//   }
 
-  try {
-    const response = await axios.post('https://platform.hootsuite.com/oauth2/token', `grant_type=refresh_token&refresh_token=${refreshToken}`, {
-      headers: {
-        Authorization: `Basic ${credentials}`,
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-    })
+//   try {
+//     const response = await axios.post('https://platform.hootsuite.com/oauth2/token', `grant_type=refresh_token&refresh_token=${refreshToken}`, {
+//       headers: {
+//         Authorization: `Basic ${credentials}`,
+//         'Content-Type': 'application/x-www-form-urlencoded',
+//       },
+//     })
 
-    console.log('=========================================')
-    console.log('🔄 ¡TOKEN RENOVADO EXITOSAMENTE!')
-    console.log('HOOTSUITE_ACCESS_TOKEN=', response.data.access_token)
-    console.log('HOOTSUITE_REFRESH_TOKEN=', response.data.refresh_token)
-    console.log('=========================================')
+//     console.log('=========================================')
+//     console.log('🔄 ¡TOKEN RENOVADO EXITOSAMENTE!')
+//     console.log('HOOTSUITE_ACCESS_TOKEN=', response.data.access_token)
+//     console.log('HOOTSUITE_REFRESH_TOKEN=', response.data.refresh_token)
+//     console.log('=========================================')
 
-    // Aquí, en un sistema avanzado, guardarías estos nuevos valores en una base de datos.
-    // Por ahora, solo los imprimimos para que los actualices en tu .env
+//     // Aquí, en un sistema avanzado, guardarías estos nuevos valores en una base de datos.
+//     // Por ahora, solo los imprimimos para que los actualices en tu .env
 
-    res.send('Token renovado. Revisa la consola y actualiza tu .env con los nuevos valores.')
-  } catch (error) {
-    res.status(500).send('Error renovando el token: ' + (error.response?.data?.errors[0]?.message || error.message))
-  }
-})
+//     res.send('Token renovado. Revisa la consola y actualiza tu .env con los nuevos valores.')
+//   } catch (error) {
+//     res.status(500).send('Error renovando el token: ' + (error.response?.data?.errors[0]?.message || error.message))
+//   }
+// })
 
 module.exports = router

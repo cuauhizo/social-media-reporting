@@ -1,0 +1,66 @@
+<template>
+  <section class="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm mb-10">
+    <div class="flex justify-between items-center mb-6">
+      <h2 class="text-2xl font-black text-pluxeeBlue uppercase flex items-center">
+        <span class="mr-3">📌</span>
+        Editar Conclusión Final
+      </h2>
+      <button @click="guardarConclusion" :disabled="isSaving" class="bg-pluxeeBlue text-white px-6 py-2 rounded-xl font-bold hover:scale-105 transition active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
+        {{ isSaving ? 'Guardando...' : '💾 Guardar Conclusión' }}
+      </button>
+    </div>
+
+    <textarea
+      v-model="conclusionData.texto"
+      rows="5"
+      placeholder="Escribe el resumen o la conclusión final del reporte mensual aquí..."
+      class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-pluxeeBlue outline-none transition resize-none text-gray-700 font-medium leading-relaxed"
+      :disabled="isSaving"></textarea>
+  </section>
+</template>
+
+<script setup>
+  import { ref, onMounted } from 'vue'
+  import { useApi } from '@/composables/useApi'
+  import { useToast } from '@/composables/useToast'
+
+  const { apiRequest, isSaving } = useApi()
+  const { showToast } = useToast()
+
+  const conclusionData = ref({ id: null, texto: '' })
+
+  const fetchConclusiones = async () => {
+    const data = await apiRequest('/api/conclusiones')
+    if (data.length > 0) {
+      conclusionData.value.id = data[0].id
+      conclusionData.value.texto = data[0].conclusion
+    }
+  }
+
+  const guardarConclusion = async () => {
+    if (!conclusionData.value.texto.trim()) return
+
+    try {
+      if (conclusionData.value.id) {
+        await apiRequest(`/api/conclusiones/${conclusionData.value.id}`, {
+          method: 'PUT',
+          body: JSON.stringify({ conclusion: conclusionData.value.texto }),
+        })
+        showToast('Conclusión actualizada', 'success')
+      } else {
+        const result = await apiRequest('/api/conclusiones', {
+          method: 'POST',
+          body: JSON.stringify({ conclusion: conclusionData.value.texto }),
+        })
+        conclusionData.value.id = result.id
+        showToast('Conclusión guardada', 'success')
+      }
+    } catch (error) {
+      showToast('Error al guardar la conclusión', 'error')
+    }
+  }
+
+  onMounted(() => {
+    fetchConclusiones()
+  })
+</script>

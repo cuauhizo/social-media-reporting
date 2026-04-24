@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white p-6 rounded-xl shadow-sm border-l-4" :class="borderColor">
+  <div class="bg-white p-5 rounded-xl shadow-sm border-l-4" :class="borderColor">
     <p class="text-gray-500 text-sm">{{ title }}</p>
     <h2 class="text-3xl font-bold text-pluxeeBlue">{{ value }}</h2>
   </div>

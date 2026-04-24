@@ -4,13 +4,22 @@
       <h2 class="text-4xl text-center font-black text-white tracking-widest uppercase">Facebook Metrics {{ data.username }}</h2>
     </div>
     <!-- <pre>{{ data }}</pre> -->
-    <div class="flex-1 flex flex-col justify-center p-8 w-full">
+    <div class="flex-1 flex flex-col justify-center px-8 py-4 w-full">
       <div class="max-w-7xl mx-auto w-full">
-        <h1 class="text-2xl font-bold text-pluxeeBlue mb-6">Social Media Report - {{ data.kpis.month }}</h1>
-
+        <h1 class="text-2xl font-bold text-pluxeeBlue">Social Media Report - {{ data.kpis.month }}</h1>
+        <div class="w-full">
+          <div class="max-w-7xl mx-auto py-4">
+            <div class="w-full h-48 bg-gray-200 rounded-2xl overflow-hidden relative border-x border-b border-gray-200">
+              <img v-if="data.coverImage" :src="data.coverImage" class="w-full h-full object-cover" />
+              <div v-else class="w-full h-full flex items-center justify-center text-gray-400 bg-pluxeeBlue/10">
+                <span class="font-bold uppercase tracking-widest italic opacity-50">Sin foto de portada registrada para este periodo</span>
+              </div>
+            </div>
+          </div>
+        </div>
         <div class="grid grid-cols-12 gap-4">
           <div class="col-span-12 xl:col-span-9">
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-center">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-center">
               <KpiCard title="Page Engagement" :value="formatNumber(data.kpis.interactions)" />
               <KpiCard title="Total followers" :value="formatNumber(data.kpis.total_followers)" />
               <KpiCard title="Clicks organic Link" :value="formatNumber(data.kpis.clics)" />
