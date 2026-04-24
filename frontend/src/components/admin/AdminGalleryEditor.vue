@@ -1,13 +1,5 @@
 <template>
   <section class="mt-8 bg-white p-8 rounded-2xl border border-gray-200 shadow-sm mb-10">
-    <h2 class="text-2xl font-black text-pluxeeBlue uppercase mb-6 flex items-center">
-      <span class="mr-3">🖼️</span>
-      Galería de Posts (Fijar Imágenes)
-    </h2>
-
-    <button @click="cargarPostsParaEditar" :disabled="isLoadingData" class="bg-pluxeeBlue text-white px-4 py-2 rounded-xl font-bold hover:scale-105 transition mb-6 disabled:opacity-50">
-      {{ isLoadingData ? 'Buscando...' : '🔍 Cargar Posts de este Mes' }}
-    </button>
     <div class="mb-12 p-6 bg-blue-50 border border-blue-200 rounded-2xl shadow-sm">
       <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div class="flex-1">
@@ -34,6 +26,15 @@
         </div>
       </div>
     </div>
+
+    <h2 class="text-2xl font-black text-pluxeeBlue uppercase mb-6 flex items-center">
+      <span class="mr-3">🖼️</span>
+      Galería de Posts (Fijar Imágenes)
+    </h2>
+
+    <button @click="cargarPostsParaEditar" :disabled="isLoadingData" class="bg-pluxeeBlue text-white px-4 py-2 rounded-xl font-bold hover:scale-105 transition mb-6 disabled:opacity-50">
+      {{ isLoadingData ? 'Buscando...' : '🔍 Cargar Posts de este Mes' }}
+    </button>
 
     <div v-if="postsParaEditar.length > 0" class="grid grid-cols-2 md:grid-cols-4 gap-6">
       <div v-for="post in postsParaEditar" :key="post.id" class="bg-white border border-gray-200 p-4 rounded-2xl shadow-sm flex flex-col items-center text-center hover:shadow-md transition">
