@@ -30,6 +30,7 @@
         scale: 2,
         useCORS: true,
         letterRendering: true,
+        windowWidth: 1280,
       },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
       // jsPDF: { unit: 'mm', format: [339, 190], orientation: 'landscape' },
