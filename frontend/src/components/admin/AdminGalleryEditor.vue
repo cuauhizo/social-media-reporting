@@ -35,7 +35,7 @@
     <button @click="cargarPostsParaEditar" :disabled="isLoadingData" class="bg-pluxeeBlue text-white px-4 py-2 rounded-xl font-bold hover:scale-105 transition mb-6 disabled:opacity-50">
       {{ isLoadingData ? 'Buscando...' : '🔍 Cargar Posts de este Mes' }}
     </button>
-
+    <!-- <pre>{{ postsParaEditar }}</pre> -->
     <div v-if="postsParaEditar.length > 0" class="grid grid-cols-2 md:grid-cols-4 gap-6">
       <div v-for="post in postsParaEditar" :key="post.id" class="bg-white border border-gray-200 p-4 rounded-2xl shadow-sm flex flex-col items-center text-center hover:shadow-md transition">
         <div class="w-full h-40 bg-gray-100 rounded-xl mb-4 overflow-hidden flex items-center justify-center border border-gray-100">
@@ -67,8 +67,9 @@
           </span>
         </div>
 
-        <div class="w-full flex justify-end items-center">
-          <p class="text-xs font-black text-gray-600 mb-4">{{ formatDate(post.date) }}</p>
+        <div class="w-full flex justify-between items-center">
+          <p class="text-xs font-black text-gray-600 mb-4">Vistas: {{ formatNumber(post.views) }}</p>
+          <p class="text-xs font-black text-gray-600 mb-4">Fecha: {{ formatDate(post.date) }}</p>
         </div>
 
         <p class="text-xs text-gray-600 mb-4 line-clamp-3 h-12 overflow-hidden italic" :title="post.text">"{{ post.text }}"</p>
@@ -89,7 +90,7 @@
   import { ref, onMounted, computed } from 'vue'
   import { useApi } from '@/composables/useApi'
   import { useToast } from '@/composables/useToast'
-  import { formatDate } from '@/utils/formatters'
+  import { formatDate, formatNumber } from '@/utils/formatters'
 
   const { apiRequest, apiUrl } = useApi()
   const { showToast } = useToast()
@@ -127,12 +128,13 @@
       const igPosts = [...igPostsBase, ...igStoriesBase].map(p => ({ ...p, red_social: 'instagram' }))
 
       const todos = [...fbPosts, ...igPosts]
-
+      console.log(todos)
       postsParaEditar.value = todos.map(p => ({
         id: p.id,
         text: p.text,
         type: p.type,
         date: p.date,
+        views: p.views,
         red_social: p.red_social,
         link: p.link || p.postPermalink,
         picture: dictImages[p.id] ? `${apiUrl}${dictImages[p.id]}?t=${Date.now()}` : p.picture || p.img || '',
