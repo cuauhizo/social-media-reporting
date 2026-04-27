@@ -5,7 +5,7 @@
       Editar Principales Quejas (CS)
     </h2>
 
-    <div class="flex gap-4 mb-8">
+    <div class="flex flex-col gap-4 mb-8 md:flex-row">
       <input
         v-model="nuevaQueja"
         type="text"

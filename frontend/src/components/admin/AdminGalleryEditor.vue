@@ -36,7 +36,7 @@
       {{ isLoadingData ? 'Buscando...' : '🔍 Cargar Posts de este Mes' }}
     </button>
     <!-- <pre>{{ postsParaEditar }}</pre> -->
-    <div v-if="postsParaEditar.length > 0" class="grid grid-cols-2 md:grid-cols-4 gap-6">
+    <div v-if="postsParaEditar.length > 0" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
       <div v-for="post in postsParaEditar" :key="post.id" class="bg-white border border-gray-200 p-4 rounded-2xl shadow-sm flex flex-col items-center text-center hover:shadow-md transition">
         <div class="w-full h-40 bg-gray-100 rounded-xl mb-4 overflow-hidden flex items-center justify-center border border-gray-100">
           <img v-if="post.picture" :src="post.picture" @error="$event.target.src = 'https://placehold.co/300x400/17ccf9/ffffff?text=Story+Sin+Imagen'" class="w-full h-full object-cover" />

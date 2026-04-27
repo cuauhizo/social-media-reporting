@@ -5,7 +5,7 @@
       Editar Contexto Actual (RRSS)
     </h2>
 
-    <div class="flex gap-4 mb-8">
+    <div class="flex flex-col gap-4 mb-8 md:flex-row">
       <input v-model="nuevoPunto" type="text" placeholder="Escribe un nuevo hallazgo..." class="flex-1 border-2 border-gray-200 rounded-xl px-4 py-2 focus:border-pluxeeBlue outline-none" @keyup.enter="agregarPunto" />
       <button @click="agregarPunto" :disabled="isSaving" class="bg-pluxeeBlue text-white px-6 py-2 rounded-xl font-bold hover:scale-105 disabled:opacity-50">
         {{ isSaving ? 'Cargando...' : 'Agregar +' }}

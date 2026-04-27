@@ -1,7 +1,7 @@
 <template>
   <section class="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm mb-10">
-    <div class="flex justify-between items-center mb-6">
-      <h2 class="text-2xl font-black text-pluxeeBlue uppercase flex items-center">
+    <div class="flex flex-col justify-between items-center mb-6 md:flex-row">
+      <h2 class="text-2xl font-black mb-4 text-pluxeeBlue uppercase flex items-center">
         <span class="mr-3">📌</span>
         Editar Conclusión Final
       </h2>

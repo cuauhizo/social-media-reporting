@@ -5,7 +5,7 @@
       Editar Propuestas (Next Steps)
     </h2>
 
-    <div class="flex gap-4 mb-8">
+    <div class="flex flex-col gap-4 mb-8 md:flex-row">
       <input v-model="nuevaPropuesta" type="text" placeholder="Escribe una nueva estrategia o acción..." class="flex-1 border-2 border-gray-200 rounded-xl px-4 py-2 focus:border-pluxeeGreen outline-none transition" @keyup.enter="agregarPropuesta" />
       <button @click="agregarPropuesta" class="bg-pluxeeGreen text-white px-6 py-2 rounded-xl font-bold hover:scale-105 transition active:scale-95">Agregar +</button>
     </div>

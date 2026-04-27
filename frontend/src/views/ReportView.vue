@@ -124,7 +124,7 @@
       <span class="text-2xl">📄</span>
     </button>
     <div v-if="loading" class="flex h-screen items-center justify-center bg-pluxeeGreen text-white">
-      <div class="text-2xl font-black animate-pulse uppercase tracking-widest">Generando Reporte Pluxee...</div>
+      <div class="text-2xl font-black animate-pulse uppercase tracking-widest mx-4 text-center">Generando Reporte Pluxee...</div>
     </div>
 
     <div v-else-if="error" class="p-10 text-red-600 font-bold text-center">Error: {{ error }}</div>

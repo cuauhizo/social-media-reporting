@@ -1,9 +1,9 @@
 <template>
-  <div class="min-h-screen bg-gray-50 p-10 font-sans text-gray-800">
-    <div class="max-w-6xl mx-auto">
-      <div class="flex justify-between items-center mb-10">
+  <div class="min-h-screen bg-gray-50 py-10 font-sans text-gray-800">
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="flex flex-col justify-between items-center mb-10 md:flex-row">
         <div>
-          <h1 class="text-4xl font-black text-pluxeeBlue uppercase">Panel de Administración</h1>
+          <h1 class="text-3xl mb-4 text-center font-black text-pluxeeBlue uppercase md:text-4xl md:text-start">Panel de Administración</h1>
         </div>
         <router-link to="/" class="bg-pluxeeBlue text-white px-6 py-2 rounded-lg font-bold hover:bg-opacity-90 transition">Ver Reporte 👉</router-link>
       </div>

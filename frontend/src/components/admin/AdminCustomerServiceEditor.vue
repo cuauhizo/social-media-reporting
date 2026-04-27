@@ -1,8 +1,8 @@
 <template>
   <div>
     <section class="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm mb-10">
-      <div class="flex justify-between items-center mb-6">
-        <h2 class="text-2xl font-black text-pluxeeBlue uppercase flex items-center">
+      <div class="flex flex-col justify-between items-center mb-6 md:flex-row">
+        <h2 class="text-2xl font-black mb-4 text-pluxeeBlue uppercase flex items-center">
           <span class="mr-3">📊</span>
           Métricas de Customer Service
         </h2>
@@ -33,7 +33,7 @@
         Editar Casos de Atención (Tipos)
       </h2>
 
-      <div class="flex gap-4 mb-8">
+      <div class="flex flex-col gap-4 mb-8 md:flex-row">
         <input v-model="nuevoMotivo" type="text" placeholder="Ej: Actualización de datos" class="flex-1 border-2 border-gray-200 rounded-xl px-4 py-2 focus:border-orange-500 outline-none transition" />
         <input v-model="nuevaCantidad" type="number" placeholder="Cantidad" class="w-32 border-2 border-gray-200 rounded-xl px-4 py-2 focus:border-orange-500 outline-none transition" @keyup.enter="agregarCasoCS" />
         <button @click="agregarCasoCS" :disabled="isSaving" class="bg-orange-500 text-white px-6 py-2 rounded-xl font-bold hover:scale-105 transition active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
@@ -42,8 +42,8 @@
       </div>
 
       <div class="space-y-3">
-        <div v-for="item in listaCasosCS" :key="item.id" class="flex items-center justify-between bg-gray-50 p-4 rounded-xl border border-gray-100 group">
-          <div class="flex-1 flex gap-4">
+        <div v-for="item in listaCasosCS" :key="item.id" class="flex flex-col items-center justify-between bg-gray-50 p-4 rounded-xl border border-gray-100 group md:flex-row">
+          <div class="flex-1 flex flex-col w-full gap-4 md:flex-row">
             <input v-model="item.motivo" class="bg-transparent flex-1 font-medium text-gray-700 outline-none focus:text-orange-500 border-b border-transparent focus:border-orange-300" @change="actualizarCasoCS(item)" :disabled="isSaving" />
             <input
               v-model="item.cantidad"

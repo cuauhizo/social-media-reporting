@@ -5,7 +5,7 @@
       Editar Compromisos (Next Steps)
     </h2>
 
-    <div class="flex gap-4 mb-8">
+    <div class="flex flex-col gap-4 mb-8 md:flex-row">
       <input v-model="nuevoCompromiso" type="text" placeholder="Escribe una nuevo compromiso..." class="flex-1 border-2 border-gray-200 rounded-xl px-4 py-2 focus:border-pluxeeGreen outline-none transition" @keyup.enter="agregarCompromiso" />
       <button @click="agregarCompromiso" class="bg-pluxeePink text-white px-6 py-2 rounded-xl font-bold hover:scale-105 transition active:scale-95">Agregar +</button>
     </div>

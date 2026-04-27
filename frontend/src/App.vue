@@ -1,7 +1,7 @@
 <template>
   <router-view />
-  <!-- <Responsive /> -->
+  <Responsive />
 </template>
 <script setup>
-  // import Responsive from '@/components/Responsive.vue'
+  import Responsive from '@/components/Responsive.vue'
 </script>
