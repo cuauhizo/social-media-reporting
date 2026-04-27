@@ -3,7 +3,7 @@
     <div class="max-w-7xl mx-auto w-full p-4">
       <h2 class="text-3xl font-black text-pluxeeBlue mb-8 uppercase keep-with-next">Benchmark: Pluxee vs. Competitors</h2>
 
-      <div class="overflow-hidden shadow-lg rounded-lg border border-gray-200">
+      <div class="overflow-x-auto shadow-lg rounded-lg border border-gray-200">
         <table class="w-full text-left border-collapse">
           <thead>
             <tr class="bg-pluxeeBlue text-white">
