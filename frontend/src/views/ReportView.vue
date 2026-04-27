@@ -32,8 +32,8 @@
         letterRendering: true,
         windowWidth: 1280,
       },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
-      // jsPDF: { unit: 'mm', format: [339, 190], orientation: 'landscape' },
+      // jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
+      jsPDF: { unit: 'mm', format: [339, 190], orientation: 'landscape' },
       pagebreak: {
         mode: ['css'],
         avoid: ['.no-break', 'tr'], // Evita cortar elementos con la clase no-break y también las filas de las tablas (tr)
@@ -49,7 +49,7 @@
         .then(() => {
           isExporting.value = false
         })
-    }, 900) // 600 milisegundos de espera
+    }, 600) // 600 milisegundos de espera
   }
 
   onMounted(async () => {
@@ -129,7 +129,7 @@
 
     <div v-else-if="error" class="p-10 text-red-600 font-bold text-center">Error: {{ error }}</div>
 
-    <div v-else id="report-container">
+    <div v-else id="report-container" :class="{ 'export-mode': isExporting }">
       <CoverSection :metadata="reportData.metadata" />
       <ContextSection :data="reportData.context" />
       <FacebookSection :data="reportData.facebook" />
@@ -146,9 +146,21 @@
 
 <style>
   /* Fuerza un salto de página DESPUÉS de cualquier elemento con esta clase */
+  /* 1. Comportamiento normal en la Web (Responsivo) */
   .pdf-page {
+    min-height: 100vh; /* Recuperamos la altura responsiva que habíamos borrado */
+    width: 100%;
     page-break-after: always;
-    break-after: page;
+    break-after: avoid;
+  }
+
+  /* 2. Comportamiento ESTRICTO solo al exportar a PDF (Congela la pantalla a 16:9) */
+  .export-mode .pdf-page {
+    width: 1280px !important;
+    height: 720px !important;
+    min-height: auto !important;
+    margin: 0 auto;
+    overflow: hidden;
   }
 
   /* Evita que una tarjeta o gráfica se parta a la mitad entre dos páginas */

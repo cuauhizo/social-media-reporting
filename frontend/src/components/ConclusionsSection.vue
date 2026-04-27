@@ -1,6 +1,6 @@
 <template>
-  <section class="pdf-page flex flex-col justify-center min-h-screen p-8 bg-gray-50 border-t border-gray-200">
-    <div class="max-w-4xl mx-auto w-full no-break">
+  <section class="pdf-page flex flex-col justify-center bg-gray-50 border-t border-gray-200">
+    <div class="max-w-4xl mx-auto w-full p-4 no-break">
       <div class="text-center mb-10">
         <h2 class="text-4xl font-black text-pluxeeBlue uppercase tracking-wide keep-with-next">Conclusión del Mes</h2>
         <div class="h-1 w-24 bg-pluxeeYellow mx-auto mt-6"></div>

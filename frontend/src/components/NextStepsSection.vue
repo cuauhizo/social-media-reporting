@@ -1,9 +1,9 @@
 <template>
-  <section class="pdf-page flex flex-col justify-center min-h-screen p-8 bg-white border-t border-gray-200">
-    <div class="max-w-7xl mx-auto w-full">
+  <section class="pdf-page flex flex-col justify-center bg-white border-t border-gray-200">
+    <div class="max-w-7xl mx-auto w-full p-4">
       <h2 class="text-4xl font-black text-pluxeeBlue mb-12 text-center uppercase tracking-widest keep-with-next">Next Steps</h2>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
-        <div class="no-break bg-gray-50 p-8 rounded-2xl border-l-8 border-pluxeeYellow shadow-sm hover:shadow-md transition-shadow">
+        <div class="no-break bg-gray-50 p-8 rounded-2xl border-l-4 border-pluxeeYellow shadow-sm hover:shadow-md transition-shadow">
           <h3 class="text-2xl font-bold text-pluxeeBlue mb-6 flex items-center">
             <span class="text-3xl mr-3">💡</span>
             Propuestas
@@ -22,7 +22,7 @@
           </ul>
         </div>
 
-        <div class="no-break bg-gray-50 p-8 rounded-2xl border-l-8 border-pluxeeGreen shadow-sm hover:shadow-md transition-shadow">
+        <div class="no-break bg-gray-50 p-8 rounded-2xl border-l-4 border-pluxeeGreen shadow-sm hover:shadow-md transition-shadow">
           <h3 class="text-2xl font-bold text-pluxeeBlue mb-6 flex items-center">
             <span class="text-3xl mr-3">🤝</span>
             Compromisos

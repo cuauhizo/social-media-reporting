@@ -1,6 +1,6 @@
 <template>
-  <section class="pdf-page flex flex-col justify-center min-h-screen p-8 bg-white border-b border-gray-200">
-    <div class="max-w-5xl mx-auto flex flex-col md:flex-row gap-12 items-center w-full no-break">
+  <section class="pdf-page flex flex-col justify-center py-60 bg-white">
+    <div class="max-w-5xl mx-auto p-4 flex flex-col md:flex-row gap-12 items-center w-full">
       <!-- <img src="../../public/pluxee.svg" class="w-40" alt="pluxee" /> -->
       <img src="../../public/x.svg" class="w-80" alt="pluxee" />
       <div class="flex-1">

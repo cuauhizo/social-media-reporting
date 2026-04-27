@@ -1,6 +1,6 @@
 <template>
-  <section class="pdf-page flex flex-col justify-center min-h-screen bg-gray-50 p-8">
-    <div class="max-w-7xl mx-auto w-full">
+  <section class="pdf-page flex flex-col justify-center bg-gray-50">
+    <div class="max-w-7xl mx-auto w-full p-4">
       <h2 class="text-3xl font-black text-pluxeeBlue mb-8 uppercase keep-with-next">Customer Service & Complains</h2>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div class="no-break bg-white p-6 rounded-xl shadow-md border-t-4 border-pluxeeBlue">

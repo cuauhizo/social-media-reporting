@@ -1,11 +1,11 @@
 <template>
   <template v-if="data && data.trendPosts && data.trendPosts.length > 0">
-    <section v-for="(grupo, index) in agruparPorFilas(data.trendPosts, 10)" :key="'trend-fb-pg-' + index" class="pdf-page flex flex-col min-h-screen bg-white">
-      <div v-if="index === 0" class="w-full h-32 bg-pluxeePink shrink-0 flex items-center justify-center shadow-inner px-4">
+    <section v-for="(grupo, index) in agruparPorFilas(data.trendPosts, 10)" :key="'trend-fb-pg-' + index" class="pdf-page flex flex-col bg-white">
+      <div v-if="index === 0" class="w-full md:h-24 bg-pluxeePink shrink-0 flex items-center justify-center shadow-inner p-4">
         <h2 class="text-4xl text-center font-black text-white tracking-widest uppercase">Trends</h2>
       </div>
       <div v-else class="mt-12"></div>
-      <div class="flex-1 flex flex-col justify-start p-8 w-full">
+      <div class="flex-1 flex flex-col justify-start p-4 w-full">
         <!-- <pre>{{ data.trendPosts }}</pre> -->
         <div class="max-w-7xl mx-auto w-full">
           <div v-for="(fila, iFila) in agruparPorFilas(grupo, 5)" :key="'fila-trend-fb-' + index + '-' + iFila" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-8 mb-8">

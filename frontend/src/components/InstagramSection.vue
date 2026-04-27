@@ -1,13 +1,13 @@
 <template>
-  <section class="pdf-page flex flex-col min-h-screen bg-white">
-    <div class="w-full h-32 bg-gradient-to-r from-[#833ab4] via-[#fd1d1d] to-[#fcb045] shrink-0 flex items-center justify-center shadow-inner px-4">
+  <section class="pdf-page flex flex-col bg-white">
+    <div class="w-full md:h-24 bg-gradient-to-r from-[#833ab4] via-[#fd1d1d] to-[#fcb045] shrink-0 flex items-center justify-center shadow-inner p-4">
       <h2 class="text-4xl text-center font-black text-white tracking-widest uppercase">Instagram Metrics {{ data.username }}</h2>
     </div>
-    <div class="flex-1 flex flex-col justify-center p-8 w-full">
-      <div class="max-w-7xl mx-auto w-full">
-        <div class="grid grid-cols-12 gap-4">
+    <div class="flex-1 flex flex-col justify-center">
+      <div class="max-w-7xl mx-auto p-4">
+        <div class="grid grid-cols-12 gap-2">
           <div class="col-span-12">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-2 mb-2">
               <div class="bg-gray-50 p-6 rounded-xl border-l-4 border-[#e1306c] shadow-sm">
                 <p class="text-gray-500 text-sm font-bold">Followers</p>
                 <h2 class="text-3xl font-black text-pluxeeBlue">{{ formatNumber(data.kpis.total_followers) }}</h2>
@@ -85,8 +85,8 @@
     </div>
   </section>
 
-  <section class="pdf-page flex flex-col justify-center min-h-screen bg-gray-100 p-8">
-    <div class="max-w-7xl mx-auto w-full">
+  <section class="pdf-page flex flex-col justify-center bg-gray-100">
+    <div class="max-w-7xl mx-auto w-full p-4">
       <h2 class="text-2xl font-black text-pluxeeBlue mb-6 uppercase keep-with-next">Followers</h2>
       <div class="grid grid-cols-12 gap-4">
         <div class="col-span-12 xl:col-span-7 xl:col-start-4">
@@ -105,34 +105,37 @@
   </section>
 
   <template v-if="data.topPosts && data.topPosts.length > 0">
-    <section v-for="(grupoPosts, index) in agruparPorFilas(data.topPosts, 10)" :key="'pagina-post-ig-' + index" class="pdf-page flex flex-col justify-start min-h-screen bg-gray-50 p-8">
-      <div class="max-w-7xl mx-auto w-full">
+    <section v-for="(grupoPosts, index) in agruparPorFilas(data.topPosts, 10)" :key="'pagina-post-ig-' + index" class="pdf-page flex flex-col justify-start bg-gray-50">
+      <div class="max-w-7xl mx-auto w-full p-4">
         <!-- <div v-if="index === 0"> -->
-        <h3 class="text-2xl font-black text-pluxeeBlue mb-6 uppercase border-b-2 border-gray-100 py-4 keep-with-next">Top Posts (Instagram)</h3>
+        <h3 class="text-2xl font-black text-pluxeeBlue mb-4 uppercase border-b-2 border-gray-100 pb-4 keep-with-next">Top Posts (Instagram)</h3>
         <!-- </div>
         <div v-else class="mt-12"></div> -->
 
-        <div v-for="(fila, indiceFila) in agruparPorFilas(grupoPosts, 5)" :key="'fila-post-ig-' + index + '-' + indiceFila" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-4">
-          <div v-for="post in fila" :key="post.id" class="flex flex-col shadow-md rounded-lg overflow-hidden">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-4">
+          <div v-for="post in grupoPosts" :key="post.id" class="flex flex-col w-full max-w-64 shadow-md rounded-lg overflow-hidden bg-white mx-auto">
             <div class="bg-pluxeeBlue h-40 flex justify-center items-center p-2">
               <img :src="post.img" class="object-cover h-full w-full" />
             </div>
-            <div class="bg-pluxeeYellow p-3 text-pluxeeBlue text-sm">
-              <p class="font-black text-xs mb-1">{{ post.type }}</p>
-              <p>
-                <strong>Visualizaciones:</strong>
-                {{ formatNumber(post.views) }}
-              </p>
-              <p>
-                <strong>Interacciones:</strong>
-                {{ formatNumber(post.interactions) }}
-              </p>
-              <p>
-                <strong>shared o Saved:</strong>
-                {{ formatNumber(post.saved) }}
-              </p>
-              <p class="text-end">
-                <a :href="post.postPermalink" target="_blank"><strong>Ver en línea</strong></a>
+
+            <div class="bg-pluxeeYellow p-3 text-pluxeeBlue text-sm flex-1 flex flex-col justify-between">
+              <div>
+                <p class="font-black text-xs mb-2 uppercase tracking-widest text-center">{{ post.type }}</p>
+                <p>
+                  <strong>Visualizaciones:</strong>
+                  {{ formatNumber(post.views) }}
+                </p>
+                <p>
+                  <strong>Interacciones:</strong>
+                  {{ formatNumber(post.interactions) }}
+                </p>
+                <p>
+                  <strong>Shared o Saved:</strong>
+                  {{ formatNumber(post.saved) }}
+                </p>
+              </div>
+              <p class="text-end mt-2">
+                <a :href="post.postPermalink" target="_blank" class="hover:underline"><strong>Ver en línea</strong></a>
               </p>
             </div>
           </div>
@@ -151,15 +154,15 @@
   </section>
 
   <template v-if="data.topStories && data.topStories.length > 0">
-    <section v-for="(grupoStories, index) in agruparPorFilas(data.topStories, 10)" :key="'pagina-story-' + index" class="pdf-page flex flex-col justify-start min-h-screen bg-white p-8">
-      <div class="max-w-7xl mx-auto w-full">
+    <section v-for="(grupoStories, index) in agruparPorFilas(data.topStories, 10)" :key="'pagina-story-' + index" class="pdf-page flex flex-col justify-start bg-white">
+      <div class="max-w-7xl mx-auto w-full p-4">
         <!-- <div v-if="index === 0" class="no-break"> -->
-        <h3 class="text-2xl font-black text-pluxeeBlue mb-6 uppercase border-b-2 border-gray-100 py-4 keep-with-next">Top Stories</h3>
+        <h3 class="text-2xl font-black text-pluxeeBlue mb-4 uppercase border-b-2 border-gray-100 pb-4 keep-with-next">Top Stories</h3>
         <!-- </div>
         <div v-else class="mt-12"></div> -->
 
-        <div v-for="(fila, indiceFila) in agruparPorFilas(grupoStories, 5)" :key="'fila-story-' + index + '-' + indiceFila" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-4">
-          <div v-for="story in fila" :key="story.id" class="flex flex-col shadow-sm border border-orange-100 rounded-2xl overflow-hidden hover:shadow-md transition-shadow bg-white">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-8">
+          <div v-for="story in grupoStories" :key="story.id" class="flex flex-col w-full max-w-64 shadow-sm border border-orange-100 rounded-2xl overflow-hidden hover:shadow-md transition-shadow bg-white mx-auto">
             <div class="bg-gray-100 h-44 flex justify-center items-center relative overflow-hidden p-1">
               <div class="w-full h-full rounded-xl p-1 bg-gradient-to-tr from-yellow-400 via-red-500 to-fuchsia-600">
                 <img :src="story.img" @error="$event.target.src = 'https://placehold.co/300x400/17ccf9/ffffff?text=Story+Sin+Imagen'" class="object-cover h-full w-full rounded-lg border-2 border-white" />
@@ -169,7 +172,7 @@
               </span>
             </div>
 
-            <div class="p-4 flex flex-col gap-0.5 bg-orange-50/30">
+            <div class="p-4 flex flex-col gap-0.5 bg-orange-50/30 flex-1 justify-center">
               <div class="flex justify-between items-center">
                 <span class="text-gray-500 text-sm font-medium">Views</span>
                 <span class="text-lg font-black text-orange-600">{{ formatNumber(story.views) }}</span>
@@ -200,8 +203,8 @@
 
   <TrendsInstagramSection :data="data" />
 
-  <section class="pdf-page flex flex-col justify-center min-h-screen bg-gray-100 p-8">
-    <div class="max-w-7xl mx-auto w-full">
+  <section class="pdf-page flex flex-col justify-center bg-gray-100">
+    <div class="max-w-7xl mx-auto w-full p-4">
       <h2 class="text-2xl font-black text-pluxeeBlue mb-2 uppercase keep-with-next">Post metrics Tolko - Pluxee</h2>
       <TagsTable :tags="data.reachByTags" :topPosts="data.topPosts" />
     </div>

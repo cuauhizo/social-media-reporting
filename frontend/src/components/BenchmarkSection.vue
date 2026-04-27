@@ -1,6 +1,6 @@
 <template>
-  <section class="pdf-page flex flex-col justify-center min-h-screen bg-white p-8 font-sans text-gray-800">
-    <div class="max-w-7xl mx-auto w-full">
+  <section class="pdf-page flex flex-col justify-center bg-white font-sans text-gray-800">
+    <div class="max-w-7xl mx-auto w-full p-4">
       <h2 class="text-3xl font-black text-pluxeeBlue mb-8 uppercase keep-with-next">Benchmark: Pluxee vs. Competitors</h2>
 
       <div class="overflow-hidden shadow-lg rounded-lg border border-gray-200">

@@ -1,6 +1,6 @@
 <template>
-  <section class="pdf-page flex flex-col justify-center min-h-screen bg-white p-8">
-    <div class="max-w-7xl mx-auto w-full">
+  <section class="pdf-page flex flex-col justify-center bg-white">
+    <div class="max-w-7xl mx-auto w-full p-4">
       <h2 class="text-3xl font-black text-pluxeeBlue mb-8 uppercase keep-with-next">Frequent Complains</h2>
       <div class="no-break">
         <h3 class="text-xl text-center font-bold text-gray-800 mb-4 keep-with-next">Temas recurrentes escalados durante el mes</h3>

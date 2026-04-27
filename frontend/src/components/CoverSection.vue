@@ -1,5 +1,5 @@
 <template>
-  <section class="pdf-page no-break min-h-screen w-full bg-pluxeeGreen flex flex-col justify-between p-12 text-white overflow-hidden relative">
+  <section class="pdf-page w-full bg-pluxeeGreen flex flex-col justify-between p-12 text-white overflow-hidden relative">
     <div class="absolute top-10 right-10 w-32 h-32 border-4 border-pluxeeYellow rounded-full opacity-50"></div>
     <div class="absolute -bottom-12.5 -left-12.5 w-64 h-64 bg-pluxeeBlue rounded-full opacity-10"></div>
 
