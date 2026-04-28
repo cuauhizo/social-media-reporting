@@ -25,7 +25,7 @@ const app = express()
 const allowedOrigins = [
   'http://localhost:5173', // Puerto por defecto de Vite (Desarrollo local)
   'http://localhost:4173', // Puerto de Vite Preview
-  'https://reportes-redes.tolkogroup.com', // 👈 TU FRONTEND OFICIAL EN PRODUCCIÓN
+  'https://reportes-redes.tolkogroup.com', // FRONTEND OFICIAL EN PRODUCCIÓN
 ]
 
 app.use(
