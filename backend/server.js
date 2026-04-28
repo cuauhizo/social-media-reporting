@@ -40,7 +40,9 @@ app.use(
         callback(new Error('No permitido por CORS'))
       }
     },
-    credentials: true, // Importante si en el futuro usas cookies o sesiones
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Explícitamente permitimos OPTIONS
+    allowedHeaders: ['Content-Type', 'Authorization'], // Cabeceras permitidas
+    credentials: true,
   }),
 )
 app.use(express.json())
