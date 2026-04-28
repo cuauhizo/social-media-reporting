@@ -8,7 +8,6 @@ const getReportData = async (req, res) => {
     console.log('Initiating data fusion...')
 
     // 1. DATA FETCHING (Parallel execution for maximum performance)
-    // We load CSVs, API data, and MySQL data simultaneously
     const [
       fbPostsRaw,
       igPostsRaw,
@@ -44,7 +43,7 @@ const getReportData = async (req, res) => {
     // Extrayendo los competidores de la respuesta de MySQL
     const competitorsList = dbCompetitors[0] || []
 
-    // ✨ NUEVO: CÁLCULO DE MES DINÁMICO
+    // CÁLCULO DE MES DINÁMICO
     let mesDinamico = 'Periodo Actual'
     if (fbRealKpis?.historicalFollowers && fbRealKpis.historicalFollowers.length > 0) {
       const fechaRaw = fbRealKpis.historicalFollowers[0].date // Ej: "2026-03-01"
@@ -74,20 +73,10 @@ const getReportData = async (req, res) => {
     const finalTopPostsFb = mergeImages(topPostsFb)
     const finalTopPostsIg = mergeImages(topPostsIg)
 
-    // ✨ ¡AQUÍ ES EL LUGAR CORRECTO PARA FILTRAR LOS TRENDS! ✨
-    // Lo hacemos usando "finalTopPosts..." para que ya traigan la URL de la base de datos
-    // const trendPostsFb = finalTopPostsFb.filter(post => (post.tags && post.tags.toLowerCase().includes('#trend')) || post.tags.toLowerCase().includes('#treend'))
-    // const trendPostsIg = finalTopPostsIg.filter(post => (post.tags && post.tags.toLowerCase().includes('#trend')) || post.tags.toLowerCase().includes('#treend'))
-    // const trendPostsFb = topPostsFb.filter(post => (post.tags && post.tags.toLowerCase().includes('#trend')) || post.tags.toLowerCase().includes('#treend'))
-    // const trendPostsIg = topPostsIg.filter(post => (post.tags && post.tags.toLowerCase().includes('#trend')) || post.tags.toLowerCase().includes('#treend'))
-
-    // ✨ CORRECCIÓN: Filtramos los Trends DESPUÉS del merge y usando los arreglos FINAL
+    // CORRECCIÓN: Filtramos los Trends DESPUÉS del merge y usando los arreglos FINAL
     const trendPostsFb = finalTopPostsFb.filter(post => (post.tags && post.tags.toLowerCase().includes('#trend')) || post.tags.toLowerCase().includes('#treend'))
     const trendPostsIg = finalTopPostsIg.filter(post => (post.tags && post.tags.toLowerCase().includes('#trend')) || post.tags.toLowerCase().includes('#treend'))
 
-    // console.log(trendPostsFb)
-    // 3. REPORT ASSEMBLY
-    // Building the final JSON payload
     const fullReport = {
       metadata: {
         client: 'Pluxee',
@@ -108,7 +97,6 @@ const getReportData = async (req, res) => {
           interactions: fbRealKpis?.interactions || 0,
           total_followers: fbRealKpis?.total_followers || 0,
           new_followers: fbRealKpis?.new_followers || 0,
-          // publications: fbRealKpis?.publications || 0,
           clics: fbRealKpis?.clics || 0,
           shares: fbRealKpis?.shares || 0,
           responding: fbRealKpis?.comments || 0,

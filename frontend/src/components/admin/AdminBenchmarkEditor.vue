@@ -107,7 +107,7 @@
 
     <div class="mb-8">
       <h3 class="font-bold text-gray-500 mb-2 text-sm uppercase">Insights de la competencia</h3>
-      <div class="flex flex-col gap-2 mb-4 md:flex:row">
+      <div class="flex flex-col gap-2 mb-4 md:flex-row">
         <input
           v-model="nuevoBenchmarkInsight"
           type="text"

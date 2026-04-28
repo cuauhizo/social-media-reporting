@@ -132,7 +132,7 @@ async function initDB() {
   }
 }
 
-initDB()
+// initDB()
 
 // 3. Función para OBTENER el token actual
 const getTokens = async () => {
