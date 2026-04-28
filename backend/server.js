@@ -21,7 +21,28 @@ const postImagesRoutes = require('./routes/postImagesRoutes')
 const app = express()
 
 // Middlewares
-app.use(cors())
+// Configuración estricta de CORS
+const allowedOrigins = [
+  'http://localhost:5173', // Puerto por defecto de Vite (Desarrollo local)
+  'http://localhost:4173', // Puerto de Vite Preview
+  'https://reportes-redes.tolkogroup.com', // 👈 TU FRONTEND OFICIAL EN PRODUCCIÓN
+]
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // Permitir peticiones sin origen (como Postman para pruebas locales)
+      // o si el origen está en nuestra lista de permitidos
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true)
+      } else {
+        console.error(`🚨 Intento de acceso bloqueado por CORS desde: ${origin}`)
+        callback(new Error('No permitido por CORS'))
+      }
+    },
+    credentials: true, // Importante si en el futuro usas cookies o sesiones
+  }),
+)
 app.use(express.json())
 // Exponer la carpeta de imágenes públicamente
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')))

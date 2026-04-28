@@ -11,17 +11,24 @@ if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true })
 }
 
-// Configuramos Multer para guardar la imagen con el ID del post
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, uploadDir)
-  },
-  filename: function (req, file, cb) {
-    // Guardamos la imagen usando el ID del post como nombre (ej. 12345.jpg)
-    cb(null, req.body.post_id + path.extname(file.originalname))
-  },
+// Filtro estricto para aceptar SOLO imágenes seguras
+const fileFilter = (req, file, cb) => {
+  const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp']
+
+  if (allowedTypes.includes(file.mimetype)) {
+    cb(null, true)
+  } else {
+    // Rechazamos el archivo y lanzamos un error
+    cb(new Error('Formato no permitido. Solo se aceptan imágenes JPG, PNG o WEBP.'), false)
+  }
+}
+
+// Inyectamos el storage Y el fileFilter a Multer
+const upload = multer({
+  storage: storage,
+  fileFilter: fileFilter,
+  limits: { fileSize: 5 * 1024 * 1024 }, // Opcional: Límite de peso de 5MB por imagen
 })
-const upload = multer({ storage: storage })
 
 // 1. OBTENER todas las imágenes personalizadas
 router.get('/', async (req, res) => {
