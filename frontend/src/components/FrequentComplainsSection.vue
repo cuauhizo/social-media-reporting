@@ -26,22 +26,27 @@
 </template>
 
 <script setup>
-  import { ref, onMounted } from 'vue'
+  import { ref, onMounted, watch } from 'vue'
+  import { usePeriod } from '@/composables/usePeriod'
 
   // Ya no dependemos de 'props', todo es reactivo a la base de datos
   const listaQuejas = ref([])
+  const { selectedPeriod } = usePeriod()
 
-  onMounted(async () => {
+  const loadData = async () => {
     try {
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000'
 
       // MAGIA: Disparamos las peticiones
-      const [resQuejas] = await Promise.all([fetch(`${apiUrl}/api/quejas`)])
+      const [resQuejas] = await Promise.all([fetch(`${apiUrl}/api/quejas?periodo=${selectedPeriod.value}`)])
 
       // 1. Llenamos las Quejas
       if (resQuejas.ok) listaQuejas.value = await resQuejas.json()
     } catch (error) {
       console.error('Error cargando la sección de Customer Service:', error)
     }
-  })
+  }
+
+  watch(selectedPeriod, loadData)
+  onMounted(loadData)
 </script>

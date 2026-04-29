@@ -1,173 +1,198 @@
-const { getSocialMetrics } = require('../hootsuiteService')
-const { leerPublicacionesCSV, leerKpisGenerales, leerKpisFacebookHootsuite, leerKpisInstagramHootsuite, leerSentimientos, leerAlcancePorTags } = require('../csvService')
-const { formatFacebookPosts, formatInstagramPosts, formatCasData } = require('../utils/formatters')
 const { pool } = require('../utils/db')
+const { getSocialMetrics } = require('../hootsuiteService')
+// 🚀 ¡Adiós csvService.js! Ya no lo necesitamos.
+
+// 🛠️ Función auxiliar para agrupar sentimientos de MySQL
+const formatSentiment = rows => {
+  const result = { positive: 0, neutral: 0, negative: 0, total: 0 }
+  rows.forEach(r => {
+    if (r.sentimiento === 'positive') result.positive = r.cantidad
+    if (r.sentimiento === 'neutral') result.neutral = r.cantidad
+    if (r.sentimiento === 'negative') result.negative = r.cantidad
+    result.total += r.cantidad
+  })
+  if (result.total === 0) return { positive: 0, neutral: 0, negative: 0 }
+  return {
+    positive: parseFloat(((result.positive / result.total) * 100).toFixed(2)),
+    neutral: parseFloat(((result.neutral / result.total) * 100).toFixed(2)),
+    negative: parseFloat(((result.negative / result.total) * 100).toFixed(2)),
+  }
+}
+
+// 🛠️ Función auxiliar para calcular Tags al vuelo desde MySQL
+const calculateTags = posts => {
+  const tagMap = {}
+  posts.forEach(post => {
+    const rawTags = post.tags || ''
+    const tagsArray = rawTags
+      .split(',')
+      .map(t => t.trim())
+      .filter(t => t !== '')
+    const metricVal = post.visitas > 0 ? post.visitas : post.alcance
+
+    if (metricVal > 0 && tagsArray.length > 0) {
+      const dateVal = post.fecha ? new Date(post.fecha).toISOString().split('T')[0] : 'Desconocida'
+      tagsArray.forEach(tag => {
+        if (!tagMap[tag]) tagMap[tag] = []
+        tagMap[tag].push({ date: dateVal, views: metricVal })
+      })
+    }
+  })
+
+  return Object.keys(tagMap)
+    .map(name => ({
+      name,
+      posts: tagMap[name].sort((a, b) => new Date(a.date) - new Date(b.date)),
+    }))
+    .sort((a, b) => b.posts.reduce((s, p) => s + p.views, 0) - a.posts.reduce((s, p) => s + p.views, 0))
+}
 
 const getReportData = async (req, res) => {
+  const { periodId } = req.params
+
   try {
-    console.log('Initiating data fusion...')
+    console.log(`Initiating MySQL data fetch for period: ${periodId}...`)
 
-    // 1. DATA FETCHING (Dinamizado por periodo)
-    const { periodId } = req.params // Viene de la URL /api/reports/2026-03
-
+    // 1. DATA FETCHING (Consultas concurrentes a MySQL)
     const promises = [
-      leerPublicacionesCSV(`${periodId}_01_fb_posts_metrics.csv`), // 👈 Prefijo dinámico
-      leerPublicacionesCSV(`${periodId}_02_ig_posts_metrics.csv`),
-      getSocialMetrics(),
-      leerKpisGenerales(), // Nota: los manuales podrían seguir siendo globales o también por periodo
-      leerKpisFacebookHootsuite(`${periodId}_01_fb_overview_kpis.csv`), // 👈 Actualizar función en csvService
-      leerKpisInstagramHootsuite(`${periodId}_02_ig_overview_kpis.csv`),
-      leerSentimientos(`${periodId}_01_fb_inbound_sentiment.csv`),
-      leerSentimientos(`${periodId}_02_ig_inbound_sentiment.csv`),
-      leerAlcancePorTags(`${periodId}_01_fb_posts_metrics.csv`),
-      leerAlcancePorTags(`${periodId}_02_ig_posts_metrics.csv`),
-      pool.query('SELECT * FROM benchmark_competitors WHERE periodo = ? ORDER BY is_main_brand DESC, followers DESC', [periodId]), // 👈 Filtro SQL
+      pool.query('SELECT * FROM fb_posts_metrics WHERE periodo = ? ORDER BY visitas DESC', [periodId]), // 0
+      pool.query('SELECT * FROM ig_posts_metrics WHERE periodo = ? ORDER BY visitas DESC', [periodId]), // 1
+      pool.query('SELECT * FROM network_kpis WHERE periodo = ? AND red_social = ?', [periodId, 'fb']), // 2
+      pool.query('SELECT * FROM network_kpis WHERE periodo = ? AND red_social = ?', [periodId, 'ig']), // 3
+      pool.query('SELECT * FROM historical_followers WHERE periodo = ? AND red_social = ? ORDER BY fecha ASC', [periodId, 'fb']), // 4
+      pool.query('SELECT * FROM historical_followers WHERE periodo = ? AND red_social = ? ORDER BY fecha ASC', [periodId, 'ig']), // 5
+      pool.query('SELECT * FROM top_cities WHERE periodo = ? AND red_social = ? ORDER BY followers DESC', [periodId, 'fb']), // 6
+      pool.query('SELECT * FROM top_cities WHERE periodo = ? AND red_social = ? ORDER BY followers DESC', [periodId, 'ig']), // 7
+      pool.query('SELECT * FROM inbound_sentiment WHERE periodo = ? AND red_social = ?', [periodId, 'fb']), // 8
+      pool.query('SELECT * FROM inbound_sentiment WHERE periodo = ? AND red_social = ?', [periodId, 'ig']), // 9
+      pool.query('SELECT * FROM benchmark_competitors WHERE periodo = ? ORDER BY is_main_brand DESC, followers DESC', [periodId]), // 10
+      pool.query('SELECT post_id, image_url FROM post_images'), // 11
+      getSocialMetrics(), // 12. Hootsuite API (Nombres y Avatares en vivo)
     ]
 
-    // Ejecutamos todo al mismo tiempo. Si algo falla, NO rompe la ejecución.
     const results = await Promise.allSettled(promises)
-
-    // Función auxiliar para extraer el valor seguro (Si falla, devuelve el valor por defecto)
     const getSafeValue = (index, defaultValue) => (results[index].status === 'fulfilled' ? results[index].value : defaultValue)
 
-    // Extraemos los resultados
-    const fbPostsRaw = getSafeValue(0, [])
-    const igPostsRaw = getSafeValue(1, [])
-    const hootsuiteData = getSafeValue(2, null)
-    const manualKpis = getSafeValue(3, {})
-    const fbRealKpis = getSafeValue(4, {})
-    const igRealKpis = getSafeValue(5, {})
-    const fbSentiment = getSafeValue(6, { neutral: 0, positive: 0, negative: 0 })
-    const igSentiment = getSafeValue(7, { neutral: 0, positive: 0, negative: 0 })
-    const fbTags = getSafeValue(8, [])
-    const igTags = getSafeValue(9, [])
-    const dbCompetitors = getSafeValue(10, [[]]) // MySQL devuelve un array dentro de un array
+    // Extraemos resultados (Los arrays de MySQL vienen dentro de otro array `[rows, fields]`)
+    const fbPostsRaw = getSafeValue(0, [[]])[0]
+    const igPostsRaw = getSafeValue(1, [[]])[0]
+    const fbOverview = getSafeValue(2, [[{}]])[0][0] || {}
+    const igOverview = getSafeValue(3, [[{}]])[0][0] || {}
+    const fbHistory = getSafeValue(4, [[]])[0].map(h => ({ date: h.fecha, followers: h.followers }))
+    const igHistory = getSafeValue(5, [[]])[0].map(h => ({ date: h.fecha, followers: h.followers }))
+    const fbCities = getSafeValue(6, [[]])[0].map(c => ({ name: c.city_name, followers: c.followers }))
+    const igCities = getSafeValue(7, [[]])[0].map(c => ({ name: c.city_name, followers: c.followers }))
+    const fbSent = formatSentiment(getSafeValue(8, [[]])[0])
+    const igSent = formatSentiment(getSafeValue(9, [[]])[0])
+    const dbCompetitors = getSafeValue(10, [[]])[0]
+    const dbImages = getSafeValue(11, [[]])[0]
+    const hootsuiteData = getSafeValue(12, null)
 
-    // 2. DATA FORMATTING & CLEANUP
-    const topPostsFb = formatFacebookPosts(fbPostsRaw, hootsuiteData?.facebook)
-    const { topPostsIg, topStoriesIg } = formatInstagramPosts(igPostsRaw, hootsuiteData?.instagram)
-    const dynamicCas = formatCasData(manualKpis)
+    // 2. DATA FORMATTING
+    // Mapeamos lo que viene de BD a lo que el Frontend espera
+    const mapPost = (p, red) => {
+      let tipo = p.tipo_post ? p.tipo_post.toUpperCase() : 'POST'
+      const customImg = dbImages.find(img => img.post_id === p.id)
 
-    const competitorsList = dbCompetitors[0] || []
+      let defaultImg = red === 'fb' ? 'https://placehold.co/300x400/00eb5d/ffffff?text=Post+Sin+Imagen' : 'https://placehold.co/300x400/ff7375/ffffff?text=IG+Sin+Imagen'
+      if (tipo.includes('STORY')) defaultImg = 'https://placehold.co/300x533/00eb5d/ffffff?text=IG+Story'
 
-    // CÁLCULO DE MES DINÁMICO
-    let mesDinamico = 'Periodo Actual'
-    if (fbRealKpis?.historicalFollowers && fbRealKpis.historicalFollowers.length > 0) {
-      const fechaRaw = fbRealKpis.historicalFollowers[0].date
-      const dateObj = new Date(fechaRaw)
-      if (!isNaN(dateObj)) {
-        const formateador = new Intl.DateTimeFormat('es-MX', { month: 'long', year: 'numeric', timeZone: 'UTC' })
-        const fechaFormateada = formateador.format(dateObj)
-        mesDinamico = fechaFormateada.charAt(0).toUpperCase() + fechaFormateada.slice(1)
+      return {
+        id: p.id,
+        link: p.permalink,
+        type: tipo.includes('STORY') ? 'STORY' : tipo,
+        views: p.visitas,
+        reach: p.alcance,
+        interactions: p.interacciones,
+        saved: red === 'fb' ? p.shares : p.saves || 0,
+        likes: p.likes,
+        shares: p.shares,
+        picture: customImg ? customImg.image_url : defaultImg,
+        img: customImg ? customImg.image_url : defaultImg,
+        postPermalink: p.permalink,
+        text: p.mensaje ? p.mensaje.substring(0, 60) + '...' : 'Sin texto',
+        date: p.fecha ? new Date(p.fecha).toISOString().split('T')[0] : 'Sin fecha',
+        tags: p.tags || 'Sin etiqueta',
       }
     }
 
-    // 3. DATABASE MERGE (Images & Videos) - Envuelto en try/catch independiente
-    let dbImages = []
-    try {
-      const [rows] = await pool.query('SELECT post_id, image_url FROM post_images')
-      dbImages = rows
-    } catch (dbError) {
-      console.error('Error al cargar imágenes de la BD, continuando sin ellas...', dbError.message)
+    const finalTopPostsFb = fbPostsRaw.map(p => mapPost(p, 'fb'))
+    const allIg = igPostsRaw.map(p => mapPost(p, 'ig'))
+    const finalTopPostsIg = allIg.filter(p => !p.type.includes('STORY'))
+    const topStoriesIg = allIg.filter(p => p.type.includes('STORY'))
+
+    const trendPostsFb = finalTopPostsFb.filter(post => post.tags.toLowerCase().includes('#trend') || post.tags.toLowerCase().includes('#treend'))
+    const trendPostsIg = finalTopPostsIg.filter(post => post.tags.toLowerCase().includes('#trend') || post.tags.toLowerCase().includes('#treend'))
+
+    const fbTags = calculateTags(fbPostsRaw)
+    const igTags = calculateTags(igPostsRaw)
+
+    // CÁLCULO DE MES (Nombre legible)
+    let mesDinamico = periodId
+    if (periodId) {
+      const [year, month] = periodId.split('-')
+      const dateObj = new Date(year, month - 1, 1)
+      const formateador = new Intl.DateTimeFormat('es-MX', { month: 'long', year: 'numeric' })
+      const fechaFormateada = formateador.format(dateObj)
+      mesDinamico = fechaFormateada.charAt(0).toUpperCase() + fechaFormateada.slice(1)
     }
 
-    const mergeImages = posts => {
-      return posts.map(post => {
-        const dbImg = dbImages.find(img => img.post_id === post.id)
-        if (dbImg) return { ...post, img: dbImg.image_url }
-        return post
-      })
-    }
-
-    const finalTopPostsFb = mergeImages(topPostsFb)
-    const finalTopPostsIg = mergeImages(topPostsIg)
-
-    // Filtramos los Trends usando los arreglos ya mezclados con las imágenes
-    const trendPostsFb = finalTopPostsFb.filter(post => (post.tags && post.tags.toLowerCase().includes('#trend')) || post.tags.toLowerCase().includes('#treend'))
-    const trendPostsIg = finalTopPostsIg.filter(post => (post.tags && post.tags.toLowerCase().includes('#trend')) || post.tags.toLowerCase().includes('#treend'))
-
-    // 4. REPORT ASSEMBLY
+    // 3. REPORT ASSEMBLY
     const fullReport = {
-      metadata: {
-        client: 'Pluxee',
-        title: 'SOCIAL MEDIA REPORT',
-        period: mesDinamico,
-        agency: 'TOLKO',
-      },
-      context: {
-        title: 'Contexto actual de las RRSS',
-        insights: ['No hay insights registrados en este periodo.'],
-      },
+      metadata: { client: 'Pluxee', title: 'SOCIAL MEDIA REPORT', period: mesDinamico, agency: 'TOLKO' },
       facebook: {
         username: hootsuiteData?.facebook?.username || 'Pluxee FB',
         kpis: {
           month: mesDinamico,
-          interactions: fbRealKpis?.interactions || 0,
-          total_followers: fbRealKpis?.total_followers || 0,
-          new_followers: fbRealKpis?.new_followers || 0,
-          clics: fbRealKpis?.clics || 0,
-          shares: fbRealKpis?.shares || 0,
-          responding: fbRealKpis?.comments || 0,
-          post_engagement_rate: fbRealKpis?.post_engagement_rate ? `${fbRealKpis.post_engagement_rate}%` : '0%',
-          post_impressions: fbRealKpis?.post_impressions || 0,
-          response_time: fbRealKpis?.time_visualization || '0',
-          page_organic_reach: fbRealKpis?.page_organic_reach || 0,
-          page_no_followers_views: fbRealKpis?.page_no_followers_views || 0,
-          page_followers_views: fbRealKpis?.page_followers_views || 0,
-          reach: fbRealKpis?.reach || 0,
-          sentiment: {
-            neutral: fbSentiment?.neutral || 0,
-            positive: fbSentiment?.positive || 0,
-            negative: fbSentiment?.negative || 0,
-          },
-          historicalFollowers: fbRealKpis?.historicalFollowers || [],
+          interactions: fbOverview.fb_interactions || 0,
+          total_followers: fbOverview.total_followers || 0,
+          new_followers: fbOverview.new_followers || 0,
+          clics: fbOverview.fb_clics || 0,
+          shares: fbOverview.fb_shares || 0,
+          responding: fbOverview.fb_comments || 0,
+          post_engagement_rate: fbOverview.engagement_rate ? `${fbOverview.engagement_rate}%` : '0%',
+          post_impressions: fbOverview.fb_post_impressions || 0,
+          response_time: fbOverview.fb_time_visualization || '0',
+          page_organic_reach: fbOverview.fb_page_organic_reach || 0,
+          page_no_followers_views: fbOverview.fb_page_no_followers_views || 0,
+          page_followers_views: fbOverview.fb_page_followers_views || 0,
+          reach: fbOverview.fb_page_organic_reach || 0,
+          sentiment: fbSent,
+          historicalFollowers: fbHistory,
         },
-        topCities: fbRealKpis?.topCities || [],
+        topCities: fbCities,
         topPosts: finalTopPostsFb,
         trendPosts: trendPostsFb,
-        reachByTags: fbTags || [],
+        reachByTags: fbTags,
       },
       instagram: {
         username: hootsuiteData?.instagram?.username || 'Pluxee IG',
         kpis: {
-          total_followers: igRealKpis?.total_followers || 0,
-          page_engagement_rate: igRealKpis?.page_engagement_rate ? `${igRealKpis.page_engagement_rate}%` : '0%',
-          post_saves: igRealKpis?.post_saves || 0,
-          post_likes: igRealKpis?.post_likes || 0,
+          total_followers: igOverview.total_followers || 0,
+          page_engagement_rate: igOverview.engagement_rate ? `${igOverview.engagement_rate}%` : '0%',
+          post_saves: igOverview.ig_post_saves || 0,
+          post_likes: igOverview.ig_post_likes || 0,
           stories_metrics: {
-            total: igRealKpis?.posts_total || 0,
-            forward: igRealKpis?.story_taps_forward || 0,
-            back: igRealKpis?.story_taps_back || 0,
-            exit: igRealKpis?.story_exits || 0,
+            total: topStoriesIg.length || 0,
+            forward: igOverview.ig_story_taps_forward || 0,
+            back: igOverview.ig_story_taps_back || 0,
+            exit: igOverview.ig_story_exits || 0,
           },
-          reach_by_type: igRealKpis?.reach_by_type || { carousel: 0, photo: 0, reel: 0, story: 0 },
-          sentiment: {
-            neutral: igSentiment?.neutral || 0,
-            positive: igSentiment?.positive || 0,
-            negative: igSentiment?.negative || 0,
-          },
-          historicalFollowers: igRealKpis?.historicalFollowers || [],
+          reach_by_type: { carousel: igOverview.ig_reach_carousel || 0, photo: igOverview.ig_reach_photo || 0, reel: igOverview.ig_reach_reel || 0, story: igOverview.ig_reach_story || 0 },
+          sentiment: igSent,
+          historicalFollowers: igHistory,
         },
-        topCities: igRealKpis?.topCities || [],
+        topCities: igCities,
         topPosts: finalTopPostsIg,
         topStories: topStoriesIg,
         trendPosts: trendPostsIg,
-        reachByTags: igTags || [],
+        reachByTags: igTags,
       },
-      benchmarking: competitorsList,
-      benchmarkInsights: ['No hay insights de benchmarking registrados en este periodo.'],
-      customerService: {
-        cas: dynamicCas,
-        messages: { total: 0, escalated: 0, breakdown: { facebook: { count: 0, percentage: 0 }, instagram: { count: 0, percentage: 0 } } },
-        complaints: ['No hay quejas registradas en este periodo.'],
-      },
-      nextSteps: {
-        proposals: ['No hay propuestas registradas.'],
-        commitments: ['No hay compromisos registrados.'],
-      },
+      benchmarking: dbCompetitors,
+      // El frontend (ReportView) carga context, quejas, conclusiones y propuestas por su cuenta
     }
 
-    console.log('✅ Data successfully assembled!')
+    console.log(`✅ Data for ${periodId} successfully assembled from MySQL!`)
     res.json(fullReport)
   } catch (error) {
     console.error('Error FATAL assembling the final report:', error)

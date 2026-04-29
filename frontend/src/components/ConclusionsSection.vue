@@ -21,14 +21,16 @@
 </template>
 
 <script setup>
-  import { ref, onMounted } from 'vue'
+  import { ref, onMounted, watch } from 'vue'
+  import { usePeriod } from '@/composables/usePeriod'
 
   const textoConclusion = ref('')
+  const { selectedPeriod } = usePeriod()
 
-  onMounted(async () => {
+  const loadData = async () => {
     try {
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000'
-      const res = await fetch(`${apiUrl}/api/conclusiones`)
+      const res = await fetch(`${apiUrl}/api/conclusiones?periodo=${selectedPeriod.value}`)
 
       if (res.ok) {
         const data = await res.json()
@@ -40,5 +42,8 @@
     } catch (error) {
       console.error('Error cargando la conclusión:', error)
     }
-  })
+  }
+
+  watch(selectedPeriod, loadData)
+  onMounted(loadData)
 </script>

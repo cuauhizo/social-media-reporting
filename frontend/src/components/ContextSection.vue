@@ -20,9 +20,11 @@
 </template>
 
 <script setup>
-  import { ref, onMounted } from 'vue'
+  import { ref, onMounted, watch } from 'vue'
+  import { usePeriod } from '@/composables/usePeriod'
 
   const puntosContexto = ref([])
+  const { selectedPeriod } = usePeriod()
 
   defineProps({
     data: {
@@ -31,18 +33,22 @@
     },
   })
 
-  onMounted(async () => {
+  // 4. Envolver el fetch en una función reutilizable
+  const loadData = async () => {
     try {
       //  1. DECLARAMOS LA VARIABLE apiUrl AQUÍ TAMBIÉN
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000'
 
-      // 2. Hacemos la petición a MySQL
-      const res = await fetch(`${apiUrl}/api/contexto`)
+      const res = await fetch(`${apiUrl}/api/contexto?periodo=${selectedPeriod.value}`)
       if (!res.ok) throw new Error('Error al cargar el contexto')
 
       puntosContexto.value = await res.json()
     } catch (error) {
       console.error('Error cargando los puntos de contexto:', error)
     }
-  })
+  }
+
+  // 5. Escuchar cambios de mes y cargar al inicio
+  watch(selectedPeriod, loadData)
+  onMounted(loadData)
 </script>

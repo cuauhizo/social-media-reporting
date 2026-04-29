@@ -56,8 +56,9 @@
 </template>
 
 <script setup>
-  import { ref, onMounted } from 'vue'
+  import { ref, onMounted, watch } from 'vue'
   import TableCellSparkline from '@/components/TableCellSparkline.vue'
+  import { usePeriod } from '@/composables/usePeriod'
 
   const props = defineProps({
     data: {
@@ -70,21 +71,30 @@
     },
   })
 
+  const { selectedPeriod } = usePeriod()
   // Quitamos los props porque ahora el componente se alimenta solo
   const listaInsights = ref([])
   const listaCompetidores = ref([])
 
-  onMounted(async () => {
+  const loadData = async () => {
     try {
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000'
 
       // Hacemos el fetch a las rutas que acabamos de crear
-      const [resInsights, resComps] = await Promise.all([fetch(`${apiUrl}/api/benchmark-insights`), fetch(`${apiUrl}/api/benchmark-competitors`)])
+      const [resInsights, resComps] = await Promise.all([fetch(`${apiUrl}/api/benchmark-insights?periodo=${selectedPeriod.value}`), fetch(`${apiUrl}/api/benchmark-competitors?periodo=${selectedPeriod.value}`)])
 
       if (resInsights.ok) listaInsights.value = await resInsights.json()
       if (resComps.ok) listaCompetidores.value = await resComps.json()
     } catch (error) {
       console.error('Error cargando la sección de Benchmark:', error)
     }
+  }
+
+  watch(selectedPeriod, () => {
+    loadData()
+  })
+
+  onMounted(() => {
+    loadData()
   })
 </script>

@@ -125,6 +125,115 @@ async function initDB() {
       )
     `)
 
+    // Posts de Facebook
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS fb_posts_metrics (
+        id VARCHAR(100) PRIMARY KEY, -- Usaremos el ID del post o Permalink
+        periodo VARCHAR(7) NOT NULL,
+        mensaje TEXT,
+        tipo_post VARCHAR(50),
+        fecha DATETIME,
+        alcance INT DEFAULT 0,
+        interacciones INT DEFAULT 0,
+        visitas INT DEFAULT 0,
+        likes INT DEFAULT 0,
+        shares INT DEFAULT 0,
+        permalink TEXT,
+        tags TEXT
+      )
+    `)
+
+    // Posts de Instagram
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS ig_posts_metrics (
+        id VARCHAR(100) PRIMARY KEY,
+        periodo VARCHAR(7) NOT NULL,
+        mensaje TEXT,
+        tipo_post VARCHAR(50),
+        fecha DATETIME,
+        alcance INT DEFAULT 0,
+        interacciones INT DEFAULT 0,
+        visitas INT DEFAULT 0,
+        likes INT DEFAULT 0,
+        saves INT DEFAULT 0,
+        shares INT DEFAULT 0,
+        permalink TEXT,
+        tags TEXT
+      )
+    `)
+
+    // Resumen de Sentimientos (Inbound)
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS inbound_sentiment (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        periodo VARCHAR(7) NOT NULL,
+        red_social VARCHAR(10) NOT NULL, -- 'fb' o 'ig'
+        sentimiento VARCHAR(20) NOT NULL, -- 'positive', 'neutral', 'negative'
+        cantidad INT DEFAULT 0
+      )
+    `)
+
+    // 1. TABLA PARA TOTALES MENSUALES (La "caja fuerte" de los números grandes)
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS network_kpis (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        periodo VARCHAR(7) NOT NULL,
+        red_social VARCHAR(10) NOT NULL, -- 'fb' o 'ig'
+        
+        -- Datos compartidos
+        total_followers INT DEFAULT 0,
+        new_followers INT DEFAULT 0,
+        engagement_rate DECIMAL(5,2) DEFAULT 0.00,
+        
+        -- Datos exclusivos de FB
+        fb_interactions INT DEFAULT 0,
+        fb_clics INT DEFAULT 0,
+        fb_shares INT DEFAULT 0,
+        fb_comments INT DEFAULT 0,
+        fb_post_impressions INT DEFAULT 0,
+        fb_page_organic_reach INT DEFAULT 0,
+        fb_page_no_followers_views INT DEFAULT 0,
+        fb_page_followers_views INT DEFAULT 0,
+        fb_time_visualization VARCHAR(50),
+        
+        -- Datos exclusivos de IG
+        ig_story_taps_forward INT DEFAULT 0,
+        ig_story_taps_back INT DEFAULT 0,
+        ig_story_exits INT DEFAULT 0,
+        ig_post_saves INT DEFAULT 0,
+        ig_post_likes INT DEFAULT 0,
+        ig_reach_carousel INT DEFAULT 0,
+        ig_reach_photo INT DEFAULT 0,
+        ig_reach_reel INT DEFAULT 0,
+        ig_reach_story INT DEFAULT 0,
+        
+        UNIQUE KEY unique_period_network (periodo, red_social)
+      )
+    `)
+
+    // 2. TABLA PARA HISTÓRICO DIARIO (Para alimentar las gráficas de crecimiento)
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS historical_followers (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        periodo VARCHAR(7) NOT NULL,
+        red_social VARCHAR(10) NOT NULL,
+        fecha DATE NOT NULL,
+        followers INT DEFAULT 0,
+        UNIQUE KEY unique_date_network (fecha, red_social)
+      )
+    `)
+
+    // 3. TABLA PARA TOP CIUDADES
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS top_cities (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        periodo VARCHAR(7) NOT NULL,
+        red_social VARCHAR(10) NOT NULL,
+        city_name VARCHAR(100) NOT NULL,
+        followers INT DEFAULT 0
+      )
+    `)
+
     connection.release()
     console.log('✅ Base de datos MySQL: Tablas de Tokens y Contexto listas.')
   } catch (error) {

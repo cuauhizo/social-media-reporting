@@ -46,19 +46,21 @@
 </template>
 
 <script setup>
-  import { ref, onMounted } from 'vue'
+  import { ref, onMounted, watch } from 'vue'
+  import { usePeriod } from '@/composables/usePeriod'
 
+  const { selectedPeriod } = usePeriod()
   const listaPropuestas = ref([])
   const listaCompromisos = ref([])
   const props = defineProps({
     data: Object,
   })
 
-  onMounted(async () => {
+  const loadData = async () => {
     try {
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000'
-      const resProuetas = await fetch(`${apiUrl}/api/propuestas`)
-      const resCompromisos = await fetch(`${apiUrl}/api/compromisos`)
+      const resProuetas = await fetch(`${apiUrl}/api/propuestas?periodo=${selectedPeriod.value}`)
+      const resCompromisos = await fetch(`${apiUrl}/api/compromisos?periodo=${selectedPeriod.value}`)
       if (!resProuetas.ok) throw new Error('Error al cargar propuestas')
       if (!resCompromisos.ok) throw new Error('Error al cargar Compromisos')
 
@@ -67,5 +69,8 @@
     } catch (error) {
       console.error('Error cargando propuestas:', error)
     }
-  })
+  }
+
+  watch(selectedPeriod, loadData)
+  onMounted(loadData)
 </script>

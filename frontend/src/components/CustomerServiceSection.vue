@@ -37,13 +37,15 @@
 </template>
 
 <script setup>
-  import { ref, onMounted } from 'vue'
+  import { ref, onMounted, watch } from 'vue'
+  import { usePeriod } from '@/composables/usePeriod'
   import { Pie } from 'vue-chartjs'
   import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js'
   import ChartDataLabels from 'chartjs-plugin-datalabels'
 
   ChartJS.register(ArcElement, Tooltip, Legend)
 
+  const { selectedPeriod } = usePeriod()
   // Ya no dependemos de 'props', todo es reactivo a la base de datos
   const metricas = ref({ cs_total: 0, cs_escalated: 0 })
 
@@ -78,12 +80,12 @@
     },
   }
 
-  onMounted(async () => {
+  const loadData = async () => {
     try {
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000'
 
       // MAGIA: Disparamos las 3 peticiones al mismo tiempo para que cargue ultra rápido
-      const [resMetricas, resCasos] = await Promise.all([fetch(`${apiUrl}/api/metricas`), fetch(`${apiUrl}/api/casos-cs`)])
+      const [resMetricas, resCasos] = await Promise.all([fetch(`${apiUrl}/api/metricas?periodo=${selectedPeriod.value}`), fetch(`${apiUrl}/api/casos-cs?periodo=${selectedPeriod.value}`)])
 
       // 2. Llenamos las Métricas Fijas y construimos su Gráfica
       if (resMetricas.ok) {
@@ -140,5 +142,7 @@
     } catch (error) {
       console.error('Error cargando la sección de Customer Service:', error)
     }
-  })
+  }
+  watch(selectedPeriod, loadData)
+  onMounted(loadData)
 </script>
