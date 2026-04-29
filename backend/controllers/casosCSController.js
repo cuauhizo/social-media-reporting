@@ -2,8 +2,11 @@ const { pool } = require('../utils/db')
 
 // 1. OBTENER
 const getCasosCS = async (req, res) => {
+  const { periodo } = req.query // El frontend enviará ?periodo=2026-03
+  if (!periodo) return res.status(400).json({ error: 'El periodo es necesario' })
+
   try {
-    const [rows] = await pool.query('SELECT * FROM casos_cs ORDER BY cantidad DESC') // Los ordenamos de mayor a menor
+    const [rows] = await pool.query('SELECT * FROM casos_cs WHERE periodo = ? ORDER BY cantidad DESC', [periodo]) // Los ordenamos de mayor a menor
     res.json(rows)
   } catch (error) {
     console.error('Error en getCasosCS:', error)
@@ -13,10 +16,12 @@ const getCasosCS = async (req, res) => {
 
 // 2. AGREGAR
 const addCasosCS = async (req, res) => {
-  const { motivo, cantidad } = req.body
+  const { motivo, cantidad, periodo } = req.body
+  if (!periodo) return res.status(400).json({ error: 'El periodo es necesario' })
+
   try {
-    const [result] = await pool.query('INSERT INTO casos_cs (motivo, cantidad) VALUES (?, ?)', [motivo, cantidad || 0])
-    res.json({ id: result.insertId, motivo, cantidad })
+    const [result] = await pool.query('INSERT INTO casos_cs (motivo, cantidad, periodo) VALUES (?, ?, ?)', [motivo, cantidad || 0, periodo])
+    res.json({ id: result.insertId, motivo, cantidad, periodo })
   } catch (error) {
     console.error('Error en addCasosCS:', error)
     res.status(500).json({ error: 'Error interno al guardar la CasosCS.' })

@@ -32,18 +32,20 @@
 </template>
 
 <script setup>
-  import { ref, onMounted } from 'vue'
+  import { ref, onMounted, watch } from 'vue'
   import { useApi } from '@/composables/useApi'
   import { useToast } from '@/composables/useToast'
+  import { usePeriod } from '@/composables/usePeriod'
 
   const { apiRequest, isSaving } = useApi()
   const { showToast } = useToast()
+  const { selectedPeriod } = usePeriod()
 
   const listaQuejas = ref([])
   const nuevaQueja = ref('')
 
   const fetchQuejas = async () => {
-    listaQuejas.value = await apiRequest('/api/quejas')
+    listaQuejas.value = await apiRequest(`/api/quejas?periodo=${selectedPeriod.value}`)
   }
 
   const agregarQueja = async () => {
@@ -51,7 +53,10 @@
     try {
       await apiRequest('/api/quejas', {
         method: 'POST',
-        body: JSON.stringify({ queja: nuevaQueja.value }),
+        body: JSON.stringify({
+          queja: nuevaQueja.value,
+          periodo: selectedPeriod.value,
+        }),
       })
       nuevaQueja.value = ''
       fetchQuejas()
@@ -83,6 +88,10 @@
       showToast('Error al eliminar', 'error')
     }
   }
+
+  watch(selectedPeriod, () => {
+    fetchQuejas()
+  })
 
   onMounted(() => {
     fetchQuejas()

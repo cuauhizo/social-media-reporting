@@ -104,3 +104,5 @@ ehthumbs.db
 
 data/*
 data_old/*
+
+*.sql

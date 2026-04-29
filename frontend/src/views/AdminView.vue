@@ -4,6 +4,13 @@
       <div class="flex flex-col justify-between items-center mb-10 md:flex-row">
         <div>
           <h1 class="text-3xl mb-4 text-center font-black text-pluxeeBlue uppercase md:text-4xl md:text-start">Panel de Administración</h1>
+          <div class="fixed z-10 bg-white px-4 py-2 rounded-xl shadow-sm border border-gray-200 flex items-center gap-3">
+            <span class="text-xl">📅</span>
+            <div class="flex flex-col">
+              <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none">Periodo a editar</span>
+              <input type="month" v-model="selectedPeriod" class="font-black text-pluxeeBlue outline-none bg-transparent cursor-pointer" />
+            </div>
+          </div>
         </div>
         <router-link to="/" class="bg-pluxeeBlue text-white px-6 py-2 rounded-lg font-bold hover:bg-opacity-90 transition">Ver Reporte 👉</router-link>
       </div>
@@ -131,6 +138,7 @@
 <script setup>
   import { ref, computed } from 'vue'
   import { useToast } from '@/composables/useToast'
+  import { usePeriod } from '@/composables/usePeriod'
   import AdminContextEditor from '@/components/admin/AdminContextEditor.vue'
   import AdminQuejasEditor from '@/components/admin/AdminQuejasEditor.vue'
   import AdminPropuestasEditor from '@/components/admin/AdminPropuestasEditor.vue'
@@ -143,6 +151,7 @@
   const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000'
 
   const { alert, showToast } = useToast()
+  const { selectedPeriod } = usePeriod()
   const showAlert = showToast
 
   // Objeto reactivo para saber qué cajita está recibiendo un "Drag" (Hover de archivo)
@@ -180,14 +189,15 @@
 
     try {
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000'
-      const response = await fetch(`${apiUrl}/api/upload/${typeId}`, {
+      // 🚀 MAGIA: Ahora la URL incluye el periodo (ej. /api/upload/fb_posts/2026-03)
+      const response = await fetch(`${apiUrl}/api/upload/${typeId}/${selectedPeriod.value}`, {
         method: 'POST',
         body: formData,
       })
 
       if (!response.ok) throw new Error('Error al subir el archivo al servidor')
 
-      showToast(`¡Éxito! Archivo actualizado correctamente.`, 'success')
+      showToast(`¡Éxito! Archivo actualizado para ${selectedPeriod.value}.`, 'success')
     } catch (error) {
       showToast(error.message, 'error')
     }

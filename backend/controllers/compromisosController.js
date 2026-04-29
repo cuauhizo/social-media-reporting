@@ -2,8 +2,11 @@ const { pool } = require('../utils/db')
 
 // 1. OBTENER
 const getCompromisos = async (req, res) => {
+  const { periodo } = req.query // El frontend enviará ?periodo=2026-03
+  if (!periodo) return res.status(400).json({ error: 'El periodo es necesario' })
+
   try {
-    const [rows] = await pool.query('SELECT * FROM compromisos ORDER BY id ASC')
+    const [rows] = await pool.query('SELECT * FROM compromisos WHERE periodo = ? ORDER BY id ASC', [periodo])
     res.json(rows)
   } catch (error) {
     console.error('Error en getCompromisos:', error)
@@ -13,10 +16,13 @@ const getCompromisos = async (req, res) => {
 
 // 2. AGREGAR
 const addCompromiso = async (req, res) => {
-  const { compromiso } = req.body
+  const { compromiso, periodo } = req.body
+  if (!periodo) return res.status(400).json({ error: 'El periodo es necesario' })
+
   try {
-    const [result] = await pool.query('INSERT INTO compromisos (compromiso) VALUES (?)', [compromiso])
-    res.json({ id: result.insertId, compromiso })
+    const [result] = await pool.query('INSERT INTO compromisos (compromiso, periodo) VALUES (?, ?)', [compromiso, periodo])
+
+    res.json({ id: result.insertId, compromiso, periodo })
   } catch (error) {
     console.error('Error en addCompromiso:', error)
     res.status(500).json({ error: 'Error interno al guardar la compromiso.' })

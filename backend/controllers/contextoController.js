@@ -2,8 +2,11 @@ const { pool } = require('../utils/db')
 
 // 1. OBTENER
 const getContexto = async (req, res) => {
+  const { periodo } = req.query // El frontend enviará ?periodo=2026-03
+  if (!periodo) return res.status(400).json({ error: 'El periodo es necesario' })
+
   try {
-    const [rows] = await pool.query('SELECT * FROM contexto_rrss ORDER BY id ASC')
+    const [rows] = await pool.query('SELECT * FROM contexto_rrss WHERE periodo = ? ORDER BY id ASC', [periodo])
     res.json(rows)
   } catch (error) {
     console.error('Error en getContexto:', error)
@@ -13,10 +16,12 @@ const getContexto = async (req, res) => {
 
 // 2. AGREGAR
 const addContexto = async (req, res) => {
-  const { punto } = req.body
+  const { punto, periodo } = req.body
+  if (!periodo) return res.status(400).json({ error: 'El periodo es necesario' })
+
   try {
-    const [result] = await pool.query('INSERT INTO contexto_rrss (punto) VALUES (?)', [punto])
-    res.json({ id: result.insertId, punto })
+    const [result] = await pool.query('INSERT INTO contexto_rrss (punto, periodo) VALUES (?, ?)', [punto, periodo])
+    res.json({ id: result.insertId, punto, periodo })
   } catch (error) {
     console.error('Error en addContexto:', error)
     res.status(500).json({ error: 'Error interno al guardar el punto de contexto.' })

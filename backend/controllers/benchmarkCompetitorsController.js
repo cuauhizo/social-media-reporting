@@ -2,8 +2,12 @@ const { pool } = require('../utils/db')
 
 // 1. OBTENER
 const getCompetitors = async (req, res) => {
+  const { periodo } = req.query // El frontend enviará ?periodo=2026-03
+  if (!periodo) return res.status(400).json({ error: 'El periodo es necesario' })
+
   try {
-    const [rows] = await pool.query('SELECT * FROM benchmark_competitors ORDER BY is_main_brand DESC, followers DESC')
+    const [rows] = await pool.query('SELECT * FROM benchmark_competitors WHERE periodo = ? ORDER BY is_main_brand DESC, followers DESC', [periodo])
+
     res.json(rows)
   } catch (error) {
     console.error('Error en getCompetitors:', error)
@@ -13,15 +17,15 @@ const getCompetitors = async (req, res) => {
 
 // 2. AGREGAR
 const addCompetitor = async (req, res) => {
-  const { brand_name, description, posts_count, frequency, interaction, followers, gained_followers, is_main_brand } = req.body
+  const { brand_name, description, posts_count, frequency, interaction, followers, gained_followers, is_main_brand, periodo } = req.body
   try {
     const [result] = await pool.query(
       `INSERT INTO benchmark_competitors 
-      (brand_name, description, posts_count, frequency, interaction, followers, gained_followers, is_main_brand) 
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      [brand_name, description || '', posts_count || 0, frequency || 0, interaction || 0, followers || 0, gained_followers || 0, is_main_brand || 0],
+      (brand_name, description, posts_count, frequency, interaction, followers, gained_followers, is_main_brand, periodo) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [brand_name, description || '', posts_count || 0, frequency || 0, interaction || 0, followers || 0, gained_followers || 0, is_main_brand || 0, periodo],
     )
-    res.json({ id: result.insertId, brand_name })
+    res.json({ id: result.insertId, brand_name, description, posts_count, frequency, interaction, followers, gained_followers, is_main_brand, periodo })
   } catch (error) {
     console.error('Error en addCompetitor:', error)
     res.status(500).json({ error: 'Error al guardar el competidor.' })

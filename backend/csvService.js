@@ -37,7 +37,7 @@ function leerKpisGenerales() {
 }
 
 // Lee 01_fb_overview_kpis.csv para obtener KPIs generales de Facebook y también las ciudades top
-function leerKpisFacebookHootsuite() {
+function leerKpisFacebookHootsuite(nombreArchivo) {
   return new Promise((resolve, reject) => {
     const rutaArchivo = path.join(__dirname, 'data', '01_fb_overview_kpis.csv')
 
@@ -147,7 +147,7 @@ function leerKpisFacebookHootsuite() {
 }
 
 // 02_ig_overview_kpis.csv para obtener KPIs generales de IG y las ciudades top
-function leerKpisInstagramHootsuite() {
+function leerKpisInstagramHootsuite(nombreArchivo) {
   return new Promise((resolve, reject) => {
     const rutaArchivo = path.join(__dirname, 'data', '02_ig_overview_kpis.csv')
 

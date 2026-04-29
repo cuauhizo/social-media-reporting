@@ -6,14 +6,22 @@
     </h2>
 
     <div class="flex flex-col gap-4 mb-8 md:flex-row">
-      <input v-model="nuevoCompromiso" type="text" placeholder="Escribe una nuevo compromiso..." class="flex-1 border-2 border-gray-200 rounded-xl px-4 py-2 focus:border-pluxeeGreen outline-none transition" @keyup.enter="agregarCompromiso" />
-      <button @click="agregarCompromiso" class="bg-pluxeePink text-white px-6 py-2 rounded-xl font-bold hover:scale-105 transition active:scale-95">Agregar +</button>
+      <input
+        v-model="nuevoCompromiso"
+        type="text"
+        placeholder="Escribe una nuevo compromiso..."
+        class="flex-1 border-2 border-gray-200 rounded-xl px-4 py-2 focus:border-pluxeeGreen outline-none transition"
+        @keyup.enter="agregarCompromiso"
+        :disabled="isSaving" />
+      <button @click="agregarCompromiso" :disabled="isSaving" class="bg-pluxeePink text-white px-6 py-2 rounded-xl font-bold hover:scale-105 transition active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
+        {{ isSaving ? 'Guardando...' : 'Agregar +' }}
+      </button>
     </div>
 
     <div class="space-y-3">
       <div v-for="item in listaCompromisos" :key="item.id" class="flex items-center justify-between bg-gray-50 p-4 rounded-xl border border-gray-100 group">
         <div class="flex-1">
-          <input v-model="item.compromiso" class="bg-transparent w-full font-medium text-gray-700 outline-none focus:text-pluxeeGreen" @change="actualizarCompromiso(item)" />
+          <input v-model="item.compromiso" class="bg-transparent w-full font-medium text-gray-700 outline-none focus:text-pluxeeGreen" @change="actualizarCompromiso(item)" :disabled="isSaving" />
         </div>
         <button @click="borrarCompromiso(item.id)" class="text-red-400 hover:text-red-600 ml-4 opacity-0 group-hover:opacity-100 transition">🗑️ Borrar</button>
       </div>
@@ -24,18 +32,20 @@
 </template>
 
 <script setup>
-  import { ref, onMounted } from 'vue'
+  import { ref, onMounted, watch } from 'vue'
   import { useApi } from '@/composables/useApi'
   import { useToast } from '@/composables/useToast'
+  import { usePeriod } from '@/composables/usePeriod'
 
   const { apiRequest, isSaving } = useApi()
   const { showToast } = useToast()
+  const { selectedPeriod } = usePeriod()
 
   const listaCompromisos = ref([])
   const nuevoCompromiso = ref('')
 
   const fetchCompromisos = async () => {
-    listaCompromisos.value = await apiRequest('/api/compromisos')
+    listaCompromisos.value = await apiRequest(`/api/compromisos?periodo=${selectedPeriod.value}`)
   }
 
   const agregarCompromiso = async () => {
@@ -43,7 +53,7 @@
     try {
       await apiRequest('/api/compromisos', {
         method: 'POST',
-        body: JSON.stringify({ compromiso: nuevoCompromiso.value }),
+        body: JSON.stringify({ compromiso: nuevoCompromiso.value, periodo: selectedPeriod.value }),
       })
       nuevoCompromiso.value = ''
       fetchCompromisos()
@@ -75,6 +85,10 @@
       showToast('Error al eliminar', 'error')
     }
   }
+
+  watch(selectedPeriod, () => {
+    fetchCompromisos()
+  })
 
   onMounted(() => {
     fetchCompromisos()

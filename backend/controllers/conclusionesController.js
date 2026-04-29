@@ -2,8 +2,11 @@ const { pool } = require('../utils/db')
 
 // 1. OBTENER
 const getConclusiones = async (req, res) => {
+  const { periodo } = req.query // El frontend enviará ?periodo=2026-03
+  if (!periodo) return res.status(400).json({ error: 'El periodo es necesario' })
+
   try {
-    const [rows] = await pool.query('SELECT * FROM conclusiones ORDER BY id ASC')
+    const [rows] = await pool.query('SELECT * FROM conclusiones WHERE periodo = ? ORDER BY id ASC', [periodo])
     res.json(rows)
   } catch (error) {
     console.error('Error en getConclusiones:', error)
@@ -13,10 +16,12 @@ const getConclusiones = async (req, res) => {
 
 // 2. AGREGAR
 const addConclusiones = async (req, res) => {
-  const { conclusion } = req.body
+  const { conclusion, periodo } = req.body
+  if (!periodo) return res.status(400).json({ error: 'El periodo es necesario' })
+
   try {
-    const [result] = await pool.query('INSERT INTO conclusiones (conclusion) VALUES (?)', [conclusion])
-    res.json({ id: result.insertId, conclusion })
+    const [result] = await pool.query('INSERT INTO conclusiones (conclusion, periodo) VALUES (?, ?)', [conclusion, periodo])
+    res.json({ id: result.insertId, conclusion, periodo })
   } catch (error) {
     console.error('Error en addConclusiones:', error)
     res.status(500).json({ error: 'Error interno al guardar la conclusion.' })

@@ -134,6 +134,56 @@ async function initDB() {
 
 // initDB()
 
+// Agrega esto en backend/utils/db.js antes de getTokens
+
+async function actualizarTablasParaHistorial() {
+  const tablas = ['contexto_rrss', 'quejas_rrss', 'propuestas', 'compromisos', 'casos_cs', 'benchmark_insights', 'benchmark_competitors', 'conclusiones']
+
+  try {
+    const connection = await pool.getConnection()
+    console.log('⏳ Actualizando base de datos para la Fase 3 (Historial por meses)...')
+
+    // Usamos el mes actual como valor por defecto para los registros viejos (ej. "2026-04")
+    const hoy = new Date()
+    // Le restamos 1 mes porque los reportes siempre son del mes vencido
+    hoy.setMonth(hoy.getMonth() - 1)
+    const defaultPeriod = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}`
+
+    for (const tabla of tablas) {
+      try {
+        // Intentamos agregar la columna. Si ya existe, MySQL arrojará un error que ignoraremos.
+        await connection.query(`ALTER TABLE ${tabla} ADD COLUMN periodo VARCHAR(7) DEFAULT '${defaultPeriod}'`)
+        console.log(`✅ Columna 'periodo' agregada a la tabla: ${tabla}`)
+      } catch (err) {
+        // El código de error 1060 significa "Columna duplicada" (ya existe)
+        if (err.code !== 'ER_DUP_FIELDNAME') {
+          console.error(`Error alterando la tabla ${tabla}:`, err.message)
+        }
+      }
+    }
+
+    // Para metricas_globales es distinto porque usa clave/valor. Añadiremos el periodo a la llave primaria
+    try {
+      await connection.query(`ALTER TABLE metricas_globales ADD COLUMN periodo VARCHAR(7) DEFAULT '${defaultPeriod}'`)
+      // Quitamos la llave primaria vieja y creamos una compuesta (clave + periodo)
+      await connection.query(`ALTER TABLE metricas_globales DROP PRIMARY KEY, ADD PRIMARY KEY (clave, periodo)`)
+      console.log(`✅ Tabla metricas_globales adaptada para historial.`)
+    } catch (err) {
+      if (err.code !== 'ER_DUP_FIELDNAME' && !err.message.includes('Multiple primary key defined')) {
+        console.error(`Error alterando metricas_globales:`, err.message)
+      }
+    }
+
+    connection.release()
+    console.log('🚀 ¡Base de datos lista para manejar meses dinámicos!')
+  } catch (error) {
+    console.error('Error conectando a la BD para actualizar:', error.message)
+  }
+}
+
+// Descomenta esto, guarda el archivo (la terminal correrá la función), y luego lo vuelves a comentar.
+// actualizarTablasParaHistorial();
+
 // 3. Función para OBTENER el token actual
 const getTokens = async () => {
   const [rows] = await pool.query('SELECT access_token, refresh_token FROM auth_tokens WHERE id = 1')

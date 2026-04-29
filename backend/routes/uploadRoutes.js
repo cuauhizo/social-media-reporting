@@ -21,21 +21,19 @@ const storage = multer.diskStorage({
   // ¿Dónde lo guardamos? En la carpeta data/
   destination: (req, file, cb) => {
     const dir = path.join(__dirname, '../data')
-    // Si por alguna razón la carpeta data no existe, la creamos
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true })
-    }
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true })
     cb(null, dir)
   },
   // ¿Qué nombre le ponemos? Usamos nuestro diccionario
   filename: (req, file, cb) => {
-    const fileType = req.params.type // Lo leeremos de la URL
-    const exactName = fileMapping[fileType]
+    const { type, periodo } = req.params // 👈 Capturamos el periodo de la URL
+    const exactName = fileMapping[type]
 
-    if (exactName) {
-      cb(null, exactName) // Lo renombramos y sobrescribimos si ya existe
+    if (exactName && periodo) {
+      // 🛡️ El nombre ahora será: "YYYY-MM_nombre_archivo.csv"
+      cb(null, `${periodo}_${exactName}`)
     } else {
-      cb(new Error('Tipo de archivo no válido'), false)
+      cb(new Error('Tipo de archivo o periodo no válido'), false)
     }
   },
 })
@@ -45,30 +43,19 @@ const fileFilter = (req, file, cb) => {
   if (file.mimetype === 'text/csv' || file.originalname.endsWith('.csv')) {
     cb(null, true)
   } else {
-    cb(new Error('El archivo debe ser un formato .csv'), false)
+    cb(new Error('Solo se permiten archivos .csv'), false)
   }
 }
 
-// Inicializamos el middleware de Multer
-const upload = multer({ storage: storage, fileFilter: fileFilter })
+const upload = multer({ storage, fileFilter })
 
-// 4. Endpoint de subida (El frontend hará un POST a /api/upload/fb_posts)
-router.post('/:type', upload.single('csvFile'), (req, res) => {
+// El frontend enviará /api/upload/fb_posts/2026-03
+router.post('/:type/:periodo', upload.single('csvFile'), (req, res) => {
   try {
-    if (!req.file) {
-      return res.status(400).json({ error: 'No se subió ningún archivo o formato inválido.' })
-    }
-
-    const newFileName = fileMapping[req.params.type]
-    console.log(`✅ Nuevo archivo subido exitosamente: ${newFileName}`)
-
-    res.json({
-      message: 'Archivo subido y actualizado con éxito',
-      fileName: newFileName,
-    })
+    if (!req.file) return res.status(400).json({ error: 'Archivo no subido' })
+    res.json({ message: 'Archivo guardado con historial', fileName: req.file.filename })
   } catch (error) {
-    console.error('Error al subir el archivo:', error)
-    res.status(500).json({ error: error.message })
+    res.status(500).json({ error: 'Error al procesar la subida' })
   }
 })
 

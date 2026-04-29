@@ -10,7 +10,6 @@
           {{ isSaving ? 'Guardando...' : '💾 Guardar Métricas' }}
         </button>
       </div>
-
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
           <label class="block text-sm font-bold text-gray-500 mb-2">Casos Escalados</label>
@@ -61,12 +60,14 @@
 </template>
 
 <script setup>
-  import { ref, onMounted } from 'vue'
+  import { ref, onMounted, watch } from 'vue'
   import { useApi } from '@/composables/useApi'
   import { useToast } from '@/composables/useToast'
+  import { usePeriod } from '@/composables/usePeriod'
 
   const { apiRequest, isSaving } = useApi()
   const { showToast } = useToast()
+  const { selectedPeriod } = usePeriod()
 
   // Estado para Métricas
   const metricas = ref({ cs_escalated: 0, msj_fb: 0, msj_ig: 0 })
@@ -78,15 +79,16 @@
 
   // Lógica de Métricas
   const fetchMetricas = async () => {
-    const data = await apiRequest('/api/metricas')
-    metricas.value = { ...metricas.value, ...data }
+    const data = await apiRequest(`/api/metricas?periodo=${selectedPeriod.value}`)
+    // Resetear a 0 antes de mezclar, para no arrastrar basura de meses anteriores
+    metricas.value = { cs_escalated: 0, msj_fb: 0, msj_ig: 0, ...data }
   }
 
   const guardarMetricas = async () => {
     try {
       await apiRequest('/api/metricas', {
         method: 'POST',
-        body: JSON.stringify(metricas.value),
+        body: JSON.stringify({ ...metricas.value, periodo: selectedPeriod.value }),
       })
       showToast('Métricas globales guardadas con éxito', 'success')
     } catch (error) {
@@ -96,7 +98,7 @@
 
   // Lógica de Casos CS
   const fetchCasosCS = async () => {
-    listaCasosCS.value = await apiRequest('/api/casos-cs')
+    listaCasosCS.value = await apiRequest(`/api/casos-cs?periodo=${selectedPeriod.value}`)
   }
 
   const agregarCasoCS = async () => {
@@ -104,7 +106,7 @@
     try {
       await apiRequest('/api/casos-cs', {
         method: 'POST',
-        body: JSON.stringify({ motivo: nuevoMotivo.value, cantidad: nuevaCantidad.value }),
+        body: JSON.stringify({ motivo: nuevoMotivo.value, cantidad: nuevaCantidad.value, periodo: selectedPeriod.value }),
       })
       nuevoMotivo.value = ''
       nuevaCantidad.value = ''
@@ -137,6 +139,11 @@
       showToast('Error al eliminar', 'error')
     }
   }
+
+  watch(selectedPeriod, () => {
+    fetchMetricas()
+    fetchCasosCS()
+  })
 
   onMounted(() => {
     fetchMetricas()

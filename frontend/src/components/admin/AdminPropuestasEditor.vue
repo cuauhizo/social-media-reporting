@@ -6,14 +6,22 @@
     </h2>
 
     <div class="flex flex-col gap-4 mb-8 md:flex-row">
-      <input v-model="nuevaPropuesta" type="text" placeholder="Escribe una nueva estrategia o acción..." class="flex-1 border-2 border-gray-200 rounded-xl px-4 py-2 focus:border-pluxeeGreen outline-none transition" @keyup.enter="agregarPropuesta" />
-      <button @click="agregarPropuesta" class="bg-pluxeeGreen text-white px-6 py-2 rounded-xl font-bold hover:scale-105 transition active:scale-95">Agregar +</button>
+      <input
+        v-model="nuevaPropuesta"
+        type="text"
+        placeholder="Escribe una nueva estrategia o acción..."
+        class="flex-1 border-2 border-gray-200 rounded-xl px-4 py-2 focus:border-pluxeeGreen outline-none transition"
+        @keyup.enter="agregarPropuesta"
+        :disabled="isSaving" />
+      <button @click="agregarPropuesta" :disabled="isSaving" class="bg-pluxeeGreen text-white px-6 py-2 rounded-xl font-bold hover:scale-105 transition active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
+        {{ isSaving ? 'Guardando...' : 'Agregar +' }}
+      </button>
     </div>
 
     <div class="space-y-3">
       <div v-for="item in listaPropuestas" :key="item.id" class="flex items-center justify-between bg-gray-50 p-4 rounded-xl border border-gray-100 group">
         <div class="flex-1">
-          <input v-model="item.propuesta" class="bg-transparent w-full font-medium text-gray-700 outline-none focus:text-pluxeeGreen" @change="actualizarPropuesta(item)" />
+          <input v-model="item.propuesta" class="bg-transparent w-full font-medium text-gray-700 outline-none focus:text-pluxeeGreen" @change="actualizarPropuesta(item)" :disabled="isSaving" />
         </div>
         <button @click="borrarPropuesta(item.id)" class="text-red-400 hover:text-red-600 ml-4 opacity-0 group-hover:opacity-100 transition">🗑️ Borrar</button>
       </div>
@@ -24,18 +32,20 @@
 </template>
 
 <script setup>
-  import { ref, onMounted } from 'vue'
+  import { ref, onMounted, watch } from 'vue'
   import { useApi } from '@/composables/useApi'
   import { useToast } from '@/composables/useToast'
+  import { usePeriod } from '@/composables/usePeriod'
 
   const { apiRequest, isSaving } = useApi()
   const { showToast } = useToast()
+  const { selectedPeriod } = usePeriod()
 
   const listaPropuestas = ref([])
   const nuevaPropuesta = ref('')
 
   const fetchPropuestas = async () => {
-    listaPropuestas.value = await apiRequest('/api/propuestas')
+    listaPropuestas.value = await apiRequest(`/api/propuestas?periodo=${selectedPeriod.value}`)
   }
 
   const agregarPropuesta = async () => {
@@ -43,7 +53,7 @@
     try {
       await apiRequest('/api/propuestas', {
         method: 'POST',
-        body: JSON.stringify({ propuesta: nuevaPropuesta.value }),
+        body: JSON.stringify({ propuesta: nuevaPropuesta.value, periodo: selectedPeriod.value }),
       })
       nuevaPropuesta.value = ''
       fetchPropuestas()
@@ -75,6 +85,10 @@
       showToast('Error al eliminar', 'error')
     }
   }
+
+  watch(selectedPeriod, () => {
+    fetchPropuestas()
+  })
 
   onMounted(() => {
     fetchPropuestas()

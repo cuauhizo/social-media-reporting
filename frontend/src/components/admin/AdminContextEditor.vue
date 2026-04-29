@@ -6,15 +6,15 @@
     </h2>
 
     <div class="flex flex-col gap-4 mb-8 md:flex-row">
-      <input v-model="nuevoPunto" type="text" placeholder="Escribe un nuevo hallazgo..." class="flex-1 border-2 border-gray-200 rounded-xl px-4 py-2 focus:border-pluxeeBlue outline-none" @keyup.enter="agregarPunto" />
-      <button @click="agregarPunto" :disabled="isSaving" class="bg-pluxeeBlue text-white px-6 py-2 rounded-xl font-bold hover:scale-105 disabled:opacity-50">
+      <input v-model="nuevoPunto" type="text" placeholder="Escribe un nuevo hallazgo..." class="flex-1 border-2 border-gray-200 rounded-xl px-4 py-2 focus:border-pluxeeBlue outline-none" @keyup.enter="agregarPunto" :disabled="isSaving" />
+      <button @click="agregarPunto" :disabled="isSaving" class="bg-pluxeeBlue text-white px-6 py-2 rounded-xl font-bold hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed">
         {{ isSaving ? 'Cargando...' : 'Agregar +' }}
       </button>
     </div>
 
     <div class="space-y-3">
       <div v-for="item in listaContexto" :key="item.id" class="flex items-center justify-between bg-gray-50 p-4 rounded-xl border group">
-        <input v-model="item.punto" class="bg-transparent flex-1 outline-none focus:text-pluxeeBlue" @change="actualizarPunto(item)" />
+        <input v-model="item.punto" class="bg-transparent flex-1 outline-none focus:text-pluxeeBlue" @change="actualizarPunto(item)" :disabled="isSaving" />
         <button @click="borrarPunto(item.id)" class="text-red-400 opacity-0 group-hover:opacity-100 ml-4">🗑️ Borrar</button>
       </div>
     </div>
@@ -22,18 +22,20 @@
 </template>
 
 <script setup>
-  import { ref, onMounted } from 'vue'
+  import { ref, onMounted, watch } from 'vue'
   import { useApi } from '@/composables/useApi'
-  import { useToast } from '@/composables/useToast' // 👈 1. Importamos el Toast
+  import { useToast } from '@/composables/useToast'
+  import { usePeriod } from '@/composables/usePeriod'
 
   const { apiRequest, isSaving } = useApi()
-  const { showToast } = useToast() // 👈 2. Lo inicializamos
+  const { showToast } = useToast()
+  const { selectedPeriod } = usePeriod()
 
   const listaContexto = ref([])
   const nuevoPunto = ref('')
 
   const fetchContexto = async () => {
-    listaContexto.value = await apiRequest('/api/contexto')
+    listaContexto.value = await apiRequest(`/api/contexto?periodo=${selectedPeriod.value}`)
   }
 
   const agregarPunto = async () => {
@@ -41,11 +43,11 @@
     try {
       await apiRequest('/api/contexto', {
         method: 'POST',
-        body: JSON.stringify({ punto: nuevoPunto.value }),
+        body: JSON.stringify({ punto: nuevoPunto.value, periodo: selectedPeriod.value }),
       })
       nuevoPunto.value = ''
       fetchContexto()
-      showToast('Punto agregado con éxito', 'success') // 👈 3. Usamos showToast directamente
+      showToast('Punto agregado con éxito', 'success')
     } catch (error) {
       showToast('Error al agregar el punto', 'error')
     }
@@ -73,6 +75,10 @@
       showToast('Error al eliminar', 'error')
     }
   }
+
+  watch(selectedPeriod, () => {
+    fetchContexto()
+  })
 
   onMounted(() => {
     fetchContexto()

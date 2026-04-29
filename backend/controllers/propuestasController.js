@@ -2,8 +2,11 @@ const { pool } = require('../utils/db')
 
 // 1. OBTENER
 const getPropuestas = async (req, res) => {
+  const { periodo } = req.query // El frontend enviará ?periodo=2026-03
+  if (!periodo) return res.status(400).json({ error: 'El periodo es necesario' })
+
   try {
-    const [rows] = await pool.query('SELECT * FROM propuestas ORDER BY id ASC')
+    const [rows] = await pool.query('SELECT * FROM propuestas WHERE periodo = ? ORDER BY id ASC', [periodo])
     res.json(rows)
   } catch (error) {
     console.error('Error en getPropuestas:', error)
@@ -13,10 +16,12 @@ const getPropuestas = async (req, res) => {
 
 // 2. AGREGAR
 const addPropuesta = async (req, res) => {
-  const { propuesta } = req.body
+  const { propuesta, periodo } = req.body
+  if (!periodo) return res.status(400).json({ error: 'El periodo es necesario' })
+
   try {
-    const [result] = await pool.query('INSERT INTO propuestas (propuesta) VALUES (?)', [propuesta])
-    res.json({ id: result.insertId, propuesta })
+    const [result] = await pool.query('INSERT INTO propuestas (propuesta, periodo) VALUES (?, ?)', [propuesta, periodo])
+    res.json({ id: result.insertId, propuesta, periodo })
   } catch (error) {
     console.error('Error en addPropuesta:', error)
     res.status(500).json({ error: 'Error interno al guardar la propuesta.' })

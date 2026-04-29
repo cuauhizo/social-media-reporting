@@ -1,5 +1,6 @@
 <script setup>
-  import { ref, onMounted } from 'vue'
+  import { ref, onMounted, watch } from 'vue'
+  import { usePeriod } from '@/composables/usePeriod'
   import html2pdf from 'html2pdf.js'
   import CoverSection from '@/components/CoverSection.vue'
   import ContextSection from '@/components/ContextSection.vue'
@@ -12,6 +13,7 @@
   import ConclusionsSection from '@/components/ConclusionsSection.vue'
   import ThankYouSection from '@/components/ThankYouSection.vue'
 
+  const { selectedPeriod } = usePeriod()
   const reportData = ref(null)
   const loading = ref(true)
   const error = ref(null)
@@ -52,20 +54,12 @@
     }, 600) // 600 milisegundos de espera
   }
 
-  onMounted(async () => {
+  // Función para cargar los datos (la sacamos del onMounted para poder reutilizarla)
+  const loadReport = async () => {
+    loading.value = true
     try {
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000'
-
-      // 1. Calculamos el periodo (Mes Anterior) una sola vez para todo el hook
-      const hoy = new Date()
-      hoy.setMonth(hoy.getMonth() - 1)
-      const año = hoy.getFullYear()
-      const mes = String(hoy.getMonth() + 1).padStart(2, '0')
-      const periodId = `${año}-${mes}`
-      const dynamicCoverId = `fb_cover_${periodId}` // ID único para la portada de este mes
-
-      // 2. Cargamos los datos del reporte
-      const res = await fetch(`${apiUrl}/api/reports/${periodId}`)
+      const res = await fetch(`${apiUrl}/api/reports/${selectedPeriod.value}`)
 
       if (res.ok) {
         reportData.value = await res.json()
@@ -110,15 +104,28 @@
         console.error(`Error: No se encontró el reporte para el periodo ${periodId}`)
       }
     } catch (error) {
-      console.error('Error general al montar ReportView:', error)
+      console.error('Error al cargar reporte:', error)
     } finally {
       loading.value = false
     }
+  }
+
+  // Recargar cuando cambie el periodo
+  watch(selectedPeriod, () => {
+    loadReport()
+  })
+
+  onMounted(() => {
+    loadReport()
   })
 </script>
 
 <template>
   <div class="font-sans text-gray-800 bg-gray-50">
+    <div class="fixed z-10 bg-pluxeeBlue p-4 flex justify-center items-center gap-4 text-white print:hidden">
+      <span class="text-xs font-bold uppercase tracking-widest opacity-70">Viendo reporte de:</span>
+      <input type="month" v-model="selectedPeriod" class="bg-white/10 border border-white/20 rounded-lg px-3 py-1 font-black outline-none cursor-pointer hover:bg-white/20 transition" />
+    </div>
     <button v-if="!loading && !isExporting" @click="exportToPDF" class="fixed bottom-8 right-8 z-50 bg-pluxeeBlue text-white p-4 rounded-full shadow-2xl hover:scale-110 transition-transform flex items-center gap-2 group print:hidden">
       <span class="font-bold hidden group-hover:inline ml-2">Descargar PDF</span>
       <span class="text-2xl">📄</span>

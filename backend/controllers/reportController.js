@@ -7,19 +7,21 @@ const getReportData = async (req, res) => {
   try {
     console.log('Initiating data fusion...')
 
-    // 1. DATA FETCHING (Cambiamos a Promise.allSettled para que sea tolerante a fallos)
+    // 1. DATA FETCHING (Dinamizado por periodo)
+    const { periodId } = req.params // Viene de la URL /api/reports/2026-03
+
     const promises = [
-      leerPublicacionesCSV('01_fb_posts_metrics.csv'), // 0
-      leerPublicacionesCSV('02_ig_posts_metrics.csv'), // 1
-      getSocialMetrics(), // 2
-      leerKpisGenerales(), // 3
-      leerKpisFacebookHootsuite(), // 4
-      leerKpisInstagramHootsuite(), // 5
-      leerSentimientos('01_fb_inbound_sentiment.csv'), // 6
-      leerSentimientos('02_ig_inbound_sentiment.csv'), // 7
-      leerAlcancePorTags('01_fb_posts_metrics.csv'), // 8
-      leerAlcancePorTags('02_ig_posts_metrics.csv'), // 9
-      pool.query('SELECT * FROM benchmark_competitors ORDER BY is_main_brand DESC, followers DESC'), // 10
+      leerPublicacionesCSV(`${periodId}_01_fb_posts_metrics.csv`), // 👈 Prefijo dinámico
+      leerPublicacionesCSV(`${periodId}_02_ig_posts_metrics.csv`),
+      getSocialMetrics(),
+      leerKpisGenerales(), // Nota: los manuales podrían seguir siendo globales o también por periodo
+      leerKpisFacebookHootsuite(`${periodId}_01_fb_overview_kpis.csv`), // 👈 Actualizar función en csvService
+      leerKpisInstagramHootsuite(`${periodId}_02_ig_overview_kpis.csv`),
+      leerSentimientos(`${periodId}_01_fb_inbound_sentiment.csv`),
+      leerSentimientos(`${periodId}_02_ig_inbound_sentiment.csv`),
+      leerAlcancePorTags(`${periodId}_01_fb_posts_metrics.csv`),
+      leerAlcancePorTags(`${periodId}_02_ig_posts_metrics.csv`),
+      pool.query('SELECT * FROM benchmark_competitors WHERE periodo = ? ORDER BY is_main_brand DESC, followers DESC', [periodId]), // 👈 Filtro SQL
     ]
 
     // Ejecutamos todo al mismo tiempo. Si algo falla, NO rompe la ejecución.

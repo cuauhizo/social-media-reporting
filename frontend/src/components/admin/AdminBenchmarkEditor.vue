@@ -129,12 +129,14 @@
 </template>
 
 <script setup>
-  import { ref, onMounted } from 'vue'
+  import { ref, onMounted, watch } from 'vue'
   import { useApi } from '@/composables/useApi'
   import { useToast } from '@/composables/useToast'
+  import { usePeriod } from '@/composables/usePeriod'
 
   const { apiRequest, isSaving } = useApi()
   const { showToast } = useToast()
+  const { selectedPeriod } = usePeriod()
 
   // Estados de Competidores
   const listaCompetidores = ref([])
@@ -155,13 +157,13 @@
 
   // === LÓGICA COMPETIDORES ===
   const fetchCompetidores = async () => {
-    listaCompetidores.value = await apiRequest('/api/benchmark-competitors')
+    listaCompetidores.value = await apiRequest(`/api/benchmark-competitors?periodo=${selectedPeriod.value}`)
   }
 
   const agregarCompetidor = async () => {
     if (!nuevoComp.value.brand_name.trim()) return
     try {
-      const dataToSave = { ...nuevoComp.value, is_main_brand: nuevoComp.value.is_main_brand ? 1 : 0 }
+      const dataToSave = { ...nuevoComp.value, is_main_brand: nuevoComp.value.is_main_brand ? 1 : 0, periodo: selectedPeriod.value }
       await apiRequest('/api/benchmark-competitors', {
         method: 'POST',
         body: JSON.stringify(dataToSave),
@@ -200,7 +202,7 @@
 
   // === LÓGICA BENCHMARK INSIGHTS ===
   const fetchBenchmarkInsights = async () => {
-    listaBenchmarkInsights.value = await apiRequest('/api/benchmark-insights')
+    listaBenchmarkInsights.value = await apiRequest(`/api/benchmark-insights?periodo=${selectedPeriod.value}`)
   }
 
   const agregarBenchmarkInsight = async () => {
@@ -208,7 +210,7 @@
     try {
       await apiRequest('/api/benchmark-insights', {
         method: 'POST',
-        body: JSON.stringify({ insight: nuevoBenchmarkInsight.value }),
+        body: JSON.stringify({ insight: nuevoBenchmarkInsight.value, periodo: selectedPeriod.value }),
       })
       nuevoBenchmarkInsight.value = ''
       fetchBenchmarkInsights()
@@ -240,6 +242,11 @@
       showToast('Error al eliminar insight', 'error')
     }
   }
+
+  watch(selectedPeriod, () => {
+    fetchCompetidores()
+    fetchBenchmarkInsights()
+  })
 
   onMounted(() => {
     fetchCompetidores()

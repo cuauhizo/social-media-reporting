@@ -2,8 +2,11 @@ const { pool } = require('../utils/db')
 
 // 1. OBTENER
 const getQuejas = async (req, res) => {
+  const { periodo } = req.query // El frontend enviará ?periodo=2026-03
+  if (!periodo) return res.status(400).json({ error: 'El periodo es necesario' })
+
   try {
-    const [rows] = await pool.query('SELECT * FROM quejas_rrss ORDER BY id ASC')
+    const [rows] = await pool.query('SELECT * FROM quejas_rrss WHERE periodo = ? ORDER BY id ASC', [periodo])
     res.json(rows)
   } catch (error) {
     // 🛡️ SEGURIDAD: El error real se queda en la terminal de tu servidor (para ti)
@@ -15,10 +18,12 @@ const getQuejas = async (req, res) => {
 
 // 2. AGREGAR
 const addQueja = async (req, res) => {
-  const { queja } = req.body
+  const { queja, periodo } = req.body
+  if (!periodo) return res.status(400).json({ error: 'El periodo es necesario' })
+
   try {
-    const [result] = await pool.query('INSERT INTO quejas_rrss (queja) VALUES (?)', [queja])
-    res.json({ id: result.insertId, queja })
+    const [result] = await pool.query('INSERT INTO quejas_rrss (queja, periodo) VALUES (?, ?)', [queja, periodo])
+    res.json({ id: result.insertId, queja, periodo })
   } catch (error) {
     console.error('Error en addQueja:', error)
     res.status(500).json({ error: 'Error interno al guardar la queja.' })
