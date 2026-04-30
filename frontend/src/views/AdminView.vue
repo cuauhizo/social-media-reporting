@@ -140,12 +140,10 @@
           <b>{{ selectedPeriod }}</b>
           .
         </p>
-        <button @click="borrarMesCompleto" class="bg-red-600 text-white px-8 py-3 rounded-xl font-bold text-lg hover:bg-red-700 hover:scale-105 transition shadow-lg flex items-center">
-          <span class="mr-2">💥</span>
-          FORMATEAR MES ACTUAL
-        </button>
+        <button @click="borrarMesCompleto" class="bg-red-600 text-white px-8 py-3 rounded-xl font-bold text-lg hover:bg-red-700 hover:scale-105 transition shadow-lg flex items-center">FORMATEAR MES ACTUAL</button>
       </div>
     </div>
+    <ConfirmModal />
   </div>
 </template>
 
@@ -154,6 +152,8 @@
   import { useToast } from '@/composables/useToast'
   import { usePeriod } from '@/composables/usePeriod'
   import { useApi } from '@/composables/useApi'
+  import { useModal } from '@/composables/useModal'
+  import ConfirmModal from '@/components/admin/ConfirmModal.vue'
   import AdminContextEditor from '@/components/admin/AdminContextEditor.vue'
   import AdminQuejasEditor from '@/components/admin/AdminQuejasEditor.vue'
   import AdminPropuestasEditor from '@/components/admin/AdminPropuestasEditor.vue'
@@ -166,6 +166,7 @@
   import AdminPostsEditor from '@/components/admin/AdminPostsEditor.vue'
 
   const { apiRequest } = useApi()
+  const { showModal } = useModal()
   const { alert, showToast } = useToast()
   const { selectedPeriod } = usePeriod()
 
@@ -236,20 +237,25 @@
   }
 
   const borrarMesCompleto = async () => {
-    const seguro = confirm(`⚠️ ¡CUIDADO! ⚠️\n\nEstás a punto de borrar ABSOLUTAMENTE TODO el trabajo, datos y reportes de ${selectedPeriod.value}.\n\nEsta acción NO se puede deshacer. ¿Deseas continuar?`)
-    if (!seguro) return
+    // 🚀 INVOCAMOS EL NUEVO MODAL HERMOSO
+    const isConfirmed = await showModal({
+      title: '⚠️ ZONA DE PELIGRO',
+      message: `Estás a punto de borrar ABSOLUTAMENTE TODO el trabajo, datos y reportes de ${selectedPeriod.value}.\n\nPara confirmar la destrucción, escribe exactamente el periodo:`,
+      type: 'prompt', // Pide validación de texto
+      expectedInput: selectedPeriod.value, // La palabra a escribir
+      confirmText: 'Destruir Todo',
+      cancelText: 'Me arrepentí',
+    })
 
-    // Doble confirmación por si acaso
-    const dobleSeguro = prompt(`Para confirmar la destrucción, escribe el periodo: ${selectedPeriod.value}`)
-    if (dobleSeguro !== selectedPeriod.value) {
-      showToast('Operación cancelada. El periodo ingresado no coincide.', 'error')
+    if (!isConfirmed) {
+      showToast('Operación cancelada.', 'error')
       return
     }
 
     try {
       await apiRequest(`/api/reports/reset/${selectedPeriod.value}`, { method: 'DELETE' })
-      showToast('💥 Toda la información del mes ha sido eliminada.', 'success')
-      setTimeout(() => window.location.reload(), 1500) // Recargamos para limpiar la pantalla
+      showToast('Toda la información del mes ha sido eliminada.', 'success')
+      setTimeout(() => window.location.reload(), 1500)
     } catch (error) {
       showToast('Error al limpiar el mes', 'error')
     }

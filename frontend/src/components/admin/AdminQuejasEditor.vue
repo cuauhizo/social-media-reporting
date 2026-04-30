@@ -36,8 +36,10 @@
   import { useApi } from '@/composables/useApi'
   import { useToast } from '@/composables/useToast'
   import { usePeriod } from '@/composables/usePeriod'
+  import { useModal } from '@/composables/useModal'
 
   const { apiRequest, isSaving } = useApi()
+  const { showModal } = useModal()
   const { showToast } = useToast()
   const { selectedPeriod } = usePeriod()
 
@@ -79,7 +81,15 @@
   }
 
   const borrarQueja = async id => {
-    if (!confirm('¿Seguro que quieres eliminar esta queja?')) return
+    const isConfirmed = await showModal({
+      message: `¿Seguro que quieres eliminar esta queja?`,
+    })
+
+    if (!isConfirmed) {
+      showToast('Operación cancelada.', 'error')
+      return
+    }
+
     try {
       await apiRequest(`/api/quejas/${id}`, { method: 'DELETE' })
       fetchQuejas()

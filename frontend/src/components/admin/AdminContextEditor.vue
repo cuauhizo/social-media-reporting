@@ -17,6 +17,7 @@
         <input v-model="item.punto" class="bg-transparent flex-1 outline-none focus:text-pluxeeBlue" @change="actualizarPunto(item)" :disabled="isSaving" />
         <button @click="borrarPunto(item.id)" class="text-red-400 opacity-0 group-hover:opacity-100 ml-4">🗑️ Borrar</button>
       </div>
+      <div v-if="listaContexto.length === 0" class="text-center text-gray-400 py-4 italic">No hay contexto definidas aún.</div>
     </div>
   </section>
 </template>
@@ -26,8 +27,10 @@
   import { useApi } from '@/composables/useApi'
   import { useToast } from '@/composables/useToast'
   import { usePeriod } from '@/composables/usePeriod'
+  import { useModal } from '@/composables/useModal'
 
   const { apiRequest, isSaving } = useApi()
+  const { showModal } = useModal()
   const { showToast } = useToast()
   const { selectedPeriod } = usePeriod()
 
@@ -66,7 +69,15 @@
   }
 
   const borrarPunto = async id => {
-    if (!confirm('¿Seguro que quieres eliminar este punto?')) return
+    const isConfirmed = await showModal({
+      message: `¿Seguro que quieres eliminar este punto?`,
+    })
+
+    if (!isConfirmed) {
+      showToast('Operación cancelada.', 'error')
+      return
+    }
+
     try {
       await apiRequest(`/api/contexto/${id}`, { method: 'DELETE' })
       fetchContexto()

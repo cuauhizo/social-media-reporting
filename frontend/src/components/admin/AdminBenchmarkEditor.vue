@@ -37,24 +37,19 @@
         <input v-model="nuevoComp.gained_followers" type="number" step="0.01" class="w-full border-2 border-gray-200 p-2 rounded-lg text-sm" :disabled="isSaving" />
       </div>
 
-      <div class="flex items-center justify-center bg-white border p-2 rounded-lg h-[38px]">
+      <div class="flex items-center justify-center p-2 rounded-lg h-[38px]">
         <label class="text-[10px] font-bold text-pluxeeBlue uppercase flex items-center cursor-pointer">
           <input v-model="nuevoComp.is_main_brand" type="checkbox" class="mr-1" :disabled="isSaving" />
           Pluxee?
         </label>
       </div>
       <div>
-        <button @click="agregarCompetidor" :disabled="isSaving" class="bg-pluxeeBlue text-white p-2 rounded-lg font-bold text-sm w-full hover:scale-105 active:scale-95 transition disabled:opacity-50 h-[38px]">Guardar</button>
+        <button @click="agregarCompetidor" :disabled="isSaving" class="bg-pluxeeBlue text-white p-2 rounded-lg font-bold text-sm w-full hover:scale-105 active:scale-95 transition disabled:opacity-50">Guardar</button>
       </div>
-      <div class="col-span-2 lg:col-span-2">
-        <button @click="clonarMesAnterior" :disabled="isSaving" class="bg-pluxeePink text-white p-2 rounded-lg font-bold text-sm w-full hover:scale-105 active:scale-95 transition disabled:opacity-50 h-[38px]">Importar mes anterior</button>
+      <div class="col-span-1 lg:col-span-2">
+        <button @click="clonarMesAnterior" :disabled="isSaving" class="bg-pluxeePink text-white p-2 rounded-lg font-bold text-sm w-full hover:scale-105 active:scale-95 transition disabled:opacity-50">Importar mes anterior</button>
       </div>
     </div>
-
-    <!-- 
-    agregarCompetidor
-    -->
-
     <div class="overflow-x-auto">
       <table class="w-full text-left text-sm border-collapse">
         <thead>
@@ -68,7 +63,7 @@
             <th class="pb-2"></th>
           </tr>
         </thead>
-        <tbody>
+        <tbody v-if="listaCompetidores && listaCompetidores.length > 0">
           <tr v-for="comp in listaCompetidores" :key="comp.id" class="border-b hover:bg-gray-50 transition-colors" :class="comp.is_main_brand ? 'bg-yellow-50' : ''">
             <td class="py-3 pr-2">
               <div class="flex items-center">
@@ -109,6 +104,11 @@
             </td>
           </tr>
         </tbody>
+        <tbody v-else>
+          <tr>
+            <td colspan="7" class="py-10 text-center text-gray-400 font-medium text-sm">No se encontraron datos de competidores para este periodo.</td>
+          </tr>
+        </tbody>
       </table>
     </div>
 
@@ -142,8 +142,10 @@
   import { useApi } from '@/composables/useApi'
   import { useToast } from '@/composables/useToast'
   import { usePeriod } from '@/composables/usePeriod'
+  import { useModal } from '@/composables/useModal'
 
   const { apiRequest, isSaving } = useApi()
+  const { showModal } = useModal()
   const { showToast } = useToast()
   const { selectedPeriod } = usePeriod()
 
@@ -199,7 +201,15 @@
   }
 
   const borrarCompetidor = async id => {
-    if (!confirm('¿Eliminar competidor?')) return
+    const isConfirmed = await showModal({
+      message: `¿Seguro que quieres eliminar este competidor?`,
+    })
+
+    if (!isConfirmed) {
+      showToast('Operación cancelada.', 'error')
+      return
+    }
+
     try {
       await apiRequest(`/api/benchmark-competitors/${id}`, { method: 'DELETE' })
       fetchCompetidores()
@@ -216,7 +226,14 @@
     d.setMonth(d.getMonth() - 1)
     const mesAnterior = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
 
-    if (!confirm(`¿Estás seguro de querer importar los competidores de ${mesAnterior} hacia ${selectedPeriod.value}? Esto borrará los que tengas actualmente en este mes.`)) return
+    const isConfirmed = await showModal({
+      message: `¿Estás seguro de querer importar los competidores de ${mesAnterior} hacia ${selectedPeriod.value}? Esto borrará los que tengas actualmente en este mes.`,
+    })
+
+    if (!isConfirmed) {
+      showToast('Operación cancelada.', 'error')
+      return
+    }
 
     try {
       await apiRequest('/api/benchmark-competitors/clone', {
@@ -263,7 +280,15 @@
   }
 
   const borrarBenchmarkInsight = async id => {
-    if (!confirm('¿Eliminar insight?')) return
+    const isConfirmed = await showModal({
+      message: `¿Seguro que quieres eliminar este insight?`,
+    })
+
+    if (!isConfirmed) {
+      showToast('Operación cancelada.', 'error')
+      return
+    }
+
     try {
       await apiRequest(`/api/benchmark-insights/${id}`, { method: 'DELETE' })
       fetchBenchmarkInsights()

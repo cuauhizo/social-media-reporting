@@ -96,7 +96,7 @@
     </button>
 
     <div v-if="loading" class="flex h-screen items-center justify-center bg-pluxeeGreen text-white">
-      <div class="text-2xl font-black animate-pulse uppercase tracking-widest mx-4 text-center">Consultando MySQL...</div>
+      <div class="text-2xl font-black animate-pulse uppercase tracking-widest mx-4 text-center">Generando Reporte...</div>
     </div>
 
     <div v-else-if="error" class="flex h-screen flex-col items-center justify-center text-center px-4">
