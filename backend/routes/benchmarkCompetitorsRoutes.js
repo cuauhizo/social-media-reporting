@@ -6,5 +6,6 @@ router.get('/', compController.getCompetitors)
 router.post('/', compController.addCompetitor)
 router.put('/:id', compController.updateCompetitor)
 router.delete('/:id', compController.deleteCompetitor)
+router.post('/clone', compController.cloneCompetitors)
 
 module.exports = router

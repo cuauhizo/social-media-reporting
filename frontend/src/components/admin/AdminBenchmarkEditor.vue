@@ -43,8 +43,17 @@
           Pluxee?
         </label>
       </div>
-      <button @click="agregarCompetidor" :disabled="isSaving" class="bg-pluxeeBlue text-white p-2 rounded-lg font-bold text-sm hover:scale-105 active:scale-95 transition disabled:opacity-50 h-[38px]">Guardar</button>
+      <div>
+        <button @click="agregarCompetidor" :disabled="isSaving" class="bg-pluxeeBlue text-white p-2 rounded-lg font-bold text-sm w-full hover:scale-105 active:scale-95 transition disabled:opacity-50 h-[38px]">Guardar</button>
+      </div>
+      <div class="col-span-2 lg:col-span-2">
+        <button @click="clonarMesAnterior" :disabled="isSaving" class="bg-pluxeePink text-white p-2 rounded-lg font-bold text-sm w-full hover:scale-105 active:scale-95 transition disabled:opacity-50 h-[38px]">Importar mes anterior</button>
+      </div>
     </div>
+
+    <!-- 
+    agregarCompetidor
+    -->
 
     <div class="overflow-x-auto">
       <table class="w-full text-left text-sm border-collapse">
@@ -197,6 +206,27 @@
       showToast('Competidor eliminado', 'success')
     } catch (error) {
       showToast('Error al eliminar competidor', 'error')
+    }
+  }
+
+  const clonarMesAnterior = async () => {
+    // Calculamos matemáticamente cuál fue el mes anterior
+    const [year, month] = selectedPeriod.value.split('-')
+    const d = new Date(year, month - 1, 1)
+    d.setMonth(d.getMonth() - 1)
+    const mesAnterior = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+
+    if (!confirm(`¿Estás seguro de querer importar los competidores de ${mesAnterior} hacia ${selectedPeriod.value}? Esto borrará los que tengas actualmente en este mes.`)) return
+
+    try {
+      await apiRequest('/api/benchmark-competitors/clone', {
+        method: 'POST',
+        body: JSON.stringify({ fromPeriod: mesAnterior, toPeriod: selectedPeriod.value }),
+      })
+      showToast('Competidores importados', 'success')
+      fetchCompetidores() // Recargamos la tabla
+    } catch (error) {
+      showToast(error.message || 'No se encontraron datos en el mes anterior', 'error')
     }
   }
 

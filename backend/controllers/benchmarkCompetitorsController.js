@@ -63,5 +63,34 @@ const deleteCompetitor = async (req, res) => {
   }
 }
 
+// CLONAR COMPETIDORES DEL MES ANTERIOR
+const cloneCompetitors = async (req, res) => {
+  const { fromPeriod, toPeriod } = req.body
+  if (!fromPeriod || !toPeriod) return res.status(400).json({ error: 'Faltan periodos' })
+
+  try {
+    // Primero borramos si ya había algo en este mes para no duplicar
+    await pool.query('DELETE FROM benchmark_competitors WHERE periodo = ?', [toPeriod])
+
+    // Copiamos la info del mes anterior al nuevo usando TUS columnas reales
+    const [result] = await pool.query(
+      `INSERT INTO benchmark_competitors 
+      (periodo, brand_name, description, posts_count, frequency, interaction, followers, gained_followers, is_main_brand)
+       SELECT ?, brand_name, description, posts_count, frequency, interaction, followers, gained_followers, is_main_brand 
+       FROM benchmark_competitors WHERE periodo = ?`,
+      [toPeriod, fromPeriod],
+    )
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: `No se encontraron competidores en ${fromPeriod} para clonar.` })
+    }
+
+    res.json({ message: 'Competidores importados con éxito.' })
+  } catch (error) {
+    console.error('Error al clonar competidores:', error)
+    res.status(500).json({ error: 'Error interno al clonar.' })
+  }
+}
+
 // Exportamos todas las funciones
-module.exports = { getCompetitors, addCompetitor, updateCompetitor, deleteCompetitor }
+module.exports = { getCompetitors, addCompetitor, updateCompetitor, deleteCompetitor, cloneCompetitors }
