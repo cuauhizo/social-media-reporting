@@ -133,6 +133,18 @@
       <AdminPostsEditor />
       <AdminConclusionEditor />
       <AdminGalleryEditor />
+      <div class="mt-16 mb-20 p-8 bg-red-50 border-2 border-red-200 border-dashed rounded-2xl flex flex-col items-center text-center">
+        <h3 class="text-2xl font-black text-red-600 uppercase mb-2">Zona de Peligro</h3>
+        <p class="text-red-500 mb-6 font-medium">
+          ¿Subiste archivos equivocados o el mes se corrompió? Presiona este botón para eliminar TODOS los datos, posts, contextos y gráficas del periodo
+          <b>{{ selectedPeriod }}</b>
+          .
+        </p>
+        <button @click="borrarMesCompleto" class="bg-red-600 text-white px-8 py-3 rounded-xl font-bold text-lg hover:bg-red-700 hover:scale-105 transition shadow-lg flex items-center">
+          <span class="mr-2">💥</span>
+          FORMATEAR MES ACTUAL
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -141,6 +153,7 @@
   import { ref, computed } from 'vue'
   import { useToast } from '@/composables/useToast'
   import { usePeriod } from '@/composables/usePeriod'
+  import { useApi } from '@/composables/useApi'
   import AdminContextEditor from '@/components/admin/AdminContextEditor.vue'
   import AdminQuejasEditor from '@/components/admin/AdminQuejasEditor.vue'
   import AdminPropuestasEditor from '@/components/admin/AdminPropuestasEditor.vue'
@@ -152,11 +165,9 @@
   import AdminAuditEditor from '@/components/admin/AdminAuditEditor.vue'
   import AdminPostsEditor from '@/components/admin/AdminPostsEditor.vue'
 
-  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000'
-
+  const { apiRequest } = useApi()
   const { alert, showToast } = useToast()
   const { selectedPeriod } = usePeriod()
-  const showAlert = showToast
 
   // Objeto reactivo para saber qué cajita está recibiendo un "Drag" (Hover de archivo)
   const dragState = ref({})
@@ -222,5 +233,25 @@
     // Extraemos el archivo que el usuario soltó desde el evento 'dataTransfer'
     const file = event.dataTransfer.files[0]
     processFile(typeId, file)
+  }
+
+  const borrarMesCompleto = async () => {
+    const seguro = confirm(`⚠️ ¡CUIDADO! ⚠️\n\nEstás a punto de borrar ABSOLUTAMENTE TODO el trabajo, datos y reportes de ${selectedPeriod.value}.\n\nEsta acción NO se puede deshacer. ¿Deseas continuar?`)
+    if (!seguro) return
+
+    // Doble confirmación por si acaso
+    const dobleSeguro = prompt(`Para confirmar la destrucción, escribe el periodo: ${selectedPeriod.value}`)
+    if (dobleSeguro !== selectedPeriod.value) {
+      showToast('Operación cancelada. El periodo ingresado no coincide.', 'error')
+      return
+    }
+
+    try {
+      await apiRequest(`/api/reports/reset/${selectedPeriod.value}`, { method: 'DELETE' })
+      showToast('💥 Toda la información del mes ha sido eliminada.', 'success')
+      setTimeout(() => window.location.reload(), 1500) // Recargamos para limpiar la pantalla
+    } catch (error) {
+      showToast('Error al limpiar el mes', 'error')
+    }
   }
 </script>

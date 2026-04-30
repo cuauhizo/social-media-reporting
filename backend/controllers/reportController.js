@@ -206,4 +206,44 @@ const getReportData = async (req, res) => {
   }
 }
 
-module.exports = { getReportData }
+// BORRAR TODA LA INFO DE UN MES (BOTÓN DE PÁNICO)
+const resetPeriod = async (req, res) => {
+  const { periodId } = req.params
+  if (!periodId) return res.status(400).json({ error: 'Periodo requerido' })
+
+  const tablasABorrar = [
+    'fb_posts_metrics',
+    'ig_posts_metrics',
+    'network_kpis',
+    'historical_followers',
+    'top_cities',
+    'inbound_sentiment',
+    'benchmark_competitors',
+    'benchmark_insights',
+    'casos_cs',
+    'quejas_rrss',
+    'metricas_globales',
+    'contexto_rrss',
+    'propuestas',
+    'compromisos',
+    'conclusiones',
+  ]
+
+  try {
+    // 1. Borramos todas las tablas que tienen la columna "periodo"
+    const promises = tablasABorrar.map(tabla => pool.query(`DELETE FROM ${tabla} WHERE periodo = ?`, [periodId]))
+
+    // 🚀 2. Borramos específicamente la imagen de portada de este mes en la tabla post_images
+    promises.push(pool.query(`DELETE FROM post_images WHERE post_id = ?`, [`fb_cover_${periodId}`]))
+
+    // Ejecutamos todos los deletes en paralelo a la velocidad de la luz
+    await Promise.allSettled(promises)
+
+    res.json({ message: `Toda la información de ${periodId} y su portada han sido eliminadas.` })
+  } catch (error) {
+    console.error('Error al hacer reset del periodo:', error)
+    res.status(500).json({ error: 'Error interno al limpiar la base de datos.' })
+  }
+}
+
+module.exports = { getReportData, resetPeriod }
