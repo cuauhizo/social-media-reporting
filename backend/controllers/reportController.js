@@ -78,8 +78,14 @@ const getReportData = async (req, res) => {
     const igPostsRaw = getSafeValue(1, [[]])[0]
     const fbOverview = getSafeValue(2, [[{}]])[0][0] || {}
     const igOverview = getSafeValue(3, [[{}]])[0][0] || {}
-    const fbHistory = getSafeValue(4, [[]])[0].map(h => ({ date: h.fecha, followers: h.followers }))
-    const igHistory = getSafeValue(5, [[]])[0].map(h => ({ date: h.fecha, followers: h.followers }))
+    const fbHistory = getSafeValue(4, [[]])[0].map(h => ({
+      date: h.fecha ? new Date(h.fecha).toISOString().split('T')[0] : null,
+      followers: h.followers,
+    }))
+    const igHistory = getSafeValue(5, [[]])[0].map(h => ({
+      date: h.fecha ? new Date(h.fecha).toISOString().split('T')[0] : null,
+      followers: h.followers,
+    }))
     const fbCities = getSafeValue(6, [[]])[0].map(c => ({ name: c.city_name, followers: c.followers }))
     const igCities = getSafeValue(7, [[]])[0].map(c => ({ name: c.city_name, followers: c.followers }))
     const fbSent = formatSentiment(getSafeValue(8, [[]])[0])
@@ -95,7 +101,7 @@ const getReportData = async (req, res) => {
       const customImg = dbImages.find(img => img.post_id === p.id)
 
       let defaultImg = red === 'fb' ? 'https://placehold.co/300x400/00eb5d/ffffff?text=Post+Sin+Imagen' : 'https://placehold.co/300x400/ff7375/ffffff?text=IG+Sin+Imagen'
-      if (tipo.includes('STORY')) defaultImg = 'https://placehold.co/300x533/00eb5d/ffffff?text=IG+Story'
+      if (tipo.includes('STORY')) defaultImg = 'https://placehold.co/300x400/17ccf9/ffffff?text=IG+Story'
 
       return {
         id: p.id,

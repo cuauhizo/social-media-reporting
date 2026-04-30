@@ -129,6 +129,8 @@
       </section>
 
       <AdminCustomerServiceEditor />
+      <AdminAuditEditor />
+      <AdminPostsEditor />
       <AdminConclusionEditor />
       <AdminGalleryEditor />
     </div>
@@ -147,6 +149,8 @@
   import AdminBenchmarkEditor from '@/components/admin/AdminBenchmarkEditor.vue'
   import AdminConclusionEditor from '@/components/admin/AdminConclusionEditor.vue'
   import AdminGalleryEditor from '@/components/admin/AdminGalleryEditor.vue'
+  import AdminAuditEditor from '@/components/admin/AdminAuditEditor.vue'
+  import AdminPostsEditor from '@/components/admin/AdminPostsEditor.vue'
 
   const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000'
 

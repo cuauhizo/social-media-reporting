@@ -2,17 +2,16 @@
   <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mt-12 mb-12">
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
       <div class="lg:col-span-2">
-        <!-- <pre>{{ tags }}</pre> -->
         <div v-if="tags && tags.length > 0" class="w-full h-96 relative">
           <Line :data="chartData" :options="chartOptions" />
-          <!-- <pre>{{ tooltipData }}</pre> -->
-          <div v-if="tooltipData.show" class="absolute pointer-events-none bg-black/90 p-3 rounded-lg shadow-xl text-white transform -translate-x-1/2 -translate-y-[110%] z-50 flex flex-col items-center border border-gray-700" :style="{ left: tooltipData.x + 'px', top: tooltipData.y + 'px' }">
-            <img :src="tooltipData.img" class="w-20 h-20 object-cover rounded shadow-sm mb-2 bg-gray-800" />
+
+          <div
+            v-if="tooltipData.show"
+            class="absolute pointer-events-none bg-black/90 p-3 rounded-lg shadow-xl text-white transform -translate-x-1/2 -translate-y-[110%] z-50 flex flex-col items-center border border-gray-700"
+            :style="{ left: tooltipData.x + 'px', top: tooltipData.y + 'px' }">
+            <img :src="tooltipData.img" @error="$event.target.src = 'https://placehold.co/150x150/374151/ffffff?text=Sin+Imagen'" class="w-20 h-20 object-cover rounded shadow-sm mb-2 bg-gray-800 border border-gray-600" />
             <span class="text-xs font-bold uppercase tracking-wider text-gray-300">{{ tooltipData.title }}</span>
             <span class="text-sm font-black">{{ tooltipData.body }}</span>
-            <span class="text-[10px] font-medium text-gray-400 mt-1 border-t border-gray-700 pt-1 w-full text-center">
-              {{ tooltipData.date }}
-            </span>
             <div class="absolute bottom-[-6px] left-1/2 transform -translate-x-1/2 w-3 h-3 bg-black/90 rotate-45 border-b border-r border-gray-700"></div>
           </div>
         </div>
@@ -27,12 +26,11 @@
           <div v-for="(post, index) in topPosts.slice(0, 3)" :key="post.id" class="flex flex-col sm:flex-row gap-4 items-center bg-white p-3 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
             <span class="font-black text-xl text-gray-300 w-4">{{ index + 1 }}</span>
 
-            <img :src="post.img" class="w-16 h-16 object-cover rounded-md bg-gray-200 shadow-sm" />
+            <img :src="getSafeImageUrl(post.img)" @error="$event.target.src = 'https://placehold.co/150x150/e5e7eb/9ca3af?text=No+Img'" class="w-16 h-16 object-cover rounded-md bg-gray-200 shadow-sm" />
 
             <div class="flex-1 text-xs overflow-hidden">
               <div class="flex justify-between items-center mb-1.5 gap-2">
                 <p class="text-gray-400 font-bold whitespace-nowrap capitalize">{{ formatDate(post.date) }}</p>
-
                 <span v-if="post.tags && post.tags !== 'Sin etiqueta'" :class="getDynamicTagClasses(post.tags)" :title="post.tags">
                   {{ post.tags.split(',')[0] }}
                 </span>
@@ -46,11 +44,9 @@
             </div>
           </div>
         </div>
-
         <div v-else class="text-center text-gray-400 text-sm mt-10">No hay posts suficientes.</div>
       </div>
     </div>
-    <!-- <pre>{{ topPosts.slice(0, 3) }}</pre> -->
   </div>
 </template>
 
@@ -67,22 +63,21 @@
     topPosts: { type: Array, default: () => [] },
   })
 
-  // ✨ 1. ESTADO REACTIVO PARA EL TOOLTIP
-  const tooltipData = ref({ show: false, x: 0, y: 0, img: '', title: '', body: '', date: ''})
+  const tooltipData = ref({ show: false, x: 0, y: 0, img: '', title: '', body: '', date: '' })
 
-  // Función auxiliar para garantizar que la imagen se vea
-  const getSafeImageUrl = (url) => {
-    if (!url) return '/favicon.ico';
-    if (url.startsWith('http')) return url;
-    const cleanUrl = url.replace(/\\/g, '/');
-    const backendBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
-    return `${backendBaseUrl}${cleanUrl.startsWith('/') ? '' : '/'}${cleanUrl}`;
+  const getSafeImageUrl = url => {
+    // 🚀 Fallback más seguro que '/favicon.ico'
+    if (!url) return 'https://placehold.co/150x150/1877F2/ffffff?text=Post'
+    if (url.startsWith('http') || url.startsWith('data:')) return url
+    const cleanUrl = url.replace(/\\/g, '/')
+    const backendBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+    return `${backendBaseUrl}${cleanUrl.startsWith('/') ? '' : '/'}${cleanUrl}`
   }
 
   const chartData = computed(() => {
     if (!props.tags || props.tags.length === 0) return { labels: [], datasets: [] }
 
-    // 1. FILTRAMOS LAS ETIQUETAS: Solo permitimos Tolko y Pluxee
+    // 🚀 1. AHORA FILTRAMOS PLUXEE, TOLKO Y TREND
     const filteredTags = props.tags.filter(tag => {
       const lowerName = tag.name.toLowerCase()
       return lowerName.includes('tolko') || lowerName.includes('pluxee')
@@ -90,7 +85,6 @@
 
     if (filteredTags.length === 0) return { labels: [], datasets: [] }
 
-    // 2. Extraemos las fechas SOLO de los posts de Tolko y Pluxee
     const allDates = new Set()
     filteredTags.forEach(tag => {
       tag.posts.forEach(post => {
@@ -100,41 +94,37 @@
 
     const sortedDates = Array.from(allDates).sort((a, b) => new Date(a) - new Date(b))
 
-    // 3. Construimos los datasets usando el arreglo filtrado
     const datasets = filteredTags.map(tag => {
-      const dataPoints = [];
-      const imagesArray = []; // ✨ ARRAY PARALELO PARA LAS IMÁGENES
+      const dataPoints = []
+      const imagesArray = []
 
       sortedDates.forEach(date => {
         const postsOnDate = tag.posts.filter(p => p.date === date)
-        
+
         if (postsOnDate.length > 0) {
-          // Buscamos el post con más vistas en el resumen de tags
-          const topPost = postsOnDate.reduce((max, p) => (p.views || 0) > (max.views || 0) ? p : max, postsOnDate[0])
+          const topPost = postsOnDate.reduce((max, p) => ((p.views || 0) > (max.views || 0) ? p : max), postsOnDate[0])
           dataPoints.push(topPost.views || 0)
 
-          // ✨ AQUÍ ESTÁ LA MAGIA: 
-          // Buscamos el post real completo en el arreglo 'topPosts' que sí trae la imagen
-          const postRealCompleto = props.topPosts.find(p => 
-            p.date && p.date.includes(date) && 
-            p.tags && p.tags.includes(tag.name)
-          )
+          // Busca que coincida la fecha, el tag Y LAS VISTAS
+          const postRealCompleto =
+            props.topPosts.find(p => p.date && p.date.includes(date) && p.tags && p.tags.toLowerCase().includes(tag.name.toLowerCase()) && (p.views === topPost.views || p.reach === topPost.views)) ||
+            props.topPosts.find(p => p.date && p.date.includes(date) && p.tags && p.tags.toLowerCase().includes(tag.name.toLowerCase()))
 
-          // Si lo encuentra, usamos la imagen real. Si no, usamos el fallback.
-          imagesArray.push(getSafeImageUrl(postRealCompleto?.img)) 
+          imagesArray.push(getSafeImageUrl(postRealCompleto?.img))
         } else {
           dataPoints.push(null)
           imagesArray.push('')
         }
       })
 
-      // LÓGICA DE COLOR DINÁMICO
-      let lineColor = tag.name.toLowerCase().includes('tolko') ? '#cc0032' : '#00eb5d'
+      // 🚀 ASIGNACIÓN DE COLORES PARA LA GRÁFICA
+      let lineColor = '#00eb5d' // Verde Pluxee por defecto
+      if (tag.name.toLowerCase().includes('tolko')) lineColor = '#cc0032' // Rojo Tolko
 
       return {
         label: tag.name,
         data: dataPoints,
-        customImages: imagesArray, // ✨ Inyectamos las imágenes ya cruzadas
+        customImages: imagesArray,
         borderColor: lineColor,
         backgroundColor: lineColor,
         tension: 0.3,
@@ -148,17 +138,16 @@
     return { labels: sortedDates.map(date => formatDate(date)), datasets: datasets }
   })
 
-  // ✨ 4. ACTUALIZAMOS LAS OPCIONES PARA USAR EL TOOLTIP DE VUE
   const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
       legend: { position: 'top', labels: { usePointStyle: true, padding: 20, font: { family: 'sans-serif', weight: 'bold' } } },
       tooltip: {
-        enabled: false, // 🔴 Apagamos el tooltip original
-        external: (context) => { // 🟢 Activamos el tooltip HTML de Vue
+        enabled: false,
+        external: context => {
           const { tooltip, chart } = context
-          
+
           if (tooltip.opacity === 0) {
             tooltipData.value.show = false
             return
@@ -166,19 +155,17 @@
 
           const dataPoint = tooltip.dataPoints[0]
           const dataset = chart.data.datasets[dataPoint.datasetIndex]
-          // console.log(dataset);
+
           tooltipData.value = {
             show: true,
             x: tooltip.caretX,
             y: tooltip.caretY,
-            img: dataset.customImages[dataPoint.dataIndex], // ✨ Sacamos la imagen del array que creamos
-            title: chart.data.labels[dataPoint.dataIndex],
-            body: `${dataset.label} ${formatNumber(dataPoint.raw)}`,
-            // date: chart.data.labels[dataPoint.dataIndex]
-
-            // `${año}-${mesAnterior}`
+            img: dataset.customImages[dataPoint.dataIndex],
+            title: chart.data.labels[dataPoint.dataIndex], // Fecha
+            body: `${dataset.label}: ${formatNumber(dataPoint.raw)} Vistas`, // Info
+            date: '',
           }
-        }
+        },
       },
     },
     scales: {
@@ -187,22 +174,15 @@
     },
   }
 
-  // FUNCIÓN: Calcula las clases de Tailwind según el texto de la etiqueta
+  // 🚀 ACTUALIZAMOS LAS ETIQUETITAS DE COLORES PARA INCLUIR TREND
   const getDynamicTagClasses = tagsString => {
-    if (!tagsString || tagsString === 'Sin etiqueta') {
-      return 'bg-gray-100 text-gray-500 border-gray-200'
-    }
+    if (!tagsString || tagsString === 'Sin etiqueta') return 'bg-gray-100 text-gray-500 border-gray-200'
 
     const lowerTags = tagsString.toLowerCase()
     const baseClasses = 'border px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider truncate transition-colors'
 
-    if (lowerTags.includes('tolko')) {
-      return `${baseClasses} bg-tolkoRed/10 text-tolkoRed border-tolkoRed/20`
-    }
-
-    if (lowerTags.includes('pluxee')) {
-      return `${baseClasses} bg-pluxeeGreen/10 text-pluxeeGreen border-pluxeeGreen/20`
-    }
+    if (lowerTags.includes('tolko')) return `${baseClasses} bg-tolkoRed/10 text-tolkoRed border-tolkoRed/20`
+    if (lowerTags.includes('pluxee')) return `${baseClasses} bg-pluxeeGreen/10 text-pluxeeGreen border-pluxeeGreen/20`
 
     return `${baseClasses} bg-blue-50 text-pluxeeBlue border-blue-100`
   }

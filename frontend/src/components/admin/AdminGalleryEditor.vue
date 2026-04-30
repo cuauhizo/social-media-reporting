@@ -87,13 +87,15 @@
 </template>
 
 <script setup>
-  import { ref, onMounted, computed } from 'vue'
+  import { ref, onMounted, computed, watch } from 'vue' // 👈 Agregamos watch
   import { useApi } from '@/composables/useApi'
   import { useToast } from '@/composables/useToast'
   import { formatDate, formatNumber } from '@/utils/formatters'
+  import { usePeriod } from '@/composables/usePeriod' // 👈 1. Importamos el estado global
 
   const { apiRequest, apiUrl } = useApi()
   const { showToast } = useToast()
+  const { selectedPeriod } = usePeriod() // 👈 2. Extraemos la variable reactiva
 
   const coverPreview = ref(null)
   const postsParaEditar = ref([])
@@ -111,9 +113,8 @@
   const cargarPostsParaEditar = async () => {
     isLoadingData.value = true
     try {
-      const hoy = new Date()
-      hoy.setMonth(hoy.getMonth() - 1)
-      const periodId = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}`
+      // 🚀 3. Ahora usamos selectedPeriod en vez de hacer el cálculo del mes pasado
+      const periodId = selectedPeriod.value
 
       const [data, imagesData] = await Promise.all([apiRequest(`/api/reports/${periodId}`, { cache: 'no-store' }), apiRequest(`/api/post-images`, { cache: 'no-store' })])
 
@@ -128,7 +129,7 @@
       const igPosts = [...igPostsBase, ...igStoriesBase].map(p => ({ ...p, red_social: 'instagram' }))
 
       const todos = [...fbPosts, ...igPosts]
-      console.log(todos)
+
       postsParaEditar.value = todos.map(p => ({
         id: p.id,
         text: p.text,
@@ -155,27 +156,27 @@
     }
   }
 
-  // Calculamos el ID del periodo actual (Mes Anterior)
+  // 🚀 4. El ID de la portada ahora es reactivo al selector superior
   const currentCoverId = computed(() => {
-    const hoy = new Date()
-    hoy.setMonth(hoy.getMonth() - 1)
-    return `fb_cover_${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}`
+    return `fb_cover_${selectedPeriod.value}`
   })
 
-  // Función para cargar la portada actual al iniciar
+  // Función para cargar la portada actual
   const cargarPortadaActual = async () => {
     try {
       const imagesData = await apiRequest('/api/post-images', { cache: 'no-store' })
       const portada = imagesData.find(img => img.post_id === currentCoverId.value)
       if (portada) {
         coverPreview.value = `${apiUrl}${portada.image_url}?t=${Date.now()}`
+      } else {
+        coverPreview.value = null // Reseteamos la vista si no hay portada para este mes
       }
     } catch (e) {
       console.error('Error al cargar preview de portada', e)
     }
   }
 
-  // Modificamos ligeramente la función de subida para actualizar el preview local
+  // Subir la imagen
   const subirImagenPost = async (postId, event) => {
     const file = event.target.files[0]
     if (!file) return
@@ -190,7 +191,6 @@
 
       showToast('Imagen actualizada correctamente', 'success')
 
-      // Si lo que subimos fue la portada, actualizamos el preview y recargamos la lista
       if (postId.startsWith('fb_cover_')) {
         cargarPortadaActual()
       } else {
@@ -201,7 +201,16 @@
     }
   }
 
+  // 🚀 5. ¡LA PIEZA FALTANTE! Escuchar cuando cambias el mes en el admin
+  watch(selectedPeriod, () => {
+    cargarPortadaActual()
+    // Si la lista de posts rotos ya estaba abierta, la recargamos para el nuevo mes
+    if (busquedaRealizada.value) {
+      cargarPostsParaEditar()
+    }
+  })
+
   onMounted(() => {
-    cargarPortadaActual() // Buscamos la portada del mes apenas cargue el admin
+    cargarPortadaActual()
   })
 </script>

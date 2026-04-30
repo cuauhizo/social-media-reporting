@@ -115,7 +115,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-4">
           <div v-for="post in grupoPosts" :key="post.id" class="flex flex-col w-full max-w-64 shadow-md rounded-lg overflow-hidden bg-white mx-auto">
             <div class="bg-pluxeeBlue h-40 flex justify-center items-center p-2">
-              <img :src="post.img" class="object-cover h-full w-full" />
+              <img :src="getSafeImageUrl(post.img)" class="object-cover h-full w-full" />
             </div>
 
             <div class="bg-pluxeeYellow p-3 text-pluxeeBlue text-sm flex-1 flex flex-col justify-between">
@@ -165,7 +165,7 @@
           <div v-for="story in grupoStories" :key="story.id" class="flex flex-col w-full max-w-64 shadow-sm border border-orange-100 rounded-2xl overflow-hidden hover:shadow-md transition-shadow bg-white mx-auto">
             <div class="bg-gray-100 h-44 flex justify-center items-center relative overflow-hidden p-1">
               <div class="w-full h-full rounded-xl p-1 bg-gradient-to-tr from-yellow-400 via-red-500 to-fuchsia-600">
-                <img :src="story.img" @error="$event.target.src = 'https://placehold.co/300x400/17ccf9/ffffff?text=Story+Sin+Imagen'" class="object-cover h-full w-full rounded-lg border-2 border-white" />
+                <img :src="getSafeImageUrl(story.img)" @error="$event.target.src = 'https://placehold.co/300x400/17ccf9/ffffff?text=Story+Sin+Imagen'" class="object-cover h-full w-full rounded-lg border-2 border-white" />
               </div>
               <span class="absolute top-4 right-4 bg-black/70 text-white text-xs font-bold px-2 py-1 rounded-md backdrop-blur-sm">
                 {{ story.type }}
@@ -206,7 +206,7 @@
   <section class="pdf-page flex flex-col justify-center bg-gray-100">
     <div class="max-w-7xl mx-auto w-full p-4">
       <h2 class="text-2xl font-black text-pluxeeBlue mb-2 uppercase keep-with-next">Post metrics Tolko - Pluxee</h2>
-      <TagsTable :tags="data.reachByTags" :topPosts="data.topPosts" />
+      <TagsTable :tags="data.reachByTags" :topPosts="[...(data.topPosts || []), ...(data.topStories || [])]" />
     </div>
   </section>
 </template>
@@ -228,4 +228,13 @@
   defineProps({
     data: Object,
   })
+
+  // 🚀 Función para blindar las URLs de las imágenes de IG
+  const getSafeImageUrl = url => {
+    if (!url) return 'https://placehold.co/300x400/ff7375/ffffff?text=IG+Sin+Imagen'
+    if (url.startsWith('http') || url.startsWith('data:')) return url
+    const cleanUrl = url.replace(/\\/g, '/')
+    const backendBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+    return `${backendBaseUrl}${cleanUrl.startsWith('/') ? '' : '/'}${cleanUrl}`
+  }
 </script>
