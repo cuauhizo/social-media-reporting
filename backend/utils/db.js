@@ -202,6 +202,7 @@ async function initDB() {
         ig_story_exits INT DEFAULT 0,
         ig_post_saves INT DEFAULT 0,
         ig_post_likes INT DEFAULT 0,
+        ig_post_impressions INT DEFAULT 0,
         ig_reach_carousel INT DEFAULT 0,
         ig_reach_photo INT DEFAULT 0,
         ig_reach_reel INT DEFAULT 0,
@@ -241,7 +242,7 @@ async function initDB() {
   }
 }
 
-// initDB()
+initDB()
 
 // Agrega esto en backend/utils/db.js antes de getTokens
 

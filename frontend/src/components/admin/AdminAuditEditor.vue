@@ -93,6 +93,10 @@
         <label class="text-[10px] font-bold text-pink-800 uppercase block mb-1">Post Likes</label>
         <input v-model="formData.ig_post_likes" type="number" class="w-full bg-white border border-pink-200 rounded px-2 py-1 outline-none focus:border-pink-500 font-bold text-gray-700" />
       </div>
+      <div class="bg-pink-50 p-3 rounded-xl border border-pink-100">
+        <label class="text-[10px] font-bold text-pink-800 uppercase block mb-1">Impressions</label>
+        <input v-model="formData.ig_post_impressions" type="number" class="w-full bg-white border border-pink-200 rounded px-2 py-1 outline-none focus:border-pink-500 font-bold text-gray-700" />
+      </div>
 
       <div class="bg-gray-50 p-3 rounded-xl border border-gray-200">
         <label class="text-[10px] font-bold text-gray-500 uppercase block mb-1">Story: Taps Forward</label>

@@ -15,7 +15,7 @@
               <th class="p-4 font-bold uppercase text-sm text-center">Aumento de la audiencia</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody v-if="listaCompetidores && listaCompetidores.length > 0">
             <tr v-for="comp in listaCompetidores" :key="comp.id" :class="['no-break border-b border-gray-200 hover:bg-gray-50 transition-colors', comp.is_main_brand ? 'bg-pluxeeYellow bg-opacity-20 font-bold' : 'bg-white']">
               <td class="p-4">
                 <div class="text-pluxeeBlue text-lg">{{ comp.brand_name }}</div>
@@ -43,6 +43,11 @@
                     ]" />
                 </div>
               </td>
+            </tr>
+          </tbody>
+          <tbody v-else>
+            <tr>
+              <td colspan="6" class="py-10 text-center text-gray-400 font-medium text-sm">No se encontraron datos de competidores para este periodo.</td>
             </tr>
           </tbody>
         </table>

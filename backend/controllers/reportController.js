@@ -203,6 +203,8 @@ const getReportData = async (req, res) => {
           page_engagement_rate: igOverview.engagement_rate ? `${igOverview.engagement_rate}%` : '0%',
           post_saves: igOverview.ig_post_saves || 0,
           post_likes: igOverview.ig_post_likes || 0,
+          post_impressions: igOverview.ig_post_impressions || 0,
+          post_impressions_diff: calcDiff(igOverview.ig_post_impressions, igOverviewPrev.ig_post_impressions),
           stories_metrics: {
             total: topStoriesIg.length || 0,
             forward: igOverview.ig_story_taps_forward || 0,

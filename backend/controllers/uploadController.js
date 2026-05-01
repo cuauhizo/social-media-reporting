@@ -189,6 +189,7 @@ const processCsvUpload = async (req, res) => {
                   ig_story_exits: parseInt(row[keys.find(k => k.includes('Story exits'))]) || 0,
                   ig_post_saves: parseInt(row[keys.find(k => k.includes('Post saves'))]) || 0,
                   ig_post_likes: parseInt(row[keys.find(k => k.includes('Post likes'))]) || 0,
+                  ig_post_impressions: parseInt(row[keys.find(k => k.includes('Impresiones de publicaciones'))]) || 0,
                 }
 
                 const cityKeys = keys.filter(k => k.includes('Audience > City') || k.includes('Seguidores de la página > Ciudad'))
