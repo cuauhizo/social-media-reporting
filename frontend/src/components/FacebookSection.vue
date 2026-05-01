@@ -21,12 +21,12 @@
           <div class="col-span-12 xl:col-span-9">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-center h-full">
               <KpiCard title="Page Engagement" :value="formatNumber(data.kpis.interactions)" />
-              <KpiCard title="Total followers" :value="formatNumber(data.kpis.total_followers)" />
+              <KpiCard title="Total followers" :value="formatNumber(data.kpis.total_followers)" :diff="data.kpis.followers_diff" />
               <KpiCard title="Clicks organic Link" :value="formatNumber(data.kpis.clics)" />
               <KpiCard title="Post shares" :value="data.kpis.shares" />
               <KpiCard title="Responding" :value="data.kpis.responding" />
               <KpiCard title="Post engagement rate" :value="data.kpis.post_engagement_rate" />
-              <KpiCard title="Post impressions" :value="formatNumber(data.kpis.post_impressions)" />
+              <KpiCard title="Post impressions" :value="formatNumber(data.kpis.post_impressions)" :diff="data.kpis.post_impressions_diff" />
               <KpiCard title="Response time" :value="data.kpis.response_time" />
               <KpiCard title="Page organic reach" :value="formatNumber(data.kpis.page_organic_reach)" />
               <KpiCard title="Views from non-followers" :value="formatNumber(data.kpis.page_no_followers_views)" />

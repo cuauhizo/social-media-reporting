@@ -50,6 +50,12 @@ const calculateTags = posts => {
 const getReportData = async (req, res) => {
   const { periodId } = req.params
 
+  // Calculamos el ID del mes anterior
+  const [year, month] = periodId.split('-')
+  const prevDate = new Date(year, month - 1, 1)
+  prevDate.setMonth(prevDate.getMonth() - 1)
+  const prevPeriodId = `${prevDate.getFullYear()}-${String(prevDate.getMonth() + 1).padStart(2, '0')}`
+
   try {
     console.log(`Initiating MySQL data fetch for period: ${periodId}...`)
 
@@ -68,6 +74,8 @@ const getReportData = async (req, res) => {
       pool.query('SELECT * FROM benchmark_competitors WHERE periodo = ? ORDER BY is_main_brand DESC, followers DESC', [periodId]), // 10
       pool.query('SELECT post_id, image_url FROM post_images'), // 11
       getSocialMetrics(), // 12. Hootsuite API (Nombres y Avatares en vivo)
+      pool.query('SELECT * FROM network_kpis WHERE periodo = ? AND red_social = ?', [prevPeriodId, 'fb']), // 13
+      pool.query('SELECT * FROM network_kpis WHERE periodo = ? AND red_social = ?', [prevPeriodId, 'ig']), // 14
     ]
 
     const results = await Promise.allSettled(promises)
@@ -93,6 +101,19 @@ const getReportData = async (req, res) => {
     const dbCompetitors = getSafeValue(10, [[]])[0]
     const dbImages = getSafeValue(11, [[]])[0]
     const hootsuiteData = getSafeValue(12, null)
+    const fbOverviewPrev = getSafeValue(13, [[{}]])[0][0] || {}
+    const igOverviewPrev = getSafeValue(14, [[{}]])[0][0] || {}
+
+    // Calculadora de Porcentajes MoM
+    const calcDiff = (curr, prev) => {
+      const c = Number(curr) || 0
+      const p = Number(prev) || 0
+      if (p === 0 && c === 0) return null // No hay cambios
+      if (p === 0) return { pct: '100%', increase: true }
+      const diff = c - p
+      const pct = (diff / p) * 100
+      return { pct: Math.abs(pct).toFixed(1) + '%', increase: diff >= 0 }
+    }
 
     // 2. DATA FORMATTING
     // Mapeamos lo que viene de BD a lo que el Frontend espera
@@ -151,13 +172,16 @@ const getReportData = async (req, res) => {
         kpis: {
           month: mesDinamico,
           interactions: fbOverview.fb_interactions || 0,
+          interactions_diff: calcDiff(fbOverview.fb_interactions, fbOverviewPrev.fb_interactions),
           total_followers: fbOverview.total_followers || 0,
+          followers_diff: calcDiff(fbOverview.total_followers, fbOverviewPrev.total_followers),
           new_followers: fbOverview.new_followers || 0,
           clics: fbOverview.fb_clics || 0,
           shares: fbOverview.fb_shares || 0,
           responding: fbOverview.fb_comments || 0,
           post_engagement_rate: fbOverview.engagement_rate ? `${fbOverview.engagement_rate}%` : '0%',
           post_impressions: fbOverview.fb_post_impressions || 0,
+          post_impressions_diff: calcDiff(fbOverview.fb_post_impressions, fbOverviewPrev.fb_post_impressions),
           response_time: fbOverview.fb_time_visualization || '0',
           page_organic_reach: fbOverview.fb_page_organic_reach || 0,
           page_no_followers_views: fbOverview.fb_page_no_followers_views || 0,
@@ -175,6 +199,7 @@ const getReportData = async (req, res) => {
         username: hootsuiteData?.instagram?.username || 'Pluxee IG',
         kpis: {
           total_followers: igOverview.total_followers || 0,
+          followers_diff: calcDiff(igOverview.total_followers, igOverviewPrev.total_followers),
           page_engagement_rate: igOverview.engagement_rate ? `${igOverview.engagement_rate}%` : '0%',
           post_saves: igOverview.ig_post_saves || 0,
           post_likes: igOverview.ig_post_likes || 0,

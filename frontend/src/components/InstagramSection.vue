@@ -10,7 +10,12 @@
             <div class="grid grid-cols-1 md:grid-cols-4 gap-2 mb-2">
               <div class="bg-gray-50 p-6 rounded-xl border-l-4 border-[#e1306c] shadow-sm">
                 <p class="text-gray-500 text-sm font-bold">Followers</p>
-                <h2 class="text-3xl font-black text-pluxeeBlue">{{ formatNumber(data.kpis.total_followers) }}</h2>
+                <div class="flex items-baseline gap-3 mt-1 justify-start">
+                  <h2 class="text-3xl font-black text-pluxeeBlue">{{ formatNumber(data.kpis.total_followers) }}</h2>
+                  <span v-if="data.kpis.followers_diff" class="flex items-center text-sm font-bold mb-0.5" :class="data.kpis.followers_diff.increase ? 'bg-green-50 text-green-500' : 'bg-red-50 text-red-500'">
+                    {{ data.kpis.followers_diff.increase ? '↑' : '↓' }} {{ data.kpis.followers_diff.pct }}
+                  </span>
+                </div>
               </div>
               <div class="bg-gray-50 p-6 rounded-xl border-l-4 border-[#e1306c] shadow-sm">
                 <p class="text-gray-500 text-sm font-bold">Page Engagement</p>
