@@ -1,9 +1,10 @@
 const express = require('express')
 const axios = require('axios')
 const router = express.Router()
+const jwt = require('jsonwebtoken')
 const { saveTokens } = require('../utils/db')
 
-router.get('/login', (req, res) => {
+router.get('/login2', (req, res) => {
   const redirectUri = `${process.env.BACKEND_URL}/api/auth/callback`
   const authUrl = `https://platform.hootsuite.com/oauth2/auth?response_type=code&client_id=${process.env.HOOTSUITE_CLIENT_ID}&scope=offline&redirect_uri=${redirectUri}`
   res.redirect(authUrl)
@@ -63,5 +64,21 @@ router.get('/callback', async (req, res) => {
 //     res.status(500).send('Error renovando el token: ' + (error.response?.data?.errors[0]?.message || error.message))
 //   }
 // })
+
+// Login del Administrador
+router.post('/login', (req, res) => {
+  const { username, password } = req.body
+  console.log('Intentando login...')
+  console.log('Frontend mandó:', username, password)
+  console.log('El .env tiene:', process.env.ADMIN_USER, process.env.ADMIN_PASS)
+
+  if (username === process.env.ADMIN_USER && password === process.env.ADMIN_PASS) {
+    const token = jwt.sign({ role: 'admin', user: username }, process.env.JWT_SECRET, { expiresIn: '8h' })
+
+    res.json({ token, message: '¡Bienvenido al Panel de Control!' })
+  } else {
+    res.status(401).json({ error: 'Usuario o contraseña incorrectos' })
+  }
+})
 
 module.exports = router

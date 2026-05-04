@@ -12,7 +12,10 @@
             </div>
           </div>
         </div>
-        <router-link to="/" class="bg-pluxeeBlue text-white px-6 py-2 rounded-lg font-bold hover:bg-opacity-90 transition">Ver Reporte 👉</router-link>
+        <div class="flex gap-4">
+          <button @click="cerrarSesion" class="bg-red-100 text-red-600 px-4 py-2 rounded-lg font-bold hover:bg-red-200 transition ml-2">Salir 🚪</button>
+          <router-link to="/" target="_blank" class="bg-pluxeeBlue text-white px-6 py-2 rounded-lg font-bold hover:bg-opacity-90 transition">Ver Reporte 👉</router-link>
+        </div>
       </div>
 
       <div v-if="alert.show" :class="alert.type === 'success' ? 'bg-green-600' : 'bg-red-600'" class="fixed bottom-10 right-10 z-50 text-white px-6 py-4 rounded-xl shadow-2xl font-bold flex items-center gap-3 transition-all">
@@ -148,6 +151,7 @@
 </template>
 
 <script setup>
+  import { useRouter } from 'vue-router'
   import { ref, computed } from 'vue'
   import { useToast } from '@/composables/useToast'
   import { usePeriod } from '@/composables/usePeriod'
@@ -165,6 +169,7 @@
   import AdminAuditEditor from '@/components/admin/AdminAuditEditor.vue'
   import AdminPostsEditor from '@/components/admin/AdminPostsEditor.vue'
 
+  const router = useRouter()
   const { apiRequest } = useApi()
   const { showModal } = useModal()
   const { alert, showToast } = useToast()
@@ -259,5 +264,10 @@
     } catch (error) {
       showToast('Error al limpiar el mes', 'error')
     }
+  }
+
+  const cerrarSesion = () => {
+    localStorage.removeItem('auth_token')
+    router.push('/login')
   }
 </script>

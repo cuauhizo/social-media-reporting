@@ -7,10 +7,22 @@ export function useApi() {
   const apiRequest = async (endpoint, options = {}) => {
     isSaving.value = true
     try {
+      const token = localStorage.getItem('auth_token')
+      const headers = { 'Content-Type': 'application/json' }
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`
+      }
       const response = await fetch(`${apiUrl}${endpoint}`, {
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         ...options,
       })
+
+      if (response.status === 401 || response.status === 403) {
+        localStorage.removeItem('auth_token')
+        window.location.href = '/login'
+        throw new Error('Sesión expirada')
+      }
+
       if (!response.ok) throw new Error(`Error en ${endpoint}`)
       return await response.json()
     } catch (error) {

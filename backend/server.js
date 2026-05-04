@@ -2,6 +2,7 @@ const path = require('path')
 require('dotenv').config()
 const express = require('express')
 const cors = require('cors')
+const { protectWriteRoutes } = require('./middleware/authMiddleware')
 
 // Importamos nuestras rutas ordenadas
 const reportRoutes = require('./routes/reportRoutes')
@@ -50,6 +51,7 @@ app.use(
 app.use(express.json())
 // Exponer la carpeta de imágenes públicamente
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')))
+app.use('/api', protectWriteRoutes)
 
 // ==========================================
 // REGISTRO DE RUTAS (ROUTER)
