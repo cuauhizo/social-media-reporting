@@ -292,7 +292,7 @@ async function actualizarTablasParaHistorial() {
 }
 
 // Descomenta esto, guarda el archivo (la terminal correrá la función), y luego lo vuelves a comentar.
-// actualizarTablasParaHistorial();
+actualizarTablasParaHistorial()
 
 // 3. Función para OBTENER el token actual
 const getTokens = async () => {
