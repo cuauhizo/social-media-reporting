@@ -25,13 +25,13 @@
               <KpiCard title="Clicks organic Link" :value="formatNumber(data.kpis.clics)" />
               <KpiCard title="Post shares" :value="data.kpis.shares" />
               <KpiCard title="Responding" :value="data.kpis.responding" />
-              <KpiCard title="Post engagement rate" :value="data.kpis.post_engagement_rate" />
+              <KpiCard title="Post engagement rate" :value="data.kpis.post_engagement_rate" :diff="data.kpis.post_engagement_rate_diff" />
               <KpiCard title="Post impressions" :value="formatNumber(data.kpis.post_impressions)" :diff="data.kpis.post_impressions_diff" />
               <KpiCard title="Response time" :value="data.kpis.response_time" />
               <KpiCard title="Page organic reach" :value="formatNumber(data.kpis.page_organic_reach)" />
               <KpiCard title="Views from non-followers" :value="formatNumber(data.kpis.page_no_followers_views)" />
               <KpiCard title="Views from followers" :value="formatNumber(data.kpis.page_followers_views)" />
-              <KpiCard title="New followers" :value="formatNumber(data.kpis.new_followers)" />
+              <KpiCard title="New followers" :value="formatNumber(data.kpis.new_followers)" :diff="data.kpis.new_followers_diff" />
             </div>
           </div>
           <div class="col-span-12 xl:col-span-3">
