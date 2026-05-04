@@ -94,8 +94,21 @@ const getReportData = async (req, res) => {
       date: h.fecha ? new Date(h.fecha).toISOString().split('T')[0] : null,
       followers: h.followers,
     }))
-    const fbCities = getSafeValue(6, [[]])[0].map(c => ({ name: c.city_name, followers: c.followers }))
-    const igCities = getSafeValue(7, [[]])[0].map(c => ({ name: c.city_name, followers: c.followers }))
+    // Función para procesar ciudades y forzar "Other" al final
+    const processCities = rows => {
+      const cities = rows.map(c => ({ name: c.city_name, followers: c.followers }))
+      const otherCity = cities.find(c => c.name.toLowerCase() === 'other' || c.name.toLowerCase() === 'otros')
+      const normalCities = cities.filter(c => c.name.toLowerCase() !== 'other' && c.name.toLowerCase() !== 'otros')
+
+      // Si existe "Other", lo empujamos al fondo de la lista
+      if (otherCity) normalCities.push(otherCity)
+
+      return normalCities
+    }
+
+    // Aplicamos la función a Facebook e Instagram
+    const fbCities = processCities(getSafeValue(6, [[]])[0])
+    const igCities = processCities(getSafeValue(7, [[]])[0])
     const fbSent = formatSentiment(getSafeValue(8, [[]])[0])
     const igSent = formatSentiment(getSafeValue(9, [[]])[0])
     const dbCompetitors = getSafeValue(10, [[]])[0]
