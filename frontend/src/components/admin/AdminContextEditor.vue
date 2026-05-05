@@ -1,7 +1,7 @@
 <template>
   <section class="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm mb-10">
     <h2 class="text-2xl font-black text-pluxeeBlue uppercase mb-6 flex items-center">
-      <span class="mr-3">📝</span>
+      <PencilLine class="w-7 h-7 mr-3 text-pluxeeBlue" stroke-width="2.5" />
       Editar Contexto Actual (RRSS)
     </h2>
 
@@ -15,7 +15,10 @@
     <div class="space-y-3">
       <div v-for="item in listaContexto" :key="item.id" class="flex items-center justify-between bg-gray-50 p-4 rounded-xl border group">
         <input v-model="item.punto" class="bg-transparent flex-1 outline-none focus:text-pluxeeBlue" @change="actualizarPunto(item)" :disabled="isSaving" />
-        <button @click="borrarPunto(item.id)" class="text-red-400 opacity-0 group-hover:opacity-100 ml-4">🗑️ Borrar</button>
+        <button @click="borrarPunto(item.id)" class="text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 ml-4 transition flex items-center gap-1">
+          <Trash2 class="w-5 h-5" />
+          Borrar
+        </button>
       </div>
       <div v-if="listaContexto.length === 0" class="text-center text-gray-400 py-4 italic">No hay contexto definidas aún.</div>
     </div>
@@ -28,6 +31,7 @@
   import { useToast } from '@/composables/useToast'
   import { usePeriod } from '@/composables/usePeriod'
   import { useModal } from '@/composables/useModal'
+  import { PencilLine, Trash2 } from 'lucide-vue-next'
 
   const { apiRequest, isSaving } = useApi()
   const { showModal } = useModal()

@@ -1,7 +1,7 @@
 <template>
   <section class="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm mb-10">
     <h2 class="text-2xl font-black text-pluxeeGreen uppercase mb-6 flex items-center">
-      <span class="mr-3">🚀</span>
+      <MessageSquareCheck class="w-7 h-7 mr-3 text-pluxeeGreen" stroke-width="2.5" />
       Editar Propuestas (Next Steps)
     </h2>
 
@@ -23,7 +23,10 @@
         <div class="flex-1">
           <input v-model="item.propuesta" class="bg-transparent w-full font-medium text-gray-700 outline-none focus:text-pluxeeGreen" @change="actualizarPropuesta(item)" :disabled="isSaving" />
         </div>
-        <button @click="borrarPropuesta(item.id)" class="text-red-400 hover:text-red-600 ml-4 opacity-0 group-hover:opacity-100 transition">🗑️ Borrar</button>
+        <button @click="borrarPropuesta(item.id)" class="text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 ml-4 transition flex items-center gap-1">
+          <Trash2 class="w-5 h-5" />
+          Borrar
+        </button>
       </div>
 
       <div v-if="listaPropuestas.length === 0" class="text-center text-gray-400 py-4 italic">No hay propuestas definidas aún.</div>
@@ -37,6 +40,7 @@
   import { useToast } from '@/composables/useToast'
   import { usePeriod } from '@/composables/usePeriod'
   import { useModal } from '@/composables/useModal'
+  import { MessageSquareCheck, Trash2 } from 'lucide-vue-next'
 
   const { apiRequest, isSaving } = useApi()
   const { showModal } = useModal()

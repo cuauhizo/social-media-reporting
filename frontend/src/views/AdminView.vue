@@ -5,21 +5,30 @@
         <div>
           <h1 class="text-3xl mb-4 text-center font-black text-pluxeeBlue uppercase md:text-4xl md:text-start">Panel de Administración</h1>
           <div class="fixed z-10 bg-white px-4 py-2 rounded-xl shadow-sm border border-gray-200 flex items-center gap-3">
-            <span class="text-xl">📅</span>
+            <CalendarRange class="w-8 h-8 text-pluxeePink" />
             <div class="flex flex-col">
               <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none">Periodo a editar</span>
-              <input type="month" v-model="selectedPeriod" class="font-black text-pluxeeBlue outline-none bg-transparent cursor-pointer" />
+              <input type="month" v-model="selectedPeriod" class="font-black text-pluxeePink outline-none bg-transparent cursor-pointer" />
             </div>
           </div>
         </div>
         <div class="flex gap-4">
-          <button @click="cerrarSesion" class="bg-red-100 text-red-600 px-4 py-2 rounded-lg font-bold hover:bg-red-200 transition ml-2">Salir 🚪</button>
-          <router-link to="/" target="_blank" class="bg-pluxeeBlue text-white px-6 py-2 rounded-lg font-bold hover:bg-opacity-90 transition">Ver Reporte 👉</router-link>
+          <button @click="cerrarSesion" class="bg-red-100 text-red-600 px-4 py-2 rounded-lg font-bold hover:bg-red-200 transition ml-2 flex items-center gap-2">
+            Salir
+            <LogOut class="h-5 w-5" />
+          </button>
+          <router-link to="/" target="_blank" class="bg-pluxeeBlue text-white px-6 py-2 rounded-lg font-bold hover:bg-opacity-90 transition flex items-center gap-2">
+            Ver Reporte
+            <Proportions class="h-5 w-5" />
+          </router-link>
         </div>
       </div>
 
       <div v-if="alert.show" :class="alert.type === 'success' ? 'bg-green-600' : 'bg-red-600'" class="fixed bottom-10 right-10 z-50 text-white px-6 py-4 rounded-xl shadow-2xl font-bold flex items-center gap-3 transition-all">
-        <span class="text-2xl">{{ alert.type === 'success' ? '✅' : '❌' }}</span>
+        <span v-if="alert.type === 'success'" class="text-2xl"><Check /></span>
+        <span v-else class="text-2xl">
+          <X />
+        </span>
         {{ alert.message }}
       </div>
 
@@ -137,7 +146,10 @@
       <AdminConclusionEditor />
       <AdminGalleryEditor />
       <div class="mt-16 mb-20 p-8 bg-red-50 border-2 border-red-200 border-dashed rounded-2xl flex flex-col items-center text-center">
-        <h3 class="text-2xl font-black text-red-600 uppercase mb-2">Zona de Peligro</h3>
+        <h3 class="text-2xl font-black text-red-600 uppercase mb-2 flex items-center">
+          <TriangleAlert class="w-7 h-7 mr-3" stroke-width="2.5" />
+          Zona de Peligro
+        </h3>
         <p class="text-red-500 mb-6 font-medium">
           ¿Subiste archivos equivocados o el mes se corrompió? Presiona este botón para eliminar TODOS los datos, posts, contextos y gráficas del periodo
           <b>{{ selectedPeriod }}</b>
@@ -157,6 +169,7 @@
   import { usePeriod } from '@/composables/usePeriod'
   import { useApi } from '@/composables/useApi'
   import { useModal } from '@/composables/useModal'
+  import { CalendarRange, LogOut, Proportions, TriangleAlert, Check, X } from 'lucide-vue-next'
   import ConfirmModal from '@/components/admin/ConfirmModal.vue'
   import AdminContextEditor from '@/components/admin/AdminContextEditor.vue'
   import AdminQuejasEditor from '@/components/admin/AdminQuejasEditor.vue'
@@ -182,7 +195,7 @@
     // { id: 'global_manual', title: 'Métricas Globales (Mes, KPIs)', icon: '⚙️' },
     { id: 'fb_overview', title: 'Facebook: Overview KPIs', icon: '📘' },
     { id: 'fb_posts', title: 'Facebook: Métricas de Posts', icon: '📝' },
-    { id: 'fb_sentiment', title: 'Facebook: Sentimientos', icon: '💬' },
+    { id: 'fb_sentiment', title: 'Facebook: Sentimientos', icon: '❤️' },
     { id: 'ig_overview', title: 'Instagram: Overview KPIs', icon: '📸' },
     { id: 'ig_posts', title: 'Instagram: Métricas de Posts', icon: '📱' },
     { id: 'ig_sentiment', title: 'Instagram: Sentimientos', icon: '❤️' },
@@ -210,9 +223,13 @@
 
     try {
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000'
-      // 🚀 MAGIA: Ahora la URL incluye el periodo (ej. /api/upload/fb_posts/2026-03)
+      const token = localStorage.getItem('auth_token')
+
       const response = await fetch(`${apiUrl}/api/upload/${typeId}/${selectedPeriod.value}`, {
         method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`, // 🚀 2. Agregamos el gafete
+        },
         body: formData,
       })
 

@@ -1,7 +1,7 @@
 <template>
   <section class="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm mb-10">
     <h2 class="text-2xl font-black text-pluxeeBlue uppercase mb-6 flex items-center">
-      <span class="mr-3">🏆</span>
+      <Trophy class="w-7 h-7 mr-3 text-pluxeeBlue" stroke-width="2.5" />
       Benchmark: Competidores e Insights
     </h2>
 
@@ -100,7 +100,7 @@
                 :disabled="isSaving" />
             </td>
             <td class="py-3 text-right">
-              <button @click="borrarCompetidor(comp.id)" class="text-red-400 hover:text-red-600 transition-transform hover:scale-110">🗑️</button>
+              <button @click="borrarCompetidor(comp.id)" class="text-red-400 hover:text-red-600 transition-transform hover:scale-110 mr-3"><Trash2 class="w-4 h-4" /></button>
             </td>
           </tr>
         </tbody>
@@ -129,7 +129,7 @@
       <div class="space-y-2">
         <div v-for="item in listaBenchmarkInsights" :key="item.id" class="flex gap-2 bg-gray-50 p-2 rounded-lg group text-sm border border-transparent hover:border-gray-200">
           <input v-model="item.insight" class="bg-transparent flex-1 outline-none focus:text-pluxeeBlue" @change="actualizarBenchmarkInsight(item)" :disabled="isSaving" />
-          <button @click="borrarBenchmarkInsight(item.id)" class="text-red-400 opacity-0 group-hover:opacity-100 transition-opacity">🗑️</button>
+          <button @click="borrarBenchmarkInsight(item.id)" class="text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 class="w-4 h-4" /></button>
         </div>
         <div v-if="listaBenchmarkInsights.length === 0" class="text-center text-gray-400 py-4 italic">No hay insights registrados.</div>
       </div>
@@ -143,6 +143,7 @@
   import { useToast } from '@/composables/useToast'
   import { usePeriod } from '@/composables/usePeriod'
   import { useModal } from '@/composables/useModal'
+  import { Trophy, Trash2 } from 'lucide-vue-next'
 
   const { apiRequest, isSaving } = useApi()
   const { showModal } = useModal()

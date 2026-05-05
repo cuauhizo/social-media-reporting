@@ -2,7 +2,7 @@
   <section class="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm mb-10 overflow-hidden">
     <div class="flex flex-col md:flex-row justify-between items-center mb-6 border-b border-gray-100 pb-4">
       <h2 class="text-2xl font-black text-gray-800 uppercase flex items-center">
-        <span class="mr-3">✍️</span>
+        <SquarePen class="w-7 h-7 mr-3 text-gray-800" stroke-width="2.5" />
         Edición Manual de Posts
       </h2>
       <div class="flex gap-2 mt-4 md:mt-0 bg-gray-100 p-1 rounded-lg">
@@ -49,7 +49,10 @@
                   <p class="text-[11px] text-gray-500 line-clamp-2 italic mb-1.5 leading-tight" :title="post.mensaje">"{{ post.mensaje || 'Sin texto' }}"</p>
                   <div class="flex justify-between items-center">
                     <span class="text-[9px] font-bold text-gray-400 bg-gray-200 px-2 py-0.5 rounded">{{ post.tipo_post }}</span>
-                    <a :href="post.permalink" target="_blank" class="text-[10px] text-blue-500 hover:underline font-bold">Ver Original ↗</a>
+                    <a :href="post.permalink" target="_blank" class="text-[10px] text-blue-500 hover:underline font-bold flex items-center gap-1">
+                      Ver Original
+                      <ExternalLink class="w-3 h-3" />
+                    </a>
                   </div>
                 </div>
               </div>
@@ -67,7 +70,7 @@
             <td v-if="redSeleccionada === 'ig'" class="py-3 px-1 align-top"><input v-model="post.saves" type="number" class="w-full p-2 border border-gray-200 rounded-lg outline-none focus:border-blue-500 text-center font-bold text-gray-700" /></td>
 
             <td class="py-3 text-center align-top">
-              <button @click="guardarPost(post)" :disabled="isSaving" class="bg-gray-800 text-white p-2 rounded-lg hover:bg-black transition-transform active:scale-95 disabled:opacity-50" title="Guardar cambios">💾</button>
+              <button @click="guardarPost(post)" :disabled="isSaving" class="bg-gray-800 text-white p-2 rounded-lg hover:bg-black transition-transform active:scale-95 disabled:opacity-50" title="Guardar cambios"><Save class="w-5 h-5" /></button>
             </td>
           </tr>
         </tbody>
@@ -81,6 +84,7 @@
   import { useApi } from '@/composables/useApi'
   import { usePeriod } from '@/composables/usePeriod'
   import { useToast } from '@/composables/useToast'
+  import { SquarePen, Save, ExternalLink } from 'lucide-vue-next'
 
   const { apiRequest, isSaving, apiUrl } = useApi()
   const { selectedPeriod } = usePeriod()

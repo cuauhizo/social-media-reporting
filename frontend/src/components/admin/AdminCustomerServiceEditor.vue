@@ -3,11 +3,13 @@
     <section class="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm mb-10">
       <div class="flex flex-col justify-between items-center mb-6 md:flex-row">
         <h2 class="text-2xl font-black mb-4 text-pluxeeBlue uppercase flex items-center">
-          <span class="mr-3">📊</span>
+          <ChartPie class="w-7 h-7 mr-3 text-pluxeeBlue" stroke-width="2.5" />
           Métricas de Customer Service
         </h2>
-        <button @click="guardarMetricas" :disabled="isSaving" class="bg-pluxeeBlue text-white px-6 py-2 rounded-xl font-bold hover:scale-105 transition active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
-          {{ isSaving ? 'Guardando...' : '💾 Guardar Métricas' }}
+        <button @click="guardarMetricas" :disabled="isSaving" class="bg-pluxeeBlue text-white px-6 py-2 rounded-xl font-bold hover:scale-105 transition active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+          <Save class="w-5 h-5" />
+          <span v-if="isSaving">Guardando...</span>
+          <span v-else>Guardar Métricas</span>
         </button>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -28,7 +30,7 @@
 
     <section class="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm mb-10">
       <h2 class="text-2xl font-black text-orange-500 uppercase mb-6 flex items-center">
-        <span class="mr-3">🎧</span>
+        <Headset class="w-7 h-7 mr-3 text-orange-500" stroke-width="2.5" />
         Editar Casos de Atención (Tipos)
       </h2>
 
@@ -51,7 +53,10 @@
               @change="actualizarCasoCS(item)"
               :disabled="isSaving" />
           </div>
-          <button @click="borrarCasoCS(item.id)" class="text-red-400 hover:text-red-600 ml-4 opacity-0 group-hover:opacity-100 transition">🗑️ Borrar</button>
+          <button @click="borrarCasoCS(item.id)" class="text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 ml-4 transition flex items-center gap-1">
+            <Trash2 class="w-5 h-5" />
+            Borrar
+          </button>
         </div>
         <div v-if="listaCasosCS.length === 0" class="text-center text-gray-400 py-4 italic">No hay casos registrados.</div>
       </div>
@@ -65,6 +70,7 @@
   import { useToast } from '@/composables/useToast'
   import { usePeriod } from '@/composables/usePeriod'
   import { useModal } from '@/composables/useModal'
+  import { ChartPie, Save, Headset, Trash2 } from 'lucide-vue-next'
 
   const { apiRequest, isSaving } = useApi()
   const { showModal } = useModal()

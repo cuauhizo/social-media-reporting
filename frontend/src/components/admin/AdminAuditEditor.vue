@@ -2,7 +2,7 @@
   <section class="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm mb-10">
     <div class="flex flex-col md:flex-row justify-between items-center mb-6 border-b border-gray-100 pb-4">
       <h2 class="text-2xl font-black text-gray-800 uppercase flex items-center">
-        <span class="mr-3">🕵️‍♂️</span>
+        <ScanSearch class="w-7 h-7 mr-3 text-gray-800" stroke-width="2.5" />
         Auditoría de Métricas Globales
       </h2>
       <div class="flex gap-2 mt-4 md:mt-0 bg-gray-100 p-1 rounded-lg">
@@ -134,9 +134,10 @@
     </div>
 
     <div v-if="datosCargados" class="mt-6 flex justify-end">
-      <button @click="guardarCambios" :disabled="isSaving" class="bg-gray-800 text-white px-8 py-2 rounded-lg font-bold hover:bg-black transition disabled:opacity-50 flex items-center">
-        <span class="mr-2">💾</span>
-        {{ isSaving ? 'Guardando...' : 'Guardar Auditoría' }}
+      <button @click="guardarCambios" :disabled="isSaving" class="bg-gray-800 text-white px-8 py-2 rounded-xl font-bold hover:scale-105 transition active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+        <Save class="w-5 h-5" />
+        <span v-if="isSaving">Guardando...</span>
+        <span v-else>Guardar Auditoría</span>
       </button>
     </div>
   </section>
@@ -147,6 +148,7 @@
   import { useApi } from '@/composables/useApi'
   import { usePeriod } from '@/composables/usePeriod'
   import { useToast } from '@/composables/useToast'
+  import { ScanSearch, Save } from 'lucide-vue-next'
 
   const { apiRequest, isSaving } = useApi()
   const { selectedPeriod } = usePeriod()

@@ -19,7 +19,8 @@
             <input v-model="password" :type="showPassword ? 'text' : 'password'" required class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 pr-12 focus:border-pluxeeBlue outline-none transition font-bold" />
 
             <button type="button" @click="showPassword = !showPassword" class="absolute inset-y-0 right-0 px-4 flex items-center text-xl text-gray-400 hover:text-pluxeeBlue transition-colors focus:outline-none">
-              {{ showPassword ? '🙈' : '👁️' }}
+              <span v-if="showPassword"><EyeOff class="w-5 h-5" /></span>
+              <span v-else><Eye class="w-5 h-5" /></span>
             </button>
           </div>
         </div>
@@ -39,6 +40,7 @@
 <script setup>
   import { ref } from 'vue'
   import { useRouter } from 'vue-router'
+  import { Eye, EyeOff } from 'lucide-vue-next'
 
   const username = ref('')
   const password = ref('')

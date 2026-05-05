@@ -2,11 +2,14 @@
   <section class="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm mb-10">
     <div class="flex flex-col justify-between items-center mb-6 md:flex-row">
       <h2 class="text-2xl font-black mb-4 text-pluxeeBlue uppercase flex items-center">
-        <span class="mr-3">📌</span>
+        <Pin class="w-7 h-7 mr-3 text-pluxeeBlue" stroke-width="2.5" />
         Editar Conclusión Final
       </h2>
-      <button @click="guardarConclusion" :disabled="isSaving" class="bg-pluxeeBlue text-white px-6 py-2 rounded-xl font-bold hover:scale-105 transition active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
-        {{ isSaving ? 'Guardando...' : '💾 Guardar Conclusión' }}
+      <button @click="guardarConclusion" :disabled="isSaving" class="bg-pluxeeBlue text-white px-6 py-2 rounded-xl font-bold hover:scale-105 transition active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+        <!-- {{ isSaving ? 'Guardando...' : '💾 Guardar Conclusión' }} -->
+        <Save class="w-5 h-5" />
+        <span v-if="isSaving">Guardando...</span>
+        <span v-else>Guardar Conclusión</span>
       </button>
     </div>
     <textarea
@@ -23,6 +26,7 @@
   import { useApi } from '@/composables/useApi'
   import { useToast } from '@/composables/useToast'
   import { usePeriod } from '@/composables/usePeriod'
+  import { Pin, Save } from 'lucide-vue-next'
 
   const { apiRequest, isSaving } = useApi()
   const { showToast } = useToast()

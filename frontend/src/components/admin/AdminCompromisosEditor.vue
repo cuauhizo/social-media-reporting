@@ -1,7 +1,7 @@
 <template>
   <section class="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm mb-10">
     <h2 class="text-2xl font-black text-pluxeePink uppercase mb-6 flex items-center">
-      <span class="mr-3">🚀</span>
+      <Handshake class="w-7 h-7 mr-3 text-pluxeePink" stroke-width="2.5" />
       Editar Compromisos (Next Steps)
     </h2>
 
@@ -23,7 +23,10 @@
         <div class="flex-1">
           <input v-model="item.compromiso" class="bg-transparent w-full font-medium text-gray-700 outline-none focus:text-pluxeeGreen" @change="actualizarCompromiso(item)" :disabled="isSaving" />
         </div>
-        <button @click="borrarCompromiso(item.id)" class="text-red-400 hover:text-red-600 ml-4 opacity-0 group-hover:opacity-100 transition">🗑️ Borrar</button>
+        <button @click="borrarCompromiso(item.id)" class="text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 ml-4 transition flex items-center gap-1">
+          <Trash2 class="w-5 h-5" />
+          Borrar
+        </button>
       </div>
 
       <div v-if="listaCompromisos.length === 0" class="text-center text-gray-400 py-4 italic">No hay compromisos definidos aún.</div>
@@ -37,6 +40,7 @@
   import { useToast } from '@/composables/useToast'
   import { usePeriod } from '@/composables/usePeriod'
   import { useModal } from '@/composables/useModal'
+  import { Handshake, Trash2 } from 'lucide-vue-next'
 
   const { apiRequest, isSaving } = useApi()
   const { showModal } = useModal()
