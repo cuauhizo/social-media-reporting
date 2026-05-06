@@ -26,7 +26,7 @@
           <div v-for="(post, index) in topPosts.slice(0, 3)" :key="post.id" class="flex flex-col sm:flex-row gap-4 items-center bg-white p-3 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
             <span class="font-black text-xl text-gray-300 w-4">{{ index + 1 }}</span>
 
-            <img :src="getSafeImageUrl(post.img)" @error="$event.target.src = 'https://placehold.co/150x150/e5e7eb/9ca3af?text=No+Img'" class="w-16 h-16 object-cover rounded-md bg-gray-200 shadow-sm" />
+            <img :src="getSafeImageUrl(post.img)" @error="$event.target.src = 'https://placehold.co/150x150/e5e7eb/9ca3af?text=No+Img'" class="!w-16 !h-16 !object-cover !object-center rounded-md bg-gray-200 shadow-sm" />
 
             <div class="flex-1 text-xs overflow-hidden">
               <div class="flex justify-between items-center mb-1.5 gap-2">

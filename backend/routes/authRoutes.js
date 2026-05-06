@@ -4,7 +4,7 @@ const router = express.Router()
 const jwt = require('jsonwebtoken')
 const { saveTokens } = require('../utils/db')
 
-router.get('/login2', (req, res) => {
+router.get('/login', (req, res) => {
   const redirectUri = `${process.env.BACKEND_URL}/api/auth/callback`
   const authUrl = `https://platform.hootsuite.com/oauth2/auth?response_type=code&client_id=${process.env.HOOTSUITE_CLIENT_ID}&scope=offline&redirect_uri=${redirectUri}`
   res.redirect(authUrl)

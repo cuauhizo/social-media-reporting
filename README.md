@@ -29,7 +29,7 @@ npm run dev # Inicia en puerto 5173
 
 ## 🔑 Autorización Hootsuite (Primera vez)
 
-1. Entra a `http://localhost:3000/api/auth/login2`
+1. Entra a `http://localhost:3000/api/auth/login`
 2. Autoriza la aplicación
 3. Los tokens se guardan automáticamente en MySQL
 4. Listo — El sistema ya puede leer datos de Hootsuite
