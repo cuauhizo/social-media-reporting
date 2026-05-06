@@ -12,8 +12,10 @@
                 <p class="text-gray-500 text-sm font-bold">Followers</p>
                 <div class="flex items-baseline gap-3 mt-1 justify-start">
                   <h2 class="text-3xl font-black text-pluxeeBlue">{{ formatNumber(data.kpis.total_followers) }}</h2>
-                  <span v-if="data.kpis.followers_diff" class="flex items-center rounded-full py-0.5 px-2 text-sm font-bold mb-0.5" :class="data.kpis.followers_diff.increase ? 'bg-green-50 text-green-500' : 'bg-red-50 text-red-500'">
-                    {{ data.kpis.followers_diff.increase ? '↑' : '↓' }} {{ data.kpis.followers_diff.pct }}
+                  <span v-if="data.kpis.followers_diff" class="flex items-center rounded-full py-0.5 px-2 text-xs font-bold mb-0.5 gap-1" :class="data.kpis.followers_diff.increase ? 'bg-green-50 text-green-500' : 'bg-red-50 text-red-500'">
+                    <TrendingUp v-if="data.kpis.followers_diff.increase" class="w-4 h-4" />
+                    <TrendingDown v-else class="w-4 h-4" />
+                    {{ data.kpis.followers_diff.pct }}
                   </span>
                 </div>
               </div>
@@ -53,8 +55,13 @@
                 <p class="text-gray-500 text-sm font-bold">Impressions</p>
                 <div class="flex items-baseline gap-3 mt-1 justify-start">
                   <h2 class="text-3xl font-black text-pluxeeBlue">{{ formatNumber(data.kpis.post_impressions) }}</h2>
-                  <span v-if="data.kpis.post_impressions_diff" class="flex items-center rounded-full py-0.5 px-2 text-sm font-bold mb-0.5" :class="data.kpis.post_impressions_diff.increase ? 'bg-green-50 text-green-500' : 'bg-red-50 text-red-500'">
-                    {{ data.kpis.post_impressions_diff.increase ? '↑' : '↓' }} {{ data.kpis.post_impressions_diff.pct }}
+                  <span
+                    v-if="data.kpis.post_impressions_diff"
+                    class="flex items-center rounded-full py-0.5 px-2 text-xs font-bold mb-0.5 gap-1"
+                    :class="data.kpis.post_impressions_diff.increase ? 'bg-green-50 text-green-500' : 'bg-red-50 text-red-500'">
+                    <TrendingUp v-if="data.kpis.post_impressions_diff.increase" class="w-4 h-4" />
+                    <TrendingDown v-else class="w-4 h-4" />
+                    {{ data.kpis.post_impressions_diff.pct }}
                   </span>
                 </div>
               </div>
@@ -230,6 +237,7 @@
   import SentimentChart from './SentimentChart.vue'
   import TrendsInstagramSection from '@/components/TrendsInstagramSection.vue'
   import TagsTable from './TagsTable.vue'
+  import { TrendingDown, TrendingUp } from 'lucide-vue-next'
   import ReachChart from './ReachChart.vue'
   import FollowerGrowthChart from '@/components/FollowerGrowthChart.vue'
 
