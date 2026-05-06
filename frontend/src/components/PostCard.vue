@@ -1,9 +1,8 @@
 <template>
   <div class="flex flex-col w-full max-w-64 shadow-lg rounded-lg overflow-hidden mx-auto">
-    <div class="bg-pluxeeBlue p-4 flex justify-center items-center h-36">
-      <img :src="getImageUrl" class="!w-full !h-full !object-cover !object-center" />
+    <div class="bg-pluxeeBlue p-2 h-36">
+      <div class="w-full h-full bg-cover bg-center bg-no-repeat rounded-sm" :style="{ backgroundImage: `url(${getImageUrl})` }"></div>
     </div>
-    <!-- <pre>{{ post }}</pre> -->
     <div class="bg-pluxeeYellow p-3 text-pluxeeBlue font-sans">
       <div class="font-bold text-xs mb-1 uppercase tracking-widest text-center">
         {{ post.type }}

@@ -59,33 +59,9 @@
     loadReport()
   })
 
-  const exportToPDF_old = () => {
-    isExporting.value = true
-    const element = document.getElementById('report-container')
-    const opt = {
-      margin: [0, 0],
-      filename: `Reporte_Pluxee_${reportData.value?.metadata?.period || 'Mensual'}.pdf`,
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true, letterRendering: true, windowWidth: 1280 },
-      jsPDF: { unit: 'mm', format: [339, 190], orientation: 'landscape' },
-      pagebreak: { mode: ['css'], avoid: ['.no-break', 'tr'] },
-    }
-
-    setTimeout(() => {
-      html2pdf()
-        .set(opt)
-        .from(element)
-        .save()
-        .then(() => {
-          isExporting.value = false
-        })
-    }, 600)
-  }
-
   const exportToPDF = () => {
     isExporting.value = true
 
-    // 🚀 TRUCO 1: Regresar hasta arriba de la página para que el lienzo no empiece movido
     window.scrollTo(0, 0)
 
     setTimeout(() => {
@@ -94,9 +70,9 @@
       const opt = {
         margin: 0,
         filename: `Reporte_Pluxee_${reportData.value?.metadata?.period || 'Mensual'}.pdf`,
-        image: { type: 'jpeg', quality: 0.95 }, // 0.95 aligera muchísimo el peso del PDF final
+        image: { type: 'jpeg', quality: 0.95 },
         html2canvas: {
-          scale: 2, // 🚀 TRUCO 2: Escala en 1. Obligatorio para reportes de más de 20 páginas para que la RAM no colapse.
+          scale: 2,
           useCORS: true,
           letterRendering: true,
           windowWidth: 1280,
@@ -104,12 +80,12 @@
         },
         jsPDF: {
           unit: 'px',
-          format: [1280, 720], // Formato exacto 16:9
+          format: [1280, 720],
           orientation: 'landscape',
           hotfixes: ['px_scaling'],
         },
         pagebreak: {
-          mode: 'legacy', // 🚀 Cambiamos a solo legacy para que ignore reglas CSS antiguas y solo obedezca la siguiente línea:
+          mode: 'legacy',
           before: '.pdf-page:not(:first-child)',
         },
       }
@@ -121,7 +97,7 @@
         .then(() => {
           isExporting.value = false
         })
-    }, 800) // Pausa para que Vue acomode todo antes de la foto
+    }, 800)
   }
 </script>
 
@@ -167,55 +143,20 @@
   </div>
 </template>
 
-<!-- <style>
-  .pdf-page {
-    min-height: 100vh;
-    width: 100%;
-    page-break-after: always;
-    break-after: avoid;
-  }
-  .export-mode .pdf-page {
-    width: 1280px !important;
-    height: 720px !important;
-    min-height: auto !important;
-    margin: 0 auto;
-    overflow: hidden;
-  }
-  .no-break {
-    page-break-inside: avoid;
-    break-inside: avoid;
-  }
-  .force-new-page {
-    page-break-before: always !important;
-    break-before: page !important;
-  }
-  .keep-with-next {
-    page-break-after: avoid !important;
-    break-after: avoid !important;
-  }
-  @media print {
-    .print\:hidden {
-      display: none !important;
-    }
-  }
-</style> -->
-
 <style>
   .pdf-page {
     min-height: 100vh;
     width: 100%;
   }
 
-  /* 🚀 Anclamos el contenedor general y le matamos cualquier espaciado interno */
   .export-mode {
     width: 1280px !important;
     margin: 0 !important;
     padding: 0 !important;
     background-color: #f9fafb;
-    gap: 0 !important; /* Por si el contenedor padre es flex/grid */
+    gap: 0 !important;
   }
 
-  /* 🚀 TRUCO DE MAGIA: Le bajamos 5px al alto para evitar el desbordamiento fantasma */
   .export-mode .pdf-page {
     width: 1280px !important;
     height: 719px !important;
@@ -224,21 +165,13 @@
     margin: 0 !important;
     padding: 0 !important;
     overflow: hidden !important;
-    box-sizing: border-box !important; /* Evita que los bordes sumen tamaño */
+    box-sizing: border-box !important;
   }
 
   /* 🚀 Quitamos sombras durante la exportación */
   .export-mode * {
     box-shadow: none !important;
   }
-
-  /* 🚀 Evita que las imágenes se aplasten en las tarjetas */
-  /* .pdf-page img {
-    object-fit: cover !important;
-    object-position: center !important;
-    width: 100% !important;
-    height: 100% !important;
-  } */
 
   .no-break {
     page-break-inside: avoid;

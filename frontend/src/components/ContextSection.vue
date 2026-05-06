@@ -1,7 +1,7 @@
 <template>
   <section class="pdf-page flex flex-col justify-center py-60 bg-white">
     <div class="max-w-5xl mx-auto p-4 flex flex-col md:flex-row gap-12 items-center w-full">
-      <img src="/x.svg" class="w-80" alt="pluxee" />
+      <img src="/x.png" class="w-80" alt="pluxee" />
       <div class="flex-1">
         <h2 class="text-4xl font-black text-pluxeeBlue mb-6 uppercase tracking-wide keep-with-next">
           {{ data.title || 'Contexto Actual (RRSS)' }}

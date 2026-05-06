@@ -135,8 +135,8 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-4">
           <div v-for="post in grupoPosts" :key="post.id" class="flex flex-col w-full max-w-64 shadow-md rounded-lg overflow-hidden bg-white mx-auto">
-            <div class="bg-pluxeeBlue h-40 flex justify-center items-center p-2">
-              <img :src="getSafeImageUrl(post.img)" class="!w-full !h-full !object-cover !object-center" />
+            <div class="bg-pluxeeBlue h-40 p-2">
+              <div class="w-full h-full bg-cover bg-center bg-no-repeat rounded-sm" :style="{ backgroundImage: `url(${getSafeImageUrl(post.img)})` }"></div>
             </div>
 
             <div class="bg-pluxeeYellow p-3 text-pluxeeBlue text-sm flex-1 flex flex-col justify-between">
@@ -184,11 +184,13 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-8">
           <div v-for="story in grupoStories" :key="story.id" class="flex flex-col w-full max-w-64 shadow-sm border border-orange-100 rounded-2xl overflow-hidden hover:shadow-md transition-shadow bg-white mx-auto">
-            <div class="bg-gray-100 h-44 flex justify-center items-center relative overflow-hidden p-1">
+            <div class="bg-gray-100 h-44 relative p-1">
               <div class="w-full h-full rounded-xl p-1 bg-gradient-to-tr from-yellow-400 via-red-500 to-fuchsia-600">
-                <img :src="getSafeImageUrl(story.img)" @error="$event.target.src = 'https://placehold.co/300x400/17ccf9/ffffff?text=Story+Sin+Imagen'" class="!h-full !w-full !object-cover !object-center rounded-lg border-2 border-white" />
+                <div
+                  class="w-full h-full bg-cover bg-center bg-no-repeat rounded-lg border-2 border-white"
+                  :style="{ backgroundImage: `url(${getSafeImageUrl(story.img)}), url('https://placehold.co/300x400/17ccf9/ffffff?text=Story+Sin+Imagen')` }"></div>
               </div>
-              <span class="absolute top-4 right-4 bg-black/70 text-white text-xs font-bold px-2 py-1 rounded-md backdrop-blur-sm">
+              <span class="absolute top-3 right-3 bg-gray-900 text-white text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-md z-10 border border-gray-700/50 inline-flex items-center justify-center">
                 {{ story.type }}
               </span>
             </div>
