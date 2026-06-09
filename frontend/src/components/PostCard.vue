@@ -1,5 +1,6 @@
 <template>
   <div class="flex flex-col w-full max-w-64 shadow-lg rounded-lg overflow-hidden mx-auto">
+    <!-- <pre>{{ post }}</pre> -->
     <div class="bg-pluxeeBlue p-2 h-36">
       <div class="w-full h-full bg-cover bg-center bg-no-repeat rounded-sm" :style="{ backgroundImage: `url(${getImageUrl})` }"></div>
     </div>
@@ -12,17 +13,17 @@
           <strong>Visualizaciones:</strong>
           {{ formatNumber(post.views) }}
         </p>
-        <p>
+        <!-- <p>
           <strong>Alcance:</strong>
-          {{ post.reach }}
-        </p>
+          {{ formatNumber(post.reach) }}
+        </p> -->
         <p>
           <strong>Interactions:</strong>
-          {{ post.interactions }}
+          {{ formatNumber(post.interactions) }}
         </p>
         <p>
           <strong>Shared o saved:</strong>
-          {{ post.saved }}
+          {{ formatNumber(post.shares + post.saved) }}
         </p>
         <p class="text-end">
           <a :href="post.postPermalink" target="_blank"><strong>Ver en línea</strong></a>
