@@ -131,10 +131,10 @@
   <template v-if="data.topPosts && data.topPosts.length > 0">
     <section v-for="(grupoPosts, index) in agruparPorFilas(data.topPosts, 10)" :key="'pagina-post-ig-' + index" class="pdf-page flex flex-col justify-start bg-gray-50">
       <div class="max-w-7xl mx-auto w-full p-4">
-        <!-- <div v-if="index === 0"> -->
-        <h3 class="text-2xl font-black text-pluxeeBlue mb-4 uppercase border-b-2 border-gray-100 pb-4 keep-with-next">Top Posts (Instagram)</h3>
-        <!-- </div>
-        <div v-else class="mt-12"></div> -->
+        <div v-if="index === 0">
+          <h3 class="text-2xl font-black text-pluxeeBlue mb-4 uppercase border-b-2 border-gray-100 pb-4 keep-with-next">Top Posts (Instagram)</h3>
+        </div>
+        <div v-else class="mt-12"></div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-4">
           <div v-for="post in grupoPosts" :key="post.id" class="flex flex-col w-full max-w-64 shadow-md rounded-lg overflow-hidden bg-white mx-auto">
@@ -180,10 +180,10 @@
   <template v-if="data.topStories && data.topStories.length > 0">
     <section v-for="(grupoStories, index) in agruparPorFilas(data.topStories, 10)" :key="'pagina-story-' + index" class="pdf-page flex flex-col justify-start bg-white">
       <div class="max-w-7xl mx-auto w-full p-4">
-        <!-- <div v-if="index === 0" class="no-break"> -->
-        <h3 class="text-2xl font-black text-pluxeeBlue mb-4 uppercase border-b-2 border-gray-100 pb-4 keep-with-next">Top Stories</h3>
-        <!-- </div>
-        <div v-else class="mt-12"></div> -->
+        <div v-if="index === 0" class="no-break">
+          <h3 class="text-2xl font-black text-pluxeeBlue mb-4 uppercase border-b-2 border-gray-100 pb-4 keep-with-next">Top Stories</h3>
+        </div>
+        <div v-else class="mt-12"></div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-8">
           <div v-for="story in grupoStories" :key="story.id" class="flex flex-col w-full max-w-64 shadow-sm border border-orange-100 rounded-2xl overflow-hidden hover:shadow-md transition-shadow bg-white mx-auto">
