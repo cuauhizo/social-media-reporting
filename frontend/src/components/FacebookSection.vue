@@ -31,7 +31,7 @@
               <KpiCard title="Response time" :value="data.kpis.response_time" />
               <KpiCard title="Page organic reach" :value="formatNumber(data.kpis.page_organic_reach)" />
               <KpiCard title="Views from non-followers" :value="formatNumber(data.kpis.page_no_followers_views)" />
-              <KpiCard title="Views from followers" :value="formatNumber(data.kpis.page_followers_views)" />
+              <!-- <KpiCard title="Views from followers" :value="formatNumber(data.kpis.page_followers_views)" /> -->
               <KpiCard title="New followers" :value="formatNumber(data.kpis.new_followers)" :diff="data.kpis.new_followers_diff" />
             </div>
           </div>
