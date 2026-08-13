@@ -23,7 +23,7 @@
                 </div>
               </div>
               <div class="bg-gray-50 p-6 rounded-xl border-l-4 border-[#e1306c] shadow-sm">
-                <p class="text-gray-500 text-sm font-bold">Page Engagement</p>
+                <p class="text-gray-500 text-sm font-bold">Post Engagement Rate</p>
                 <h2 class="text-3xl font-black text-pluxeeBlue">{{ data.kpis.page_engagement_rate }}</h2>
               </div>
               <div class="bg-gray-50 p-6 rounded-xl border-l-4 border-[#f56040] shadow-sm md:col-span-2 flex justify-between items-center">
